@@ -1285,7 +1285,7 @@
     }
 
     function makeDmSecret(a, b, userSecret) {
-      return `${[a, b].sort().join("::")}::${userSecret}`;
+      return `kalah_dm_room::${[a, b].sort().join("::")}`;
     }
 
     function isOnline(lastSeen) {
