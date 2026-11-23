@@ -16,7 +16,7 @@
   --red:#e11d48;
   --red-dark:#9f1239;
   --red-bright:#ff335f;
-  --red-soft:rgba(225,29,72,0.14);
+  --red-soft:rgba(225,29,72,0.15);
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 body{
@@ -29,440 +29,65 @@ body{
     radial-gradient(circle at 15% 85%,rgba(159,18,57,0.14),transparent 45%),
     var(--wa-bg);
   color:var(--wa-text);
-  padding:14px;
+  padding:12px;
 }
 .app{
   width:100%;
-  max-width:420px;
+  max-width:435px;
   background:var(--wa-panel);
   border:1px solid var(--wa-border);
   border-radius:22px;
   overflow:hidden;
-  box-shadow:0 24px 64px rgba(0,0,0,0.72),0 0 0 1px rgba(225,29,72,0.08);
+  box-shadow:0 24px 64px rgba(0,0,0,0.75),0 0 0 1px rgba(225,29,72,0.1);
+  position:relative;
 }
 .topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:13px 16px;
+  padding:12px 14px;
   background:var(--wa-elev);
   border-bottom:1px solid var(--wa-border);
-}
-.brand{
-  display:flex;
-  align-items:center;
   gap:8px;
-  font-size:13px;
-  font-weight:700;
-  letter-spacing:0.5px;
-  color:var(--wa-text);
 }
+.brand{display:flex;align-items:center;gap:8px;min-width:0}
+.brand-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-tag{
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:1.1px;
-  padding:2px 7px;
-  border-radius:999px;
-  background:var(--red-soft);
-  border:1px solid rgba(255,51,95,0.4);
-  color:var(--red-bright);
+  font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 7px;border-radius:999px;
+  background:var(--red-soft);border:1px solid rgba(255,51,95,0.42);color:var(--red-bright);
 }
-.actions{display:flex;gap:7px}
+.actions{display:flex;gap:6px;flex-shrink:0}
 .btn-top{
-  border:1px solid var(--wa-border);
-  background:var(--wa-elev-2);
-  color:var(--wa-text);
-  padding:5px 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.15s ease;
+  border:1px solid var(--wa-border);background:var(--wa-elev-2);color:var(--wa-text);
+  padding:5px 9px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;
 }
 .btn-top:hover{border-color:rgba(255,51,95,0.5)}
-.btn-panic{
-  border-color:rgba(255,51,95,0.45);
-  background:var(--red-soft);
-  color:#ff7590;
-}
+.btn-panic{border-color:rgba(255,51,95,0.45);background:var(--red-soft);color:#ff7590}
 
-.view{display:none;padding:16px}
+.view{display:none;padding:15px}
 .view.on{display:block}
 
 /* Calculator */
 .calc-screen{
-  background:var(--wa-bg);
-  border:1px solid var(--wa-border);
-  border-radius:16px;
-  padding:16px;
-  text-align:right;
-  margin-bottom:14px;
-  min-height:98px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
+  background:var(--wa-bg);border:1px solid var(--wa-border);border-radius:16px;
+  padding:16px;text-align:right;margin-bottom:14px;min-height:98px;
+  display:flex;flex-direction:column;justify-content:space-between;
 }
 .calc-hist{font-size:12px;color:var(--wa-muted);min-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.calc-out{font-size:35px;font-weight:700;letter-spacing:-0.5px;color:var(--wa-text);margin-top:4px;word-break:break-all}
+.calc-out{font-size:35px;font-weight:700;letter-spacing:-0.5px;margin-top:4px;word-break:break-all}
 .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .key{
-  height:56px;
-  border-radius:14px;
-  border:1px solid var(--wa-border);
-  background:var(--wa-elev);
-  color:var(--wa-text);
-  font-size:18px;
-  font-weight:600;
-  cursor:pointer;
-  transition:transform 0.08s ease,background 0.15s ease,border-color 0.15s ease;
+  height:56px;border-radius:14px;border:1px solid var(--wa-border);background:var(--wa-elev);
+  color:var(--wa-text);font-size:18px;font-weight:600;cursor:pointer;transition:transform .08s,background .15s;
 }
-.key:hover{background:var(--wa-elev-2)}
-.key:active{transform:scale(0.95)}
+.key:active{transform:scale(.95)}
 .key.fn{background:var(--red-soft);border-color:rgba(225,29,72,0.32);color:#ff859d}
 .key.op{color:#ff5c7c;background:#18242c}
-.key.eq{
-  background:linear-gradient(135deg,var(--red),var(--red-dark));
-  border:none;
-  color:#fff;
-  box-shadow:0 8px 22px rgba(225,29,72,0.35);
-}
+.key.eq{background:linear-gradient(135deg,var(--red),var(--red-dark));border:none;color:#fff;box-shadow:0 8px 22px rgba(225,29,72,0.35)}
 
 /* Auth Gate */
 .gate-banner{
-  background:linear-gradient(135deg,rgba(225,29,72,0.18),rgba(32,44,51,0.7));
-  border:1px solid rgba(255,51,95,0.32);
-  border-radius:14px;
-  padding:12px 14px;
-  margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(225,29,72,0.18),rgba(32,44,51,0.75));
+  border:1px solid rgba(255,51,95,0.35);border-radius:14px;padding:12px 14px;margin-bottom:12px;
 }
-.gate-banner h3{font-size:14px;font-weight:800;letter-spacing:0.8px;color:#fff}
-.gate-banner p{font-size:11px;color:var(--wa-muted);margin-top:3px}
-
-.field{margin-bottom:12px}
-.field label{
-  display:block;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.7px;
-  color:var(--wa-muted);
-  margin-bottom:5px;
-  text-transform:uppercase;
-}
-.field input,.field select{
-  width:100%;
-  padding:11px 13px;
-  border-radius:12px;
-  border:1px solid var(--wa-border);
-  background:var(--wa-bg);
-  color:var(--wa-text);
-  font-size:13px;
-  outline:none;
-  transition:border-color 0.15s ease;
-}
-.field input:focus,.field select:focus{border-color:var(--red-bright)}
-
-.btn-red{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
-  color:#fff;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:0.7px;
-  cursor:pointer;
-  box-shadow:0 8px 22px rgba(225,29,72,0.3);
-}
-
-/* Chat Room */
-.room-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  padding:9px 11px;
-  border-radius:12px;
-  background:var(--wa-elev);
-  border:1px solid var(--wa-border);
-  margin-bottom:10px;
-  font-size:11px;
-}
-.room-info{font-weight:700;color:var(--wa-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.room-info span{color:var(--red-bright)}
-.room-tools{display:flex;gap:6px;align-items:center}
-.ttl-sel{
-  background:var(--wa-bg);
-  border:1px solid var(--wa-border);
-  color:var(--wa-text);
-  border-radius:8px;
-  padding:4px 7px;
-  font-size:11px;
-  outline:none;
-}
-.btn-nuke{
-  border:1px solid rgba(255,51,95,0.45);
-  background:linear-gradient(135deg,rgba(225,29,72,0.28),rgba(159,18,57,0.25));
-  color:#ff859d;
-  border-radius:8px;
-  padding:4px 9px;
-  font-size:11px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-.chat-feed{
-  height:325px;
-  overflow-y:auto;
-  background:
-    radial-gradient(circle at 50% 50%,rgba(225,29,72,0.04),transparent 65%),
-    var(--wa-bg);
-  border:1px solid var(--wa-border);
-  border-radius:14px;
-  padding:11px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-bottom:10px;
-}
-.msg{
-  max-width:86%;
-  background:var(--wa-elev);
-  border:1px solid var(--wa-border);
-  border-radius:12px;
-  padding:8px 11px;
-  font-size:13px;
-  line-height:1.4;
-  align-self:flex-start;
-}
-.msg.mine{
-  align-self:flex-end;
-  background:linear-gradient(135deg,#3b0d19,#231118);
-  border-color:rgba(255,51,95,0.42);
-}
-.msg-head{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  font-size:10px;
-  color:var(--wa-muted);
-  margin-bottom:3px;
-}
-.msg-call{color:#ff6b88;font-weight:800}
-.msg.mine .msg-call{color:#ffa3b5}
-
-.composer{display:flex;gap:8px}
-.composer input{
-  flex:1;
-  padding:11px 13px;
-  border-radius:999px;
-  border:1px solid var(--wa-border);
-  background:var(--wa-elev);
-  color:var(--wa-text);
-  font-size:13px;
-  outline:none;
-}
-.composer input:focus{border-color:var(--red-bright)}
-.btn-send{
-  width:44px;
-  height:44px;
-  border:none;
-  border-radius:50%;
-  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
-  color:#fff;
-  font-size:13px;
-  font-weight:800;
-  cursor:pointer;
-  flex-shrink:0;
-  box-shadow:0 6px 18px rgba(225,29,72,0.35);
-}
-.status{font-size:11px;color:var(--wa-muted);margin-top:7px;min-height:14px}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <span id="topTitle">Calculator</span>
-      <span class="brand-tag" id="topTag" style="display:none">KALAH</span>
-    </div>
-    <div class="actions">
-      <button type="button" class="btn-top" id="lockBtn">LOCK</button>
-      <button type="button" class="btn-top btn-panic" id="panicBtn">PANIC</button>
-    </div>
-  </div>
-
-  <!-- Decoy Calculator -->
-  <section class="view on" id="calcView">
-    <div class="calc-screen">
-      <div class="calc-hist" id="calcHist"></div>
-      <div class="calc-out" id="calcOut">0</div>
-    </div>
-    <div class="calc-grid" id="calcGrid"></div>
-  </section>
-
-  <!-- KALAH Node Gate -->
-  <section class="view" id="authView">
-    <div class="gate-banner">
-      <h3>KALAH // SECURE NODE</h3>
-      <p>End-to-end encrypted room (AES-256-GCM)</p>
-    </div>
-    <div class="field">
-      <label>Callsign</label>
-      <input id="csInput" maxlength="24" placeholder="Enter your callsign">
-    </div>
-    <div class="field">
-      <label>Room ID</label>
-      <input id="rmInput" maxlength="40" placeholder="Enter room ID">
-    </div>
-    <div class="field">
-      <label>Shared Passcode</label>
-      <input id="psInput" type="password" placeholder="Enter secret passcode">
-    </div>
-    <button type="button" class="btn-red" id="joinBtn">ENTER KALAH NODE</button>
-    <div class="status" id="authStatus">Local browser encryption active.</div>
-  </section>
-
-  <!-- KALAH Encrypted Chat -->
-  <section class="view" id="chatView">
-    <div class="room-bar">
-      <div class="room-info" id="roomTitle">KALAH <span>// ROOM</span></div>
-      <div class="room-tools">
-        <select class="ttl-sel" id="ttlSelect">
-          <option value="0">TTL Off</option>
-          <option value="30">30s</option>
-          <option value="120" selected>2m</option>
-          <option value="600">10m</option>
-        </select>
-        <button type="button" class="btn-nuke" id="nukeBtn">NUKE</button>
-      </div>
-    </div>
-    <div class="chat-feed" id="chatFeed"></div>
-    <form class="composer" id="msgForm">
-      <input id="msgInput" autocomplete="off" placeholder="Message KALAH node..." required>
-      <button class="btn-send" type="submit">➤</button>
-    </form>
-    <div class="status" id="chatStatus"></div>
-  </section>
-</div>
-
-<script>
-const V={calc:calcView,auth:authView,chat:chatView};
-window.goView=n=>{
-  Object.values(V).forEach(x=>x.classList.remove("on"));
-  V[n].classList.add("on");
-  if(n==="calc"){
-    topTitle.textContent="Calculator";
-    topTag.style.display="none";
-  }else if(n==="auth"){
-    topTitle.textContent="KALAH Node";
-    topTag.style.display="inline-block";
-  }else{
-    topTitle.textContent="KALAH Chat";
-    topTag.style.display="inline-block";
-  }
-};
-lockBtn.onclick=()=>window.goView("calc");
-panicBtn.onclick=()=>location.replace("https://www.google.com");
-
-let ex="",seq="";
-const ks=["C","(",")","/","7","8","9","*","4","5","6","-","1","2","3","+",".","0","⌫","="];
-ks.forEach(k=>{
-  const b=document.createElement("button");b.type="button";b.textContent=k;b.className="key";
-  if(["C","(",")","⌫"].includes(k))b.classList.add("fn");
-  if(["/","*","-","+"].includes(k))b.classList.add("op");
-  if(k==="=")b.classList.add("eq");
-  b.onclick=()=>tap(k);calcGrid.appendChild(b);
-});
-function tap(k){
-  if(k==="C"){ex="";seq="";calcHist.textContent="";calcOut.textContent="0";return}
-  if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);calcOut.textContent=ex||"0";return}
-  if(k==="="){
-    const s=(seq+"=").replace(/\s+/g,"");
-    const cur=ex.replace(/\s+/g,"");
-    if(s.endsWith("1.618=")||s.endsWith("1618=")||cur==="1.618"||cur==="1618"){
-      ex="";seq="";calcHist.textContent="";calcOut.textContent="0";
-      if(typeof window.goView==="function")window.goView("auth");
-      return;
-    }
-    try{
-      if(!ex||!/^[0-9+\-*/().\s]+$/.test(ex))throw 0;
-      const r=Function('"use strict";return('+ex+')')();
-      if(typeof r!=="number"||!isFinite(r))throw 0;
-      const clean=String(Number(r.toFixed(10)));
-      calcHist.textContent=ex+" =";calcOut.textContent=clean;ex=clean;seq="";
-    }catch{calcOut.textContent="Error";ex="";seq=""}
-    return;
-  }
-  ex+=k;seq+=k;calcOut.textContent=ex;
-}
-</script>
-
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import{getDatabase,ref,push,onChildAdded,onChildRemoved,remove,set}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-const cfg={
-  apiKey:atob("QUl6YVN5RHlWc3FZYnNWcjBmZnZvX2xVVGhkU0hSNkRsQVYtMk0="),
-  databaseURL:atob("aHR0cHM6Ly9rYWxhaC1wcml2YXRlLW5vZGUtZGVmYXVsdC1ydGRiLmFzaWEtc291dGhlYXN0MS5maXJlYmFzZWRhdGFiYXNlLmFwcA=="),
-  storageBucket:atob("a2FsYWgtcHJpdmF0ZS1ub2RlLmZpcmViYXNlc3RvcmFnZS5hcHA=")
-};
-const db=getDatabase(initializeApp(cfg));
-
-const enc=new TextEncoder(),dec=new TextDecoder();
-async function kdf(pass,room){
-  const km=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveKey"]);
-  const sh=Array.from(enc.encode(room.padEnd(16,"0").slice(0,16))).map(b=>b.toString(16).padStart(2,"0")).join("");
-  const salt=new Uint8Array(sh.match(/.{1,2}/g).map(h=>parseInt(h,16)));
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
-}
-const b2s=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
-const s2b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function encM(t,p,r){const k=await kdf(p,r),iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,enc.encode(t));return{iv:b2s(iv),ct:b2s(c)}}
-async function decM(o,p,r){const k=await kdf(p,r);const b=await crypto.subtle.decrypt({name:"AES-GCM",iv:s2b(o.iv)},k,s2b(o.ct));return dec.decode(b)}
-
-let me="",room="",pass="",mRef=null;
-const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-
-joinBtn.onclick=()=>{
-  const c=csInput.value.trim(),r=rmInput.value.trim().replace(/[.#$[\]/]/g,"_"),p=psInput.value;
-  if(!c||!r||!p){authStatus.textContent="Callsign, Room ID, and Passcode are required.";return}
-  me=c;room=r;pass=p;chatFeed.innerHTML="";
-  roomTitle.innerHTML="KALAH <span>// "+esc(room)+" (@"+esc(me)+")</span>";
-  window.goView("chat");
-  mRef=ref(db,"rooms/"+room+"/messages");
-  onChildAdded(mRef,async snap=>{
-    const d=snap.val();if(!d)return;
-    if(d.exp&&Date.now()>d.exp){remove(ref(db,"rooms/"+room+"/messages/"+snap.key));return}
-    try{
-      const s=await decM(d.s,pass,room),b=await decM(d.b,pass,room);
-      addB(snap.key,s,b,d.ts,s===me,d.exp);
-    }catch{addB(snap.key,"UNKNOWN","[Key mismatch]",d.ts,false,d.exp)}
-  });
-  onChildRemoved(mRef,snap=>{const el=document.getElementById("m-"+snap.key);if(el)el.remove()});
-};
-
-function addB(id,s,b,ts,mine,exp){
-  if(document.getElementById("m-"+id))return;
-  const d=document.createElement("div");d.id="m-"+id;d.className="msg"+(mine?" mine":"");
-  const tm=new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-  d.innerHTML='<div class="msg-head"><span class="msg-call">@'+esc(s)+'</span><span>'+tm+'</span></div><div>'+esc(b)+'</div>';
-  chatFeed.appendChild(d);chatFeed.scrollTop=chatFeed.scrollHeight;
-  if(exp)setTimeout(()=>remove(ref(db,"rooms/"+room+"/messages/"+id)).catch(()=>{}),Math.max(0,exp-Date.now()));
-}
-
-msgForm.onsubmit=async e=>{
-  e.preventDefault();const t=msgInput.value.trim();if(!t||!mRef)return;
-  const ttlS=parseInt(ttlSelect.value,10),now=Date.now(),exp=ttlS>0?now+ttlS*1000:null;
-  try{
-    await push(mRef,{s:await encM(me,pass,room),b:await encM(t,pass,room),ts:now,exp});
-    msgInput.value="";chatStatus.textContent="Encrypted & sent to KALAH node.";
-  }catch(err){chatStatus.textContent="Error: "+err.message}
-};
-
-nukeBtn.onclick=async()=>{
-  if(!room)return;await set(ref(db,"rooms/"+room),null);chatFeed.innerHTML="";chatStatus.textContent="Room nuked.";
-};
-</script>
-</body>
-</html>
+.gate-banner h3{font-size:14
