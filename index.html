@@ -99,8 +99,13 @@ function tap(k){
   if(k==="C"){ex="";seq="";hist.textContent="";out.textContent="0";return}
   if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);out.textContent=ex||"0";return}
   if(k==="="){
-    const s=seq.replace(/\s+/g,"");
-    if(s.endsWith("1.618=")||s.endsWith("1618=")){ex="";seq="";hist.textContent="";out.textContent="0";window.goView("auth");return}
+    const s=(seq+"=").replace(/\s+/g,"");
+    const cur=ex.replace(/\s+/g,"");
+    if(s.endsWith("1.618=")||s.endsWith("1618=")||cur==="1.618"||cur==="1618"){
+      ex="";seq="";hist.textContent="";out.textContent="0";
+      if(typeof window.goView==="function")window.goView("auth");
+      return;
+    }
     try{
       if(!ex||!/^[0-9+\-*/().\s]+$/.test(ex))throw 0;
       const r=Function('"use strict";return('+ex+')')();
