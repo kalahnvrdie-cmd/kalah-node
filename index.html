@@ -6,33 +6,34 @@
   <title>Calculator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg-main: #070b14;
-      --bg-panel: #0f172a;
-      --bg-card: #162038;
-      --bg-input: #1e2b47;
-      --border: #2b3c5e;
+      --bg-panel: #0e1627;
+      --bg-card: #152038;
+      --bg-input: #1c2a48;
+      --border: #2a3c61;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --accent: #e11d48;
       --accent-hover: #be123c;
       --accent-soft: rgba(225, 29, 72, 0.16);
-      --accent-glow: rgba(225, 29, 72, 0.28);
+      --accent-glow: rgba(225, 29, 72, 0.3);
       --accent-text: #fda4af;
       --msg-out: linear-gradient(135deg, #e11d48 0%, #9f1239 100%);
-      --msg-in: #172238;
+      --msg-in: #152038;
+      --chat-bg: radial-gradient(circle at top, #13203a 0%, #070b14 72%);
       --ok: #22c55e;
-      --font-ui: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --font-ui: "Outfit", "Noto Sans Sinhala", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Noto Sans Sinhala", ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
     body[data-theme="blue"] {
       --accent: #0ea5e9;
       --accent-hover: #0284c7;
       --accent-soft: rgba(14, 165, 233, 0.16);
-      --accent-glow: rgba(14, 165, 233, 0.28);
+      --accent-glow: rgba(14, 165, 233, 0.3);
       --accent-text: #7dd3fc;
       --msg-out: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%);
     }
@@ -41,9 +42,22 @@
       --accent: #a855f7;
       --accent-hover: #9333ea;
       --accent-soft: rgba(168, 85, 247, 0.16);
-      --accent-glow: rgba(168, 85, 247, 0.28);
+      --accent-glow: rgba(168, 85, 247, 0.3);
       --accent-text: #d8b4fe;
       --msg-out: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
+    }
+
+    body[data-wallpaper="obsidian"] {
+      --chat-bg: radial-gradient(circle at top, #13203a 0%, #070b14 72%);
+    }
+    body[data-wallpaper="crimson-mist"] {
+      --chat-bg: radial-gradient(circle at top right, rgba(225, 29, 72, 0.22), transparent 55%), radial-gradient(circle at bottom left, rgba(159, 18, 57, 0.18), #070b14 75%);
+    }
+    body[data-wallpaper="aurora"] {
+      --chat-bg: radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 55%), radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), #070b14 75%);
+    }
+    body[data-wallpaper="grid"] {
+      --chat-bg: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, #070b14 1px);
     }
 
     * {
@@ -64,6 +78,10 @@
       letter-spacing: 0.1px;
     }
 
+    body[data-wallpaper="grid"] #chatScreen {
+      background-size: 24px 24px;
+    }
+
     .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
     .hidden { display: none !important; }
     .privacy-blur { filter: blur(14px); pointer-events: none; }
@@ -74,7 +92,7 @@
       left: 12px;
       right: 12px;
       z-index: 9999;
-      background: rgba(15, 23, 42, 0.98);
+      background: rgba(14, 22, 39, 0.98);
       border: 1px solid var(--accent);
       border-left: 5px solid var(--accent);
       border-radius: 16px;
@@ -151,7 +169,7 @@
     }
 
     .topbar {
-      background: rgba(15, 23, 42, 0.96);
+      background: rgba(14, 22, 39, 0.96);
       border-bottom: 1px solid var(--border);
       padding: 11px 13px;
       display: flex;
@@ -202,6 +220,7 @@
       border-radius: 18px;
       padding: 14px;
       margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     }
 
     .card-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; color: var(--accent-text); }
@@ -267,13 +286,13 @@
 
     .tab-btn {
       flex: 1;
-      padding: 11px 6px;
+      padding: 11px 4px;
       background: transparent;
       border: none;
       border-bottom: 2.5px solid transparent;
       color: var(--text-muted);
       font-family: var(--font-ui);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -285,6 +304,50 @@
 
     #mainArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .tab-pane { flex: 1; overflow-y: auto; padding: 12px; }
+
+    .status-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 12px;
+      margin-bottom: 6px;
+    }
+    .status-bubble-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      min-width: 64px;
+      cursor: pointer;
+    }
+    .status-ring {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      padding: 2.5px;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .status-ring.muted {
+      background: var(--border);
+    }
+    .status-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--accent-text);
+      overflow: hidden;
+    }
+    .status-inner img { width: 100%; height: 100%; object-fit: cover; }
+    .status-label { font-size: 11px; color: var(--text-muted); max-width: 66px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 
     .avatar {
       width: 46px;
@@ -341,11 +404,11 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: radial-gradient(circle at top, #142038 0%, var(--bg-main) 68%);
+      background: var(--chat-bg);
     }
 
     .chat-header {
-      background: rgba(15, 23, 42, 0.96);
+      background: rgba(14, 22, 39, 0.96);
       border-bottom: 1px solid var(--border);
       padding: 8px 10px;
       display: flex;
@@ -367,7 +430,7 @@
       scroll-behavior: smooth;
     }
 
-    .msg-row { display: flex; flex-direction: column; max-width: 82%; }
+    .msg-row { display: flex; flex-direction: column; max-width: 83%; }
     .msg-row.mine { align-self: flex-end; }
     .msg-row.theirs { align-self: flex-start; }
 
@@ -376,8 +439,8 @@
       border: 1px solid rgba(148, 163, 184, 0.16);
       border-radius: 18px;
       padding: 9px 13px;
-      font-size: 14px;
-      line-height: 1.45;
+      font-size: 14.5px;
+      line-height: 1.52;
       word-break: break-word;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
@@ -391,6 +454,25 @@
 
     .msg-row.theirs .msg-bubble { border-bottom-left-radius: 5px; }
     .msg-sender { font-size: 11px; font-weight: 700; color: var(--accent-text); margin-bottom: 3px; }
+
+    .msg-link {
+      color: #7dd3fc;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+    .msg-row.mine .msg-link {
+      color: #fff;
+    }
+
+    .missed-call-card {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      border-radius: 12px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fecaca;
+    }
 
     .msg-reply-quote {
       background: rgba(0, 0, 0, 0.28);
@@ -500,7 +582,7 @@
     }
     .emoji-drawer span { cursor: pointer; }
 
-    #callModal {
+    #statusModal, #callModal {
       position: fixed;
       inset: 0;
       background: rgba(7, 11, 20, 0.96);
@@ -588,7 +670,7 @@
     <div class="topbar">
       <div class="brand-group">
         <span class="brand-title">KALAH</span>
-        <span class="brand-badge">E2EE • 1h</span>
+        <span class="brand-badge">E2EE • 12h</span>
       </div>
       <div class="top-actions">
         <button class="btn-sm accent" onclick="lockApp()">LOCK</button>
@@ -612,8 +694,8 @@
         <label class="field-label">Display Name / Callsign</label>
         <input id="accNameInput" class="input" placeholder="e.g. Kalah" maxlength="24" />
 
-        <label class="field-label">About / Status (Shown in private chats)</label>
-        <input id="accBioInput" class="input" placeholder="Hey there! Using KALAH" maxlength="100" />
+        <label class="field-label">About / Bio (Shown in private chats)</label>
+        <input id="accBioInput" class="input" placeholder="Hey there! Using KALAH" maxlength="110" />
 
         <label class="field-label">Custom Calculator Unlock Code (Default: 1.618)</label>
         <input id="accUnlockCodeInput" class="input" placeholder="e.g. 1.618 or 2026" maxlength="20" />
@@ -631,13 +713,27 @@
     <div id="mainArea" class="hidden">
       <div class="tabs">
         <button class="tab-btn active" id="tabChatsBtn" onclick="switchTab('chats')">CHATS</button>
+        <button class="tab-btn" id="tabStatusBtn" onclick="switchTab('status')">STATUS</button>
         <button class="tab-btn" id="tabFriendsBtn" onclick="switchTab('friends')">FRIENDS</button>
         <button class="tab-btn" id="tabGroupBtn" onclick="switchTab('group')">+ GROUP</button>
         <button class="tab-btn" id="tabMeBtn" onclick="switchTab('me')">PROFILE</button>
       </div>
 
       <div id="tabChats" class="tab-pane">
+        <div class="status-strip" id="chatStatusStrip"></div>
         <div id="chatListContainer"></div>
+      </div>
+
+      <div id="tabStatus" class="tab-pane hidden">
+        <div class="card">
+          <div class="card-title">Post Status (Visible to Friends • 12h)</div>
+          <label class="field-label">Status Caption / Note</label>
+          <input id="statusCaptionInput" class="input" placeholder="What's on your mind? (links supported)" maxlength="140" />
+          <label class="field-label">Status Photo (up to 10MB, optional)</label>
+          <input id="statusPhotoInput" class="input" type="file" accept="image/*" onclick="markFilePicking()" />
+          <button type="button" id="postStatusBtn" class="btn-primary" onclick="publishStatusPost()">Post Status</button>
+        </div>
+        <div id="statusFeedContainer"></div>
       </div>
 
       <div id="tabFriends" class="tab-pane hidden">
@@ -680,14 +776,22 @@
 
           <div style="display:flex; gap:8px; margin-bottom:12px;">
             <button class="btn-sm accent" style="flex:1; padding:9px;" onclick="copyMyId()">Copy My ID</button>
-            <button class="btn-sm" style="flex:1; padding:9px;" onclick="openEditProfile()">Edit / Switch Account</button>
+            <button class="btn-sm" style="flex:1; padding:9px;" onclick="openEditProfile()">Edit Profile</button>
           </div>
 
           <label class="field-label">Theme Accent</label>
-          <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
             <button class="btn-sm" onclick="setThemeAccent('crimson')">Crimson</button>
             <button class="btn-sm" onclick="setThemeAccent('blue')">Neon Blue</button>
             <button class="btn-sm" onclick="setThemeAccent('purple')">Neon Purple</button>
+          </div>
+
+          <label class="field-label">Chat Wallpaper</label>
+          <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+            <button class="btn-sm" onclick="setWallpaperStyle('obsidian')">Obsidian</button>
+            <button class="btn-sm" onclick="setWallpaperStyle('crimson-mist')">Crimson Mist</button>
+            <button class="btn-sm" onclick="setWallpaperStyle('aurora')">Aurora</button>
+            <button class="btn-sm" onclick="setWallpaperStyle('grid')">Tech Grid</button>
           </div>
 
           <label class="field-label">Alerts & Home Screen Notifications</label>
@@ -745,18 +849,26 @@
               <button class="btn-sm" id="viewOnceToggleBtn" onclick="toggleViewOnce()">1x: OFF</button>
               <button class="btn-sm" id="voiceBtn" onclick="toggleVoiceRecord()">🎙️ ≤15KB</button>
             </div>
-            <span class="mono" style="font-size:11px; color:var(--text-muted);">1h TTL</span>
+            <span class="mono" style="font-size:11px; color:var(--text-muted);">12h TTL</span>
           </div>
 
           <input type="file" id="chatPhotoInput" accept="image/*" class="hidden" onchange="handleChatPhoto(event)" />
 
           <div class="composer-row">
-            <input id="msgInput" class="msg-input" placeholder="Type a message..." oninput="onTypingInput()" onkeydown="if(event.key==='Enter') sendTextMessage()" />
+            <input id="msgInput" class="msg-input" placeholder="Type message or link..." oninput="onTypingInput()" onkeydown="if(event.key==='Enter') sendTextMessage()" />
             <button class="send-btn" onclick="sendTextMessage()">➤</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="statusModal" class="hidden">
+    <div style="font-size:16px; font-weight:800; color:var(--accent-text);" id="statusViewerAuthor">Status</div>
+    <div style="font-size:11px; color:var(--text-muted);" id="statusViewerTime"></div>
+    <img id="statusViewerImg" class="hidden" style="max-width:92vw; max-height:52vh; border-radius:16px; object-fit:contain;" />
+    <div id="statusViewerCaption" style="font-size:15px; line-height:1.55; max-width:90vw; word-break:break-word;"></div>
+    <button class="btn-sm accent" style="padding:9px 20px; font-size:13px;" onclick="closeStatusModal()">Close</button>
   </div>
 
   <div id="callModal" class="hidden">
@@ -769,7 +881,7 @@
       <button class="btn-sm accent hidden" id="acceptCallBtn" style="padding:10px 18px; font-size:13px;" onclick="acceptIncomingCall()">Accept</button>
       <button class="btn-sm" id="muteCallBtn" style="padding:10px 16px; font-size:13px;" onclick="toggleMuteCall()">🎙️ Mute: OFF</button>
       <button class="btn-sm" id="speakerCallBtn" style="padding:10px 16px; font-size:13px;" onclick="toggleSpeakerCall()">🔊 Speaker: OFF</button>
-      <button class="btn-sm danger" style="padding:10px 18px; font-size:13px;" onclick="endVoiceCall(true)">End Call</button>
+      <button class="btn-sm danger" style="padding:10px 18px; font-size:13px;" onclick="endVoiceCall(true, false)">End Call</button>
     </div>
   </div>
   <script>
@@ -784,7 +896,7 @@
 
     const DB_ROOT = (dec64(B64_CFG.databaseURL) || "https://kalah-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app").replace(/\/+$/, "");
     const PREFIX = "kalah_v3";
-    const TTL_MS = 60 * 60 * 1000;
+    const TTL_MS = 12 * 60 * 60 * 1000;
     const MAX_VOICE_BYTES = 15 * 1024;
     const MAX_PROFILE_PHOTO_BYTES = 10 * 1024 * 1024;
     const MAX_CHAT_PHOTO_BYTES = 10 * 1024 * 1024;
@@ -799,6 +911,8 @@
     let pinnedChats = loadLocal("kalah_pinned_v3", {});
     let soundEnabled = loadLocal("kalah_sound_v3", true);
     let themeAccent = loadLocal("kalah_theme_v3", "crimson");
+    let wallpaperStyle = loadLocal("kalah_wallpaper_v3", "obsidian");
+    let statusesCache = {};
 
     let activeTab = "chats";
     let activeChat = null;
@@ -821,6 +935,8 @@
     let localStream = null;
     let pendingOfferSignal = null;
     let activeCallPeerId = null;
+    let activeCallPeerName = "";
+    let callConnected = false;
     let isCallMuted = false;
     let isSpeakerOn = false;
     let callTimerInterval = null;
@@ -853,7 +969,19 @@
       showToast("Theme Updated", `Switched to ${theme.toUpperCase()} theme.`);
     }
 
+    function applyWallpaperStyle(wp) {
+      wallpaperStyle = wp || "obsidian";
+      saveLocal("kalah_wallpaper_v3", wallpaperStyle);
+      document.body.setAttribute("data-wallpaper", wallpaperStyle);
+    }
+
+    function setWallpaperStyle(wp) {
+      applyWallpaperStyle(wp);
+      showToast("Wallpaper Updated", `Chat background set to ${wp}.`);
+    }
+
     applyThemeAccent(themeAccent);
+    applyWallpaperStyle(wallpaperStyle);
 
     function markFilePicking() {
       isPickingFile = true;
@@ -938,7 +1066,7 @@
     }
 
     function lockApp() {
-      endVoiceCall(false);
+      endVoiceCall(false, false);
       closeChatRoom();
       document.getElementById("appView").classList.add("hidden");
       document.getElementById("calcView").classList.remove("hidden");
@@ -946,7 +1074,7 @@
     }
 
     function panicExit() {
-      endVoiceCall(false);
+      endVoiceCall(false, false);
       window.location.replace("https://www.google.com");
     }
 
@@ -1347,6 +1475,9 @@
       renderProfileTab();
       renderFriendsList();
       renderChatList();
+      await syncStatuses().catch(() => {});
+      renderStatusStrip();
+      renderStatusFeed();
       startBackgroundListeners();
 
       if (showWelcomeToast) {
@@ -1357,6 +1488,8 @@
       syncIncomingFriends().then(() => {
         renderFriendsList();
         renderChatList();
+        renderStatusStrip();
+        renderStatusFeed();
       }).catch(() => {});
     }
 
@@ -1590,6 +1723,174 @@
         box.appendChild(div);
       });
     }
+    async function publishStatusPost() {
+      if (!me || !me.id) return;
+      const caption = document.getElementById("statusCaptionInput").value.trim();
+      const photoFile = document.getElementById("statusPhotoInput").files[0];
+
+      if (!caption && !photoFile) {
+        showToast("Empty Status", "Add text or a photo to post status.");
+        return;
+      }
+
+      const btn = document.getElementById("postStatusBtn");
+      const orig = btn.textContent;
+      btn.textContent = "Posting...";
+
+      try {
+        let photoUrl = "";
+        if (photoFile) {
+          if (photoFile.size > MAX_CHAT_PHOTO_BYTES) {
+            showToast("Photo > 10MB", `Selected ${(photoFile.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
+            return;
+          }
+          const raw = await readFileAsDataUrl(photoFile);
+          photoUrl = await compressImageDataUrl(raw, 760, 0.62);
+        }
+
+        const now = Date.now();
+        const sid = "st_" + now.toString(36) + "_" + Math.random().toString(36).slice(2, 6);
+        const post = {
+          id: sid,
+          authorId: me.id,
+          authorName: me.name,
+          authorPhoto: me.photo || "",
+          caption,
+          photoUrl,
+          ts: now,
+          expiresAt: now + TTL_MS
+        };
+
+        await dbPut(`statuses/${me.id}/${sid}`, post);
+        document.getElementById("statusCaptionInput").value = "";
+        document.getElementById("statusPhotoInput").value = "";
+        isPickingFile = false;
+
+        if (!statusesCache[me.id]) statusesCache[me.id] = {};
+        statusesCache[me.id][sid] = post;
+        renderStatusStrip();
+        renderStatusFeed();
+        showToast("Status Posted", "Visible to your contacts for 12h.");
+      } catch (err) {
+        showToast("Status Failed", err.message || "Could not post status.");
+      } finally {
+        btn.textContent = orig;
+      }
+    }
+
+    async function syncStatuses() {
+      if (!me || !me.id) return;
+      const allowedIds = new Set([me.id, ...Object.keys(friends)]);
+      const now = Date.now();
+      const nextCache = {};
+
+      for (const uid of allowedIds) {
+        try {
+          const userPosts = await dbGet(`statuses/${uid}`);
+          if (!userPosts) continue;
+          const valid = {};
+          for (const [sid, item] of Object.entries(userPosts)) {
+            if (!item) continue;
+            if (item.expiresAt && now > item.expiresAt) {
+              dbDelete(`statuses/${uid}/${sid}`).catch(() => {});
+              continue;
+            }
+            valid[sid] = item;
+          }
+          if (Object.keys(valid).length) nextCache[uid] = valid;
+        } catch {}
+      }
+
+      statusesCache = nextCache;
+    }
+
+    function getVisibleStatusesList() {
+      const allowedIds = new Set([me ? me.id : "", ...Object.keys(friends)]);
+      const now = Date.now();
+      const list = [];
+      for (const [uid, posts] of Object.entries(statusesCache)) {
+        if (!allowedIds.has(uid) || !posts) continue;
+        for (const p of Object.values(posts)) {
+          if (p && (!p.expiresAt || now <= p.expiresAt)) {
+            list.push(p);
+          }
+        }
+      }
+      return list.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    }
+
+    function openStatusModal(post) {
+      document.getElementById("statusViewerAuthor").textContent = `${post.authorName} • ${post.authorId === me.id ? "My Status" : "Contact Status"}`;
+      document.getElementById("statusViewerTime").textContent = new Date(post.ts || Date.now()).toLocaleString();
+      const imgEl = document.getElementById("statusViewerImg");
+      if (post.photoUrl) {
+        imgEl.src = post.photoUrl;
+        imgEl.classList.remove("hidden");
+      } else {
+        imgEl.classList.add("hidden");
+      }
+      const capEl = document.getElementById("statusViewerCaption");
+      capEl.innerHTML = post.caption ? linkifyText(post.caption) : "";
+      document.getElementById("statusModal").classList.remove("hidden");
+    }
+
+    function closeStatusModal() {
+      document.getElementById("statusModal").classList.add("hidden");
+    }
+
+    function renderStatusStrip() {
+      const strip = document.getElementById("chatStatusStrip");
+      if (!strip || !me) return;
+      const items = getVisibleStatusesList();
+      let html = `
+        <div class="status-bubble-item" onclick="switchTab('status')">
+          <div class="status-ring muted">
+            <div class="status-inner">+</div>
+          </div>
+          <div class="status-label">My Status</div>
+        </div>
+      `;
+      items.slice(0, 12).forEach(st => {
+        const av = st.photoUrl || st.authorPhoto || "";
+        html += `
+          <div class="status-bubble-item" onclick='openStatusModal(${JSON.stringify(st).replace(/'/g, "&#39;")})'>
+            <div class="status-ring">
+              <div class="status-inner">
+                ${av ? `<img src="${av}" />` : escapeHtml((st.authorName || "S").charAt(0).toUpperCase())}
+              </div>
+            </div>
+            <div class="status-label">${escapeHtml(st.authorName)}</div>
+          </div>
+        `;
+      });
+      strip.innerHTML = html;
+    }
+
+    function renderStatusFeed() {
+      const box = document.getElementById("statusFeedContainer");
+      if (!box) return;
+      const items = getVisibleStatusesList();
+      if (!items.length) {
+        box.innerHTML = `<div class="card"><div class="item-sub">No active status updates from you or your friends right now.</div></div>`;
+        return;
+      }
+      box.innerHTML = "";
+      items.forEach(st => {
+        const div = document.createElement("div");
+        div.className = "card";
+        const timeStr = new Date(st.ts || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-weight:800; font-size:13px; color:var(--accent-text);">${escapeHtml(st.authorName)}</div>
+            <div class="mono" style="font-size:11px; color:var(--text-muted);">${timeStr} • 12h</div>
+          </div>
+          ${st.caption ? `<div style="font-size:14px; line-height:1.5; margin-bottom:8px; word-break:break-word;">${linkifyText(st.caption)}</div>` : ""}
+          ${st.photoUrl ? `<img src="${st.photoUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px; cursor:pointer;" onclick="openPhotoPreview('${st.photoUrl}')" />` : ""}
+        `;
+        box.appendChild(div);
+      });
+    }
+
     function renderGroupFriendChecks() {
       const box = document.getElementById("groupFriendChecks");
       const list = Object.values(friends);
@@ -1640,13 +1941,14 @@
     function switchTab(tab) {
       activeTab = tab;
       document.getElementById("chatScreen").classList.add("hidden");
-      ["chats", "friends", "group", "me"].forEach(t => {
+      ["chats", "status", "friends", "group", "me"].forEach(t => {
         document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle("hidden", t !== tab);
         document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1) + "Btn").classList.toggle("active", t === tab);
       });
       if (tab === "group") renderGroupFriendChecks();
       if (tab === "friends") renderFriendsList();
-      if (tab === "chats") renderChatList();
+      if (tab === "status") { renderStatusStrip(); renderStatusFeed(); }
+      if (tab === "chats") { renderStatusStrip(); renderChatList(); }
       if (tab === "me") renderProfileTab();
     }
 
@@ -1679,8 +1981,8 @@
         const badge = c.type === "group" ? "GROUP" : "DIRECT";
         const peer = c.type === "dm" && c.peerId ? friends[c.peerId] : null;
         const subLine = c.type === "dm"
-          ? `${formatLastSeen(peer ? peer.lastSeen : 0)} • 1h TTL`
-          : `${badge} • 1h auto-delete`;
+          ? `${formatLastSeen(peer ? peer.lastSeen : 0)} • 12h TTL`
+          : `${badge} • 12h auto-delete`;
 
         div.innerHTML = `
           <div class="avatar">${c.photo ? `<img src="${c.photo}" />` : escapeHtml((c.title || "C").charAt(0).toUpperCase())}</div>
@@ -1703,7 +2005,7 @@
       if (activeChat.type === "dm") {
         const peer = activeChat.peerId ? friends[activeChat.peerId] : null;
         const bioText = activeChat.bio || (peer && peer.bio) || "";
-        subEl.textContent = `${formatLastSeen(peer ? peer.lastSeen : 0)} • 1h TTL`;
+        subEl.textContent = `${formatLastSeen(peer ? peer.lastSeen : 0)} • 12h TTL`;
         if (bioText) {
           aboutEl.textContent = `About: ${bioText}`;
           aboutEl.classList.remove("hidden");
@@ -1711,7 +2013,7 @@
           aboutEl.classList.add("hidden");
         }
       } else {
-        subEl.textContent = "Group • 1h auto-delete";
+        subEl.textContent = "Group • 12h auto-delete";
         aboutEl.classList.add("hidden");
       }
     }
@@ -1728,7 +2030,7 @@
       initialLoadDoneForChat = false;
       cancelEditOrReply();
 
-      ["chats", "friends", "group", "me"].forEach(t => {
+      ["chats", "status", "friends", "group", "me"].forEach(t => {
         document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("hidden");
       });
       document.getElementById("chatScreen").classList.remove("hidden");
@@ -1769,6 +2071,23 @@
 
     function isNearBottom(box) {
       return box.scrollHeight - box.scrollTop - box.clientHeight < 110;
+    }
+
+    function linkifyText(rawText) {
+      const str = String(rawText || "");
+      const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+      let lastIdx = 0;
+      let out = "";
+      let match;
+      while ((match = urlRegex.exec(str)) !== null) {
+        out += escapeHtml(str.slice(lastIdx, match.index));
+        const token = match[0];
+        const href = /^https?:\/\//i.test(token) ? token : `https://${token}`;
+        out += `<a class="msg-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(token)}</a>`;
+        lastIdx = match.index + token.length;
+      }
+      out += escapeHtml(str.slice(lastIdx));
+      return out;
     }
 
     async function loadMessagesOnce() {
@@ -1836,8 +2155,10 @@
         bodyHtml += `<div class="msg-reply-quote">↩ ${escapeHtml(dec.replyTo.sender)}: ${escapeHtml(dec.replyTo.preview)}</div>`;
       }
 
-      if (dec.kind === "text") {
-        bodyHtml += `<div>${escapeHtml(dec.text)}</div>`;
+      if (dec.kind === "missed_call") {
+        bodyHtml += `<div class="missed-call-card">📞 ${escapeHtml(dec.text || "Missed Voice Call")}</div>`;
+      } else if (dec.kind === "text") {
+        bodyHtml += `<div>${linkifyText(dec.text)}</div>`;
       } else if (dec.kind === "photo") {
         if (dec.viewOnce && !isMine) {
           bodyHtml += `<button class="btn-sm accent" onclick="openViewOncePhoto('${msgId}', this)">👁️ View Once Photo</button>`;
@@ -1885,7 +2206,6 @@
         box.scrollTop = box.scrollHeight;
       }
     }
-
     function startEditMessage(msgId, currentText) {
       editingMsgId = msgId;
       replyToMsg = null;
@@ -1926,27 +2246,32 @@
       }
     }
 
+    async function sendEncryptedToChat(targetChatObj, payloadObj) {
+      if (!targetChatObj || !me) return;
+      const secret = getEffectiveSecret(targetChatObj);
+      const enc = await encryptPayload(payloadObj, secret, targetChatObj.id);
+      const now = Date.now();
+      const record = {
+        senderId: me.id,
+        senderName: me.name,
+        ts: now,
+        expiresAt: now + TTL_MS,
+        iv: enc.iv,
+        ct: enc.ct,
+        reactions: {},
+        seenBy: {}
+      };
+      const posted = await dbPost(`messages/${targetChatObj.id}`, record);
+      if (posted && posted.name && activeChat && activeChat.id === targetChatObj.id) {
+        seenMsgIds.add(posted.name);
+        renderOrUpdateMessage(posted.name, record, payloadObj, true);
+      }
+    }
+
     async function sendEncryptedMessage(payloadObj) {
       if (!activeChat || !me) return;
       try {
-        const secret = getEffectiveSecret(activeChat);
-        const enc = await encryptPayload(payloadObj, secret, activeChat.id);
-        const now = Date.now();
-        const record = {
-          senderId: me.id,
-          senderName: me.name,
-          ts: now,
-          expiresAt: now + TTL_MS,
-          iv: enc.iv,
-          ct: enc.ct,
-          reactions: {},
-          seenBy: {}
-        };
-        const posted = await dbPost(`messages/${activeChat.id}`, record);
-        if (posted && posted.name) {
-          seenMsgIds.add(posted.name);
-          renderOrUpdateMessage(posted.name, record, payloadObj, true);
-        }
+        await sendEncryptedToChat(activeChat, payloadObj);
       } catch (err) {
         showToast("Send Failed", err.message || "Check Firebase rules & internet.");
       }
@@ -2145,10 +2470,16 @@
       } catch {}
 
       await refreshFriendsPresence().catch(() => {});
+      await syncStatuses().catch(() => {});
+
       if (activeChat) {
         updateChatHeaderMeta();
       } else if (activeTab === "chats") {
+        renderStatusStrip();
         renderChatList();
+      } else if (activeTab === "status") {
+        renderStatusStrip();
+        renderStatusFeed();
       } else if (activeTab === "friends") {
         renderFriendsList();
       }
@@ -2185,7 +2516,7 @@
             if (!isCurrentRoom) {
               if (pkt.senderId !== me.id && isNewMsg && initialLoadDoneForChat) {
                 const dec = await decryptPayload(pkt, secret, chatObj.id);
-                const preview = dec && dec.kind === "text" ? dec.text : (dec ? `[${dec.kind}]` : "New message");
+                const preview = dec && dec.text ? dec.text : (dec ? `[${dec.kind}]` : "New message");
                 showToast(`${pkt.senderName || "Friend"} • ${chatObj.title}`, preview, chatObj.id);
               }
               continue;
@@ -2200,7 +2531,7 @@
             }
 
             if (pkt.senderId !== me.id && isNewMsg && initialLoadDoneForChat && (document.hidden || !document.hasFocus())) {
-              const preview = dec.kind === "text" ? dec.text : `[${dec.kind}]`;
+              const preview = dec.text ? dec.text : `[${dec.kind}]`;
               triggerSystemNotification(`${pkt.senderName || "Friend"} • ${chatObj.title}`, preview, chatObj.id);
             }
           }
@@ -2225,6 +2556,24 @@
       await pollCallSignals();
     }
     const RTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+    async function logMissedCallIfNeeded(peerId, peerName, wasConnected) {
+      if (!peerId || !me || !me.id || wasConnected) return;
+      const dmId = makeDmChatId(me.id, peerId);
+      const dmObj = chatsMeta[dmId] || {
+        id: dmId,
+        type: "dm",
+        peerId,
+        title: peerName || peerId,
+        secret: makeDmSecret(me.id, peerId)
+      };
+      try {
+        await sendEncryptedToChat(dmObj, {
+          kind: "missed_call",
+          text: `Missed Voice Call with ${peerName || peerId}`
+        });
+      } catch {}
+    }
 
     function startCallTimer() {
       stopCallTimer();
@@ -2279,12 +2628,14 @@
       }
       isCallMuted = false;
       isSpeakerOn = false;
+      callConnected = false;
       document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
       document.getElementById("speakerCallBtn").textContent = "🔉 Speaker: OFF";
       activeCallPeerId = activeChat.peerId;
+      activeCallPeerName = activeChat.title || activeChat.peerId;
       document.getElementById("callModal").classList.remove("hidden");
       document.getElementById("acceptCallBtn").classList.add("hidden");
-      document.getElementById("callPeerLabel").textContent = `Calling ${activeChat.title}...`;
+      document.getElementById("callPeerLabel").textContent = `Calling ${activeCallPeerName}...`;
       document.getElementById("callStatusText").textContent = "Requesting mic...";
       startRingtoneLoop();
 
@@ -2304,7 +2655,7 @@
         document.getElementById("callStatusText").textContent = "Ringing...";
       } catch {
         showToast("Call Error", "Mic permission or WebRTC failed.");
-        endVoiceCall(false);
+        endVoiceCall(false, false);
       }
     }
 
@@ -2320,15 +2671,18 @@
           if (s.type === "offer" && !pc && !pendingOfferSignal) {
             pendingOfferSignal = s;
             activeCallPeerId = s.fromId;
+            activeCallPeerName = s.fromName || s.fromId;
+            callConnected = false;
             document.getElementById("callModal").classList.remove("hidden");
             document.getElementById("acceptCallBtn").classList.remove("hidden");
-            document.getElementById("callPeerLabel").textContent = `Incoming Call: ${s.fromName || s.fromId}`;
+            document.getElementById("callPeerLabel").textContent = `Incoming Call: ${activeCallPeerName}`;
             document.getElementById("callStatusText").textContent = "Ringing...";
             startRingtoneLoop();
-            triggerSystemNotification("Incoming KALAH Call", `${s.fromName || s.fromId} is calling...`, null);
+            triggerSystemNotification("Incoming KALAH Call", `${activeCallPeerName} is calling...`, null);
             await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
           } else if (s.type === "answer" && pc && pc.signalingState === "have-local-offer") {
             stopRingtoneLoop();
+            callConnected = true;
             await pc.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: s.sdp }));
             document.getElementById("callStatusText").textContent = "Connected";
             startCallTimer();
@@ -2338,7 +2692,7 @@
             await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
           } else if (s.type === "hangup") {
             await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-            endVoiceCall(false);
+            endVoiceCall(false, true);
           }
         }
       } catch {}
@@ -2347,6 +2701,7 @@
     async function acceptIncomingCall() {
       if (!pendingOfferSignal) return;
       stopRingtoneLoop();
+      callConnected = true;
       isCallMuted = false;
       isSpeakerOn = false;
       document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
@@ -2371,27 +2726,42 @@
         document.getElementById("callStatusText").textContent = "Connected";
         startCallTimer();
       } catch {
-        endVoiceCall(false);
+        endVoiceCall(false, false);
       }
     }
 
-    function endVoiceCall(notifyPeer) {
+    function endVoiceCall(notifyPeer, remoteHungUp = false) {
+      const peerId = activeCallPeerId;
+      const peerName = activeCallPeerName;
+      const wasConnected = callConnected;
+
       stopRingtoneLoop();
       stopCallTimer();
-      if (notifyPeer && activeCallPeerId && me) {
-        dbPost(`signals/${activeCallPeerId}`, { type: "hangup", fromId: me.id, ts: Date.now() }).catch(() => {});
+      if (notifyPeer && peerId && me) {
+        dbPost(`signals/${peerId}`, { type: "hangup", fromId: me.id, ts: Date.now() }).catch(() => {});
       }
       if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
       if (pc) { pc.close(); pc = null; }
+
+      if (!wasConnected && peerId && (notifyPeer || remoteHungUp)) {
+        logMissedCallIfNeeded(peerId, peerName, false);
+      }
+
       isCallMuted = false;
       isSpeakerOn = false;
+      callConnected = false;
       pendingOfferSignal = null;
       activeCallPeerId = null;
+      activeCallPeerName = "";
       document.getElementById("callModal").classList.add("hidden");
     }
 
     function escapeHtml(str) {
       return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function escapeJs(str) {
