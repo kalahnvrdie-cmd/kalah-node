@@ -1,238 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculator</title>
-  <style>
-    :root {
-      --bg: #05060a;
-      --surface: rgba(16, 19, 30, 0.88);
-      --surface-2: rgba(25, 29, 45, 0.92);
-      --surface-hover: rgba(36, 42, 64, 0.95);
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #f3f5ff;
-      --muted: #8e96b8;
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.35);
-      --danger: #ff2e55;
-      --cyan: #22d3ee;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Calculator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#06080f;color:#f4f6ff;padding:16px}
+.box{width:100%;max-width:410px;background:#101422;border:1px solid #222942;border-radius:24px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:#151a2c;border-bottom:1px solid #222942;font-size:12px}
+.top span{font-weight:700;color:#dce4ff}
+.top button{border:1px solid #2b3454;background:#1c233b;color:#dce4ff;padding:5px 10px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer}
+.top .panic{border-color:#ff3b6b66;background:#ff3b6b1c;color:#ff7a98}
+.view{display:none;padding:16px}.view.on{display:block}
+.scr{background:#080a12;border:1px solid #222942;border-radius:16px;padding:16px;text-align:right;margin-bottom:14px;min-height:96px}
+.hist{font-size:12px;color:#8892b8;min-height:16px}
+.out{font-size:34px;font-weight:700;margin-top:4px;word-break:break-all}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.k{height:56px;border-radius:14px;border:1px solid #242c47;background:#171d31;color:#f4f6ff;font-size:18px;font-weight:600;cursor:pointer}
+.k:active{transform:scale(.96)}
+.k.fn{color:#93c5fd;background:#1c294a}
+.k.op{color:#22d3ee}
+.k.eq{background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff}
+.f{margin-bottom:11px}
+label{display:block;font-size:11px;color:#8892b8;margin-bottom:5px;text-transform:uppercase}
+input,select{width:100%;padding:10px 12px;border-radius:11px;border:1px solid #252e4a;background:#080a12;color:#f4f6ff;font-size:13px}
+.go{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:700;cursor:pointer}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:#9aa4c7;margin-bottom:10px}
+.msgs{height:320px;overflow-y:auto;background:#080a12;border:1px solid #222942;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.m{background:#151b2e;border:1px solid #232c48;border-radius:12px;padding:8px 10px;font-size:13px}
+.m.me{border-left:3px solid #22d3ee}
+.mh{display:flex;justify-content:space-between;font-size:10px;color:#8892b8;margin-bottom:3px}
+.mh b{color:#22d3ee}
+.row{display:flex;gap:8px}.row input{flex:1}
+.send{padding:0 15px;border:none;border-radius:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:700;cursor:pointer}
+.nuke{padding:4px 9px;border-radius:8px;border:1px solid #ff3b6b66;background:#ff3b6b1c;color:#ff7a98;font-size:11px;font-weight:700;cursor:pointer}
+.note{font-size:11px;color:#8892b8;margin-top:7px;min-height:14px}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="top">
+    <span id="titleLbl">Calculator</span>
+    <div style="display:flex;gap:6px">
+      <button type="button" id="lockBtn">LOCK</button>
+      <button type="button" class="panic" id="panicBtn">PANIC</button>
+    </div>
+  </div>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, ui-monospace, monospace;
-      -webkit-tap-highlight-color: transparent;
-    }
+  <div class="view on" id="calcV">
+    <div class="scr"><div class="hist" id="hist"></div><div class="out" id="out">0</div></div>
+    <div class="grid" id="grid"></div>
+  </div>
 
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(59, 130, 246, 0.14), transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12), transparent 45%),
-        var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
+  <div class="view" id="authV">
+    <div class="f"><label>Callsign</label><input id="cs" maxlength="24" placeholder="Callsign"></div>
+    <div class="f"><label>Room ID</label><input id="rm" maxlength="40" placeholder="Room ID"></div>
+    <div class="f"><label>Passcode</label><input id="ps" type="password" placeholder="Secret passcode"></div>
+    <button type="button" class="go" id="joinBtn">UNLOCK NODE</button>
+    <div class="note" id="authNote">AES-256-GCM local encryption</div>
+  </div>
 
-    .device {
-      width: 100%;
-      max-width: 420px;
-      background: var(--surface);
-      backdrop-filter: blur(18px);
-      border: 1px solid var(--border);
-      border-radius: 26px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      overflow: hidden;
-    }
+  <div class="view" id="chatV">
+    <div class="meta">
+      <span id="rmLbl">ROOM</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select id="ttl" style="width:auto;padding:4px 7px;font-size:11px">
+          <option value="0">TTL Off</option>
+          <option value="30">30s</option>
+          <option value="120" selected>2m</option>
+          <option value="600">10m</option>
+        </select>
+        <button type="button" class="nuke" id="nukeBtn">NUKE</button>
+      </div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <form class="row" id="form"><input id="txt" autocomplete="off" placeholder="Encrypted message..." required><button class="send" type="submit">SEND</button></form>
+    <div class="note" id="chatNote"></div>
+  </div>
+</div>
 
-    .bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
-      color: var(--muted);
-    }
+<script>
+const V={calc:calcV,auth:authV,chat:chatV};
+window.goView=n=>{Object.values(V).forEach(x=>x.classList.remove("on"));V[n].classList.add("on");titleLbl.textContent=n==="calc"?"Calculator":n==="auth"?"Node Gate":"Encrypted Link"};
+lockBtn.onclick=()=>window.goView("calc");
+panicBtn.onclick=()=>location.replace("https://www.google.com");
 
-    .bar-title {
-      font-weight: 600;
-      letter-spacing: 0.4px;
-      color: var(--text);
-    }
+let ex="",seq="";
+const ks=["C","(",")","/","7","8","9","*","4","5","6","-","1","2","3","+",".","0","⌫","="];
+ks.forEach(k=>{
+  const b=document.createElement("button");b.type="button";b.textContent=k;b.className="k";
+  if(["C","(",")","⌫"].includes(k))b.classList.add("fn");
+  if(["/","*","-","+"].includes(k))b.classList.add("op");
+  if(k==="=")b.classList.add("eq");
+  b.onclick=()=>tap(k);grid.appendChild(b);
+});
+function tap(k){
+  if(k==="C"){ex="";seq="";hist.textContent="";out.textContent="0";return}
+  if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);out.textContent=ex||"0";return}
+  if(k==="="){
+    const s=seq.replace(/\s+/g,"");
+    if(s.endsWith("1.618=")||s.endsWith("1618=")){ex="";seq="";hist.textContent="";out.textContent="0";window.goView("auth");return}
+    try{
+      if(!ex||!/^[0-9+\-*/().\s]+$/.test(ex))throw 0;
+      const r=Function('"use strict";return('+ex+')')();
+      if(typeof r!=="number"||!isFinite(r))throw 0;
+      const clean=String(Number(r.toFixed(10)));
+      hist.textContent=ex+" =";out.textContent=clean;ex=clean;seq="";
+    }catch{out.textContent="Error";ex="";seq=""}
+    return;
+  }
+  ex+=k;seq+=k;out.textContent=ex;
+}
+</script>
 
-    .bar-actions {
-      display: flex;
-      gap: 8px;
-    }
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import{getDatabase,ref,push,onChildAdded,onChildRemoved,remove,set}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    .pill-btn {
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 5px 11px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.15s ease;
-    }
+const cfg={
+  apiKey:atob("QUl6YVN5RHlWc3FZYnNWcjBmZnZvX2xVVGhkU0hSNkRsQVYtMk0="),
+  databaseURL:atob("aHR0cHM6Ly9rYWxhaC1wcml2YXRlLW5vZGUtZGVmYXVsdC1ydGRiLmFzaWEtc291dGhlYXN0MS5maXJlYmFzZWRhdGFiYXNlLmFwcA=="),
+  storageBucket:atob("a2FsYWgtcHJpdmF0ZS1ub2RlLmZpcmViYXNlc3RvcmFnZS5hcHA=")
+};
+const db=getDatabase(initializeApp(cfg));
 
-    .pill-btn:hover {
-      color: var(--text);
-      border-color: rgba(255, 255, 255, 0.22);
-    }
+const enc=new TextEncoder(),dec=new TextDecoder();
+async function kdf(pass,room){
+  const km=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveKey"]);
+  const sh=Array.from(enc.encode(room.padEnd(16,"0").slice(0,16))).map(b=>b.toString(16).padStart(2,"0")).join("");
+  const salt=new Uint8Array(sh.match(/.{1,2}/g).map(h=>parseInt(h,16)));
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+const b2s=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const s2b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function encM(t,p,r){const k=await kdf(p,r),iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,enc.encode(t));return{iv:b2s(iv),ct:b2s(c)}}
+async function decM(o,p,r){const k=await kdf(p,r);const b=await crypto.subtle.decrypt({name:"AES-GCM",iv:s2b(o.iv)},k,s2b(o.ct));return dec.decode(b)}
 
-    .pill-panic {
-      color: #ff758f;
-      border-color: rgba(255, 46, 85, 0.35);
-      background: rgba(255, 46, 85, 0.1);
-    }
+let me="",room="",pass="",mRef=null;
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 
-    .view {
-      display: none;
-      padding: 18px;
-    }
+joinBtn.onclick=()=>{
+  const c=cs.value.trim(),r=rm.value.trim().replace(/[.#$[\]/]/g,"_"),p=ps.value;
+  if(!c||!r||!p){authNote.textContent="All fields required.";return}
+  me=c;room=r;pass=p;msgs.innerHTML="";rmLbl.textContent="ROOM: "+room+" // @"+me;
+  window.goView("chat");
+  mRef=ref(db,"rooms/"+room+"/messages");
+  onChildAdded(mRef,async snap=>{
+    const d=snap.val();if(!d)return;
+    if(d.exp&&Date.now()>d.exp){remove(ref(db,"rooms/"+room+"/messages/"+snap.key));return}
+    try{
+      const s=await decM(d.s,pass,room),b=await decM(d.b,pass,room);
+      addB(snap.key,s,b,d.ts,s===me,d.exp);
+    }catch{addB(snap.key,"UNKNOWN","[Key mismatch]",d.ts,false,d.exp)}
+  });
+  onChildRemoved(mRef,snap=>{const el=document.getElementById("m-"+snap.key);if(el)el.remove()});
+};
 
-    .view.active {
-      display: block;
-    }
+function addB(id,s,b,ts,mine,exp){
+  if(document.getElementById("m-"+id))return;
+  const d=document.createElement("div");d.id="m-"+id;d.className="m"+(mine?" me":"");
+  const tm=new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  d.innerHTML='<div class="mh"><b>@'+esc(s)+'</b><span>'+tm+'</span></div><div>'+esc(b)+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+  if(exp)setTimeout(()=>remove(ref(db,"rooms/"+room+"/messages/"+id)).catch(()=>{}),Math.max(0,exp-Date.now()));
+}
 
-    /* Professional Calculator */
-    .display {
-      background: rgba(5, 6, 10, 0.75);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px 16px;
-      text-align: right;
-      margin-bottom: 16px;
-      min-height: 104px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+form.onsubmit=async e=>{
+  e.preventDefault();const t=txt.value.trim();if(!t||!mRef)return;
+  const ttlS=parseInt(ttl.value,10),now=Date.now(),exp=ttlS>0?now+ttlS*1000:null;
+  try{
+    await push(mRef,{s:await encM(me,pass,room),b:await encM(t,pass,room),ts:now,exp});
+    txt.value="";chatNote.textContent="Encrypted & sent.";
+  }catch(err){chatNote.textContent="Error: "+err.message}
+};
 
-    .history {
-      font-size: 13px;
-      color: var(--muted);
-      min-height: 18px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .output {
-      font-size: 36px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-      line-height: 1.15;
-      word-break: break-all;
-    }
-
-    .keypad {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 11px;
-    }
-
-    .k {
-      height: 58px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text);
-      font-size: 18px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
-    }
-
-    .k:hover {
-      background: var(--surface-hover);
-    }
-
-    .k:active {
-      transform: scale(0.95);
-    }
-
-    .k-fn {
-      color: #93c5fd;
-      background: rgba(59, 130, 246, 0.1);
-      border-color: rgba(59, 130, 246, 0.2);
-    }
-
-    .k-op {
-      color: var(--cyan);
-      font-weight: 600;
-    }
-
-    .k-eq {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      border: none;
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 10px 24px var(--accent-glow);
-    }
-
-    /* Secret Node Auth */
-    .node-head {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--cyan);
-      margin-bottom: 14px;
-    }
-
-    .group {
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-    }
-
-    input, select {
-      width: 100%;
-      background: rgba(5, 6, 10, 0.8);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 11px 13px;
-      font-size: 13px;
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--cyan);
-    }
-
-    .primary-btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.6px;
-      cursor: pointer;
-      margin-top: 4px;
-    }
-
-    /* Encrypted Chat */
-    .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between
+nukeBtn.onclick=async()=>{
+  if(!room)return;await set(ref(db,"rooms/"+room),null);msgs.innerHTML="";chatNote.textContent="Room nuked.";
+};
+</script>
+</body>
+</html>
