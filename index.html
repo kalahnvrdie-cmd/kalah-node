@@ -3,384 +3,236 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1.618 // Node</title>
+  <title>Calculator</title>
   <style>
     :root {
-      --bg: #07070b;
-      --panel: #0e0f17;
-      --panel-2: #141622;
-      --border: #23273a;
-      --text: #eef1ff;
-      --muted: #8b92b2;
-      --accent: #ff2a55;
-      --accent-2: #7c4dff;
-      --cyan: #00e5ff;
+      --bg: #05060a;
+      --surface: rgba(16, 19, 30, 0.88);
+      --surface-2: rgba(25, 29, 45, 0.92);
+      --surface-hover: rgba(36, 42, 64, 0.95);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f3f5ff;
+      --muted: #8e96b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --danger: #ff2e55;
+      --cyan: #22d3ee;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, ui-monospace, monospace;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
-      background: radial-gradient(circle at top, #141226 0%, var(--bg) 65%);
-      color: var(--text);
       min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(59, 130, 246, 0.14), transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.12), transparent 45%),
+        var(--bg);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
 
-    .shell {
+    .device {
       width: 100%;
-      max-width: 460px;
-      background: var(--panel);
+      max-width: 420px;
+      background: var(--surface);
+      backdrop-filter: blur(18px);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75);
+      border-radius: 26px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
       overflow: hidden;
     }
 
-    .topbar {
+    .bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--panel-2);
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
       font-size: 12px;
       color: var(--muted);
     }
 
-    .badge { color: var(--cyan); letter-spacing: 1px; font-weight: 700; }
-
-    .btn {
-      background: var(--panel-2);
+    .bar-title {
+      font-weight: 600;
+      letter-spacing: 0.4px;
       color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 11px;
-      font-size: 12px;
-      cursor: pointer;
     }
-    .btn:hover { border-color: var(--cyan); }
-    .btn-accent {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+
+    .bar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .pill-panic {
+      color: #ff758f;
+      border-color: rgba(255, 46, 85, 0.35);
+      background: rgba(255, 46, 85, 0.1);
+    }
+
+    .view {
+      display: none;
+      padding: 18px;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* Professional Calculator */
+    .display {
+      background: rgba(5, 6, 10, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 16px;
+      text-align: right;
+      margin-bottom: 16px;
+      min-height: 104px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .history {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .output {
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      word-break: break-all;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 11px;
+    }
+
+    .k {
+      height: 58px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .k:hover {
+      background: var(--surface-hover);
+    }
+
+    .k:active {
+      transform: scale(0.95);
+    }
+
+    .k-fn {
+      color: #93c5fd;
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .k-op {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .k-eq {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
       border: none;
       color: #fff;
       font-weight: 700;
-    }
-    .btn-danger {
-      border-color: rgba(255, 42, 85, 0.5);
-      color: #ff6b88;
+      box-shadow: 0 10px 24px var(--accent-glow);
     }
 
-    .calc-wrap { padding: 18px; }
-    .calc-screen {
-      background: #050508;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      text-align: right;
+    /* Secret Node Auth */
+    .node-head {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--cyan);
       margin-bottom: 14px;
     }
-    .calc-expr { font-size: 12px; color: var(--muted); min-height: 16px; }
-    .calc-val { font-size: 28px; font-weight: 700; margin-top: 4px; word-break: break-all; }
-    .calc-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .key {
-      padding: 15px 0;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .key-op { color: var(--cyan); }
-    .key-eq { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; }
 
-    .view { display: none; padding: 18px; }
-    .view.active { display: block; }
-    .field { margin-bottom: 12px; }
-    label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.7px; }
+    .group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
     input, select {
       width: 100%;
-      background: #07080d;
+      background: rgba(5, 6, 10, 0.8);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 9px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 11px 13px;
       font-size: 13px;
       outline: none;
     }
-    input:focus, select:focus { border-color: var(--cyan); }
 
-    .chat-meta {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-      font-size: 11px;
-      color: var(--muted);
+    input:focus, select:focus {
+      border-color: var(--cyan);
     }
-    .messages {
-      height: 330px;
-      overflow-y: auto;
-      background: #06070c;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+
+    .primary-btn {
+      width: 100%;
       padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .msg {
-      background: var(--panel-2);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 10px;
-      padding: 8px 10px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
       font-size: 13px;
-      line-height: 1.4;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      margin-top: 4px;
     }
-    .msg.mine { border-left: 3px solid var(--cyan); }
-    .msg-head {
+
+    /* Encrypted Chat */
+    .meta-row {
       display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-    .msg-sender { color: var(--cyan); font-weight: 700; }
-    .composer { display: flex; gap: 8px; }
-    .composer input { flex: 1; }
-    .status-note { font-size: 11px; color: var(--muted); margin-top: 8px; }
-  </style>
-</head>
-<body>
-  <div class="shell">
-    <div class="topbar">
-      <span class="badge" id="headerBadge">CALC // 1.0</span>
-      <div style="display:flex; gap:6px;">
-        <button class="btn" id="lockBtn" type="button">LOCK</button>
-        <button class="btn btn-danger" id="panicBtn" type="button">PANIC</button>
-      </div>
-    </div>
-
-    <div class="view active" id="calcView">
-      <div class="calc-wrap">
-        <div class="calc-screen">
-          <div class="calc-expr" id="calcExpr"></div>
-          <div class="calc-val" id="calcVal">0</div>
-        </div>
-        <div class="calc-grid" id="calcGrid"></div>
-      </div>
-    </div>
-
-    <div class="view" id="authView">
-      <h3 style="margin-bottom:12px; font-size:15px; color:var(--cyan);">ENCRYPTED NODE ACCESS</h3>
-      <div class="field">
-        <label>Your Callsign (Name)</label>
-        <input type="text" id="callsignInput" placeholder="e.g. kalah" maxlength="24" />
-      </div>
-      <div class="field">
-        <label>Room ID</label>
-        <input type="text" id="roomInput" placeholder="e.g. phi-sector-01" maxlength="40" />
-      </div>
-      <div class="field">
-        <label>Shared Secret Passcode (AES-256-GCM)</label>
-        <input type="password" id="passInput" placeholder="Strong shared key" />
-      </div>
-      <button class="btn btn-accent" style="width:100%; padding:11px;" id="enterRoomBtn" type="button">ENTER CHANNEL</button>
-      <p class="status-note" id="authStatus">Encryption runs locally in your browser via Web Crypto API.</p>
-    </div>
-
-    <div class="view" id="chatView">
-      <div class="chat-meta">
-        <span id="roomLabel">ROOM: -</span>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <select id="ttlSelect" style="width:auto; padding:4px 8px; font-size:11px;">
-            <option value="0">TTL: Off</option>
-            <option value="30">TTL: 30s</option>
-            <option value="120" selected>TTL: 2m</option>
-            <option value="600">TTL: 10m</option>
-          </select>
-          <button class="btn btn-danger" id="nukeBtn" type="button" style="padding:5px 9px; font-size:11px;">NUKE</button>
-        </div>
-      </div>
-
-      <div class="messages" id="messagesBox"></div>
-
-      <form class="composer" id="sendForm">
-        <input type="text" id="msgInput" placeholder="Transmit encrypted message..." autocomplete="off" required />
-        <button class="btn btn-accent" type="submit">SEND</button>
-      </form>
-      <p class="status-note" id="chatStatus"></p>
-    </div>
-  </div>
-
-  <script>
-    const views = {
-      calc: document.getElementById("calcView"),
-      auth: document.getElementById("authView"),
-      chat: document.getElementById("chatView")
-    };
-    const headerBadge = document.getElementById("headerBadge");
-
-    function showView(name) {
-      Object.values(views).forEach(v => v.classList.remove("active"));
-      if (views[name]) views[name].classList.add("active");
-      headerBadge.textContent = name === "calc" ? "CALC // 1.0" : name === "auth" ? "AUTH // GATE" : "LINK // ACTIVE";
-    }
-
-    document.getElementById("lockBtn").addEventListener("click", () => showView("calc"));
-    document.getElementById("panicBtn").addEventListener("click", () => {
-      window.location.replace("https://www.google.com");
-    });
-
-    const calcExprEl = document.getElementById("calcExpr");
-    const calcValEl = document.getElementById("calcVal");
-    const calcGrid = document.getElementById("calcGrid");
-    let expr = "";
-    let rawSeq = "";
-
-    const keys = [
-      "C", "(", ")", "/",
-      "7", "8", "9", "*",
-      "4", "5", "6", "-",
-      "1", "2", "3", "+",
-      ".", "0", "⌫", "="
-    ];
-
-    keys.forEach(k => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = k;
-      btn.className = "key";
-      if (["/", "*", "-", "+", "(", ")", "C", "⌫"].includes(k)) btn.classList.add("key-op");
-      if (k === "=") btn.classList.add("key-eq");
-      btn.addEventListener("click", () => handleCalcKey(k));
-      calcGrid.appendChild(btn);
-    });
-
-    function handleCalcKey(k) {
-      if (k === "C") {
-        expr = "";
-        rawSeq = "";
-        calcExprEl.textContent = "";
-        calcValEl.textContent = "0";
-        return;
-      }
-      if (k === "⌫") {
-        expr = expr.slice(0, -1);
-        rawSeq = rawSeq.slice(0, -1);
-        calcValEl.textContent = expr || "0";
-        return;
-      }
-      if (k === "=") {
-        const cleanSeq = rawSeq.replace(/\s+/g, "");
-        if (cleanSeq.endsWith("1.618=") || cleanSeq.endsWith("1618=")) {
-          expr = "";
-          rawSeq = "";
-          calcExprEl.textContent = "";
-          calcValEl.textContent = "0";
-          showView("auth");
-          return;
-        }
-        try {
-          if (!/^[0-9+\-*/().\s]+$/.test(expr)) throw new Error("Invalid");
-          const result = Function('"use strict"; return (' + expr + ')')();
-          calcExprEl.textContent = expr + " =";
-          calcValEl.textContent = String(result);
-          expr = String(result);
-          rawSeq = "";
-        } catch (e) {
-          calcValEl.textContent = "ERR";
-          expr = "";
-          rawSeq = "";
-        }
-        return;
-      }
-      expr += k;
-      rawSeq += k;
-      calcValEl.textContent = expr;
-    }
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDyVqsqYbsVr0ffvo_lUThdSHR6DlAV-2M",
-      databaseURL: "https://kalah-private-node-default-rtdb.asia-southeast1.firebasedatabase.app",
-      storageBucket: "kalah-private-node.firebasestorage.app"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    async function deriveKey(passcode, saltHex) {
-      const enc = new TextEncoder();
-      const keyMaterial = await crypto.subtle.importKey(
-        "raw",
-        enc.encode(passcode),
-        "PBKDF2",
-        false,
-        ["deriveKey"]
-      );
-      const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-      return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: salt, iterations: 120000, hash: "SHA-256" },
-        keyMaterial,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt", "decrypt"]
-      );
-    }
-
-    function bufToB64(buf) {
-      return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
-    }
-    function b64ToBuf(b64) {
-      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    }
-
-    async function encryptPayload(plainText, passcode, roomId) {
-      const saltHex = Array.from(new TextEncoder().encode(roomId.padEnd(16, "0").slice(0, 16)))
-        .map(b => b.toString(16).padStart(2, "0")).join("");
-      const key = await deriveKey(passcode, saltHex);
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      const cipher = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        new TextEncoder().encode(plainText)
-      );
-      return { iv: bufToB64(iv), ct: bufToB64(cipher) };
-    }
-
-    async function decryptPayload(packet, passcode, roomId) {
-      const saltHex = Array.from(new TextEncoder().encode(roomId.padEnd(16, "0").slice(0, 16)))
-        .map(b => b.toString(16).padStart(2, "0")).join("");
-      const key = await deriveKey(passcode, saltHex);
-      const plainBuf = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: b64ToBuf(packet.iv) },
-        key,
-        b64ToBuf(packet.ct)
-      );
-      return new TextDecoder().decode(plainBuf);
-    }
-
-    let currentCallsign = "";
-    let currentRoom = "";
-    let currentPass = "";
-    let roomRef = null;
-    const messagesBox = document.getElementById("messagesBox");
-    const chatStatus = document.getElementById("chatStatus");
-
-    document.getElementById("enterRoomBtn").addEventListener("click", () => {
-      const callsign = document.getElementById("callsignInput").value.trim();
+      align-items: center;
+      justify-content: space-between
