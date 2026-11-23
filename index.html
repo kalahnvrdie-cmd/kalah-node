@@ -90,4 +90,641 @@ body{
   background:linear-gradient(135deg,rgba(225,29,72,0.18),rgba(32,44,51,0.75));
   border:1px solid rgba(255,51,95,0.35);border-radius:14px;padding:12px 14px;margin-bottom:12px;
 }
-.gate-banner h3{font-size:14
+.gate-banner h3{font-size:14px;font-weight:800;letter-spacing:0.8px;color:#fff}
+.gate-banner p{font-size:11px;color:var(--wa-muted);margin-top:3px}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.6px;color:var(--wa-muted);margin-bottom:5px;text-transform:uppercase}
+.field input,.field select{
+  width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--wa-border);
+  background:var(--wa-bg);color:var(--wa-text);font-size:13px;outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--red-bright)}
+.btn-red{
+  width:100%;padding:12px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+  color:#fff;font-size:13px;font-weight:800;letter-spacing:0.7px;cursor:pointer;
+  box-shadow:0 8px 22px rgba(225,29,72,0.3);
+}
+
+/* Chat Room */
+.room-bar{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:12px;background:var(--wa-elev);border:1px solid var(--wa-border);
+  margin-bottom:8px;font-size:11px;
+}
+.room-left{display:flex;align-items:center;gap:8px;min-width:0}
+.mini-ava{
+  width:28px;height:28px;border-radius:50%;object-fit:cover;
+  border:1.5px solid var(--red-bright);background:var(--wa-bg);flex-shrink:0;
+}
+.room-info{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-info span{color:var(--red-bright)}
+.room-tools{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.ttl-sel{
+  background:var(--wa-bg);border:1px solid var(--wa-border);color:var(--wa-text);
+  border-radius:8px;padding:4px 6px;font-size:10px;outline:none;
+}
+.btn-sm{
+  border:1px solid var(--wa-border);background:var(--wa-elev-2);color:var(--wa-text);
+  border-radius:8px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;
+}
+.btn-nuke{
+  border:1px solid rgba(255,51,95,0.45);background:var(--red-soft);color:#ff859d;
+  border-radius:8px;padding:4px 8px;font-size:10px;font-weight:800;cursor:pointer;
+}
+
+.typing-bar{min-height:16px;font-size:11px;color:#ff7590;padding:0 4px 4px;font-style:italic}
+
+.feed-wrap{position:relative}
+.chat-feed{
+  height:295px;overflow-y:auto;
+  background:radial-gradient(circle at 50% 50%,rgba(225,29,72,0.04),transparent 65%),var(--wa-bg);
+  border:1px solid var(--wa-border);border-radius:14px;padding:10px;
+  display:flex;flex-direction:column;gap:8px;margin-bottom:8px;
+}
+.scroll-btn{
+  position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(255,51,95,0.45);background:var(--wa-elev);color:#ff7590;
+  font-size:13px;font-weight:800;cursor:pointer;display:none;align-items:center;justify-content:center;
+  box-shadow:0 6px 16px rgba(0,0,0,0.5);
+}
+.scroll-btn.show{display:flex}
+
+.msg{
+  max-width:87%;background:var(--wa-elev);border:1px solid var(--wa-border);
+  border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.4;align-self:flex-start;
+}
+.msg.mine{
+  align-self:flex-end;background:linear-gradient(135deg,#3b0d19,#231118);
+  border-color:rgba(255,51,95,0.42);
+}
+.msg-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:var(--wa-muted);margin-bottom:4px}
+.msg-user{display:flex;align-items:center;gap:6px}
+.msg-ava{width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,51,95,0.4)}
+.msg-call{color:#ff6b88;font-weight:800}
+.msg.mine .msg-call{color:#ffa3b5}
+.msg-acts{display:flex;gap:6px;margin-top:5px;font-size:10px;color:var(--wa-muted)}
+.msg-acts button{background:none;border:none;color:inherit;font-size:10px;cursor:pointer;padding:0}
+.msg-acts button:hover{color:#ff7590}
+.quote-box{
+  background:rgba(0,0,0,0.28);border-left:2px solid var(--red-bright);
+  padding:4px 7px;border-radius:6px;font-size:11px;color:#cbd5e1;margin-bottom:5px;
+}
+.msg-img{max-width:210px;max-height:180px;border-radius:10px;display:block;margin-top:4px;border:1px solid rgba(255,255,255,0.1)}
+.msg-audio{width:100%;max-width:230px;height:32px;margin-top:4px}
+
+.reply-strip{
+  display:none;align-items:center;justify-content:space-between;gap:8px;
+  background:var(--wa-elev-2);border-left:3px solid var(--red-bright);
+  border-radius:9px;padding:6px 10px;margin-bottom:7px;font-size:11px;
+}
+.reply-strip.on{display:flex}
+.reply-strip button{background:none;border:none;color:#ff7590;font-weight:700;cursor:pointer}
+
+.emoji-bar{
+  display:none;flex-wrap:wrap;gap:6px;background:var(--wa-elev);border:1px solid var(--wa-border);
+  border-radius:12px;padding:8px;margin-bottom:7px;
+}
+.emoji-bar.on{display:flex}
+.emoji-bar button{
+  background:var(--wa-bg);border:1px solid var(--wa-border);border-radius:8px;
+  padding:5px 8px;font-size:15px;cursor:pointer;
+}
+
+.media-row{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px}
+.icon-btn{
+  border:1px solid var(--wa-border);background:var(--wa-elev);color:var(--wa-text);
+  border-radius:9px;padding:6px 9px;font-size:11px;font-weight:700;cursor:pointer;
+}
+.icon-btn.rec{border-color:#ff335f;background:var(--red-soft);color:#ff7590}
+
+.composer{display:flex;gap:7px;align-items:center}
+.composer input{
+  flex:1;padding:10px 13px;border-radius:999px;border:1px solid var(--wa-border);
+  background:var(--wa-elev);color:var(--wa-text);font-size:13px;outline:none;
+}
+.composer input:focus{border-color:var(--red-bright)}
+.btn-send{
+  width:42px;height:42px;border:none;border-radius:50%;
+  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+  color:#fff;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;
+}
+.status{font-size:11px;color:var(--wa-muted);margin-top:6px;min-height:14px}
+
+/* Profile Modal */
+.modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);
+  align-items:center;justify-content:center;padding:16px;z-index:50;
+}
+.modal.on{display:flex}
+.modal-card{
+  width:100%;max-width:370px;background:var(--wa-panel);border:1px solid var(--wa-border);
+  border-radius:18px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,0.8);
+}
+.ava-preview-wrap{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ava-big{
+  width:62px;height:62px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--red-bright);background:var(--wa-bg);
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-title" id="topTitle">Calculator</span>
+      <span class="brand-tag" id="topTag" style="display:none">KALAH</span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-top" id="profBtn" style="display:none">PROFILE</button>
+      <button type="button" class="btn-top" id="lockBtn">LOCK</button>
+      <button type="button" class="btn-top btn-panic" id="panicBtn">PANIC</button>
+    </div>
+  </div>
+
+  <!-- Calculator Decoy -->
+  <section class="view on" id="calcView">
+    <div class="calc-screen">
+      <div class="calc-hist" id="calcHist"></div>
+      <div class="calc-out" id="calcOut">0</div>
+    </div>
+    <div class="calc-grid" id="calcGrid"></div>
+  </section>
+
+  <!-- KALAH Node Gate -->
+  <section class="view" id="authView">
+    <div class="gate-banner">
+      <h3>KALAH // SECURE NODE</h3>
+      <p>End-to-end encrypted room (AES-256-GCM)</p>
+    </div>
+    <div class="field">
+      <label>Callsign</label>
+      <input id="csInput" maxlength="24" placeholder="Enter your callsign">
+    </div>
+    <div class="field">
+      <label>Room ID</label>
+      <input id="rmInput" maxlength="40" placeholder="Enter room ID">
+    </div>
+    <div class="field">
+      <label>Shared Passcode</label>
+      <input id="psInput" type="password" placeholder="Enter secret passcode">
+    </div>
+    <button type="button" class="btn-red" id="joinBtn">ENTER KALAH NODE</button>
+    <div class="status" id="authStatus">Local browser encryption active.</div>
+  </section>
+
+  <!-- KALAH Encrypted Chat -->
+  <section class="view" id="chatView">
+    <div class="room-bar">
+      <div class="room-left">
+        <img class="mini-ava" id="myMiniAva" alt="ava" src="">
+        <div class="room-info" id="roomTitle">KALAH <span>// ROOM</span></div>
+      </div>
+      <div class="room-tools">
+        <select class="ttl-sel" id="ttlSelect">
+          <option value="900" selected>15m</option>
+          <option value="600">10m</option>
+          <option value="120">2m</option>
+          <option value="30">30s</option>
+        </select>
+        <button type="button" class="btn-nuke" id="nukeBtn">NUKE</button>
+      </div>
+    </div>
+
+    <div class="typing-bar" id="typingBar"></div>
+
+    <div class="feed-wrap">
+      <div class="chat-feed" id="chatFeed"></div>
+      <button type="button" class="scroll-btn" id="scrollBtn" title="Scroll down">↓</button>
+    </div>
+
+    <div class="reply-strip" id="replyStrip">
+      <span id="replyText">Replying...</span>
+      <button type="button" id="cancelReplyBtn">✕</button>
+    </div>
+
+    <div class="emoji-bar" id="emojiBar"></div>
+
+    <div class="media-row">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button type="button" class="icon-btn" id="emojiToggleBtn">😊 Emoji</button>
+        <button type="button" class="icon-btn" id="imgBtn">📷 Photo</button>
+        <button type="button" class="icon-btn" id="voiceBtn">🎙️ Voice ≤15KB</button>
+      </div>
+      <span style="font-size:10px;color:var(--wa-muted)" id="voiceTimer"></span>
+    </div>
+    <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+
+    <form class="composer" id="msgForm">
+      <input id="msgInput" autocomplete="off" placeholder="Message KALAH node..." required>
+      <button class="btn-send" type="submit">➤</button>
+    </form>
+    <div class="status" id="chatStatus"></div>
+  </section>
+</div>
+
+<!-- KALAH Profile Modal -->
+<div class="modal" id="profileModal">
+  <div class="modal-card">
+    <h3 style="font-size:14px;font-weight:800;color:#ff7590;margin-bottom:12px">KALAH // PROFILE</h3>
+    <div class="ava-preview-wrap">
+      <img class="ava-big" id="profAvaPreview" src="" alt="Profile">
+      <div>
+        <button type="button" class="btn-sm" id="pickAvaBtn">Choose Photo</button>
+        <button type="button" class="btn-sm" id="clearAvaBtn" style="margin-left:4px">Reset</button>
+        <input type="file" id="profFileInput" accept="image/*" style="display:none">
+        <div style="font-size:10px;color:var(--wa-muted);margin-top:4px">Auto-compressed for fast sync</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Callsign</label>
+      <input id="profCallInput" maxlength="24" placeholder="Callsign">
+    </div>
+    <div class="field">
+      <label>Status / Note</label>
+      <input id="profBioInput" maxlength="60" placeholder="e.g. Node online // 1.618">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button type="button" class="btn-red" id="saveProfBtn">SAVE PROFILE</button>
+      <button type="button" class="btn-top" id="closeProfBtn" style="padding:0 14px;border-radius:12px">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_AVA = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="32" fill="#1b262e"/><circle cx="32" cy="25" r="11" fill="#ff335f"/><path d="M12 56c3-11 12-17 20-17s17 6 20 17" fill="#9f1239"/></svg>'
+);
+
+const V={calc:calcView,auth:authView,chat:chatView};
+window.goView=n=>{
+  Object.values(V).forEach(x=>x.classList.remove("on"));
+  V[n].classList.add("on");
+  if(n==="calc"){
+    topTitle.textContent="Calculator";
+    topTag.style.display="none";
+    profBtn.style.display="none";
+  }else if(n==="auth"){
+    topTitle.textContent="KALAH Node";
+    topTag.style.display="inline-block";
+    profBtn.style.display="none";
+  }else{
+    topTitle.textContent="KALAH Chat";
+    topTag.style.display="inline-block";
+    profBtn.style.display="inline-block";
+  }
+};
+lockBtn.onclick=()=>window.goView("calc");
+panicBtn.onclick=()=>location.replace("https://www.google.com");
+
+let ex="",seq="";
+const ks=["C","(",")","/","7","8","9","*","4","5","6","-","1","2","3","+",".","0","⌫","="];
+ks.forEach(k=>{
+  const b=document.createElement("button");b.type="button";b.textContent=k;b.className="key";
+  if(["C","(",")","⌫"].includes(k))b.classList.add("fn");
+  if(["/","*","-","+"].includes(k))b.classList.add("op");
+  if(k==="=")b.classList.add("eq");
+  b.onclick=()=>tap(k);calcGrid.appendChild(b);
+});
+function tap(k){
+  if(k==="C"){ex="";seq="";calcHist.textContent="";calcOut.textContent="0";return}
+  if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);calcOut.textContent=ex||"0";return}
+  if(k==="="){
+    const s=(seq+"=").replace(/\s+/g,"");
+    const cur=ex.replace(/\s+/g,"");
+    if(s.endsWith("1.618=")||s.endsWith("1618=")||cur==="1.618"||cur==="1618"){
+      ex="";seq="";calcHist.textContent="";calcOut.textContent="0";
+      if(typeof window.goView==="function")window.goView("auth");
+      return;
+    }
+    try{
+      if(!ex||!/^[0-9+\-*/().\s]+$/.test(ex))throw 0;
+      const r=Function('"use strict";return('+ex+')')();
+      if(typeof r!=="number"||!isFinite(r))throw 0;
+      const clean=String(Number(r.toFixed(10)));
+      calcHist.textContent=ex+" =";calcOut.textContent=clean;ex=clean;seq="";
+    }catch{calcOut.textContent="Error";ex="";seq=""}
+    return;
+  }
+  ex+=k;seq+=k;calcOut.textContent=ex;
+}
+
+const emojis=["🔥","⚡","💀","🖤","❤️","😂","🫡","👀","✨","🎯","🔒","🎙️","🚀","🤝","😎","💯"];
+emojis.forEach(em=>{
+  const b=document.createElement("button");b.type="button";b.textContent=em;
+  b.onclick=()=>{msgInput.value+=em;msgInput.focus();};
+  emojiBar.appendChild(b);
+});
+emojiToggleBtn.onclick=()=>emojiBar.classList.toggle("on");
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import{getDatabase,ref,push,onChildAdded,onChildRemoved,onValue,remove,set}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+const cfg={
+  apiKey:atob("QUl6YVN5RHlWc3FZYnNWcjBmZnZvX2xVVGhkU0hSNkRsQVYtMk0="),
+  databaseURL:atob("aHR0cHM6Ly9rYWxhaC1wcml2YXRlLW5vZGUtZGVmYXVsdC1ydGRiLmFzaWEtc291dGhlYXN0MS5maXJlYmFzZWRhdGFiYXNlLmFwcA=="),
+  storageBucket:atob("a2FsYWgtcHJpdmF0ZS1ub2RlLmZpcmViYXNlc3RvcmFnZS5hcHA=")
+};
+const db=getDatabase(initializeApp(cfg));
+
+const enc=new TextEncoder(),dec=new TextDecoder();
+async function kdf(pass,room){
+  const km=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveKey"]);
+  const sh=Array.from(enc.encode(room.padEnd(16,"0").slice(0,16))).map(b=>b.toString(16).padStart(2,"0")).join("");
+  const salt=new Uint8Array(sh.match(/.{1,2}/g).map(h=>parseInt(h,16)));
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+const b2s=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const s2b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function encM(t,p,r){const k=await kdf(p,r),iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},k,enc.encode(t));return{iv:b2s(iv),ct:b2s(c)}}
+async function decM(o,p,r){const k=await kdf(p,r);const b=await crypto.subtle.decrypt({name:"AES-GCM",iv:s2b(o.iv)},k,s2b(o.ct));return dec.decode(b)}
+
+const DEFAULT_TTL_SECONDS=900;
+let me="",room="",pass="",mRef=null,replyTarget=null;
+let myProfile={bio:"KALAH Node",ava:""};
+
+function loadSavedProfile(){
+  try{
+    const raw=localStorage.getItem("kalah_prof_v1");
+    if(raw){const p=JSON.parse(raw);myProfile={bio:p.bio||"KALAH Node",ava:p.ava||""};}
+  }catch{}
+}
+function saveLocalProfile(){
+  try{localStorage.setItem("kalah_prof_v1",JSON.stringify(myProfile));}catch{}
+}
+loadSavedProfile();
+
+function refreshProfileUI(){
+  const src=myProfile.ava||DEFAULT_AVA;
+  myMiniAva.src=src;
+  profAvaPreview.src=src;
+  profCallInput.value=me;
+  profBioInput.value=myProfile.bio;
+  if(room)roomTitle.innerHTML="KALAH <span>// "+esc(room)+" (@"+esc(me)+")</span>";
+}
+
+profBtn.onclick=()=>{refreshProfileUI();profileModal.classList.add("on");};
+closeProfBtn.onclick=()=>profileModal.classList.remove("on");
+pickAvaBtn.onclick=()=>profFileInput.click();
+clearAvaBtn.onclick=()=>{myProfile.ava="";refreshProfileUI();};
+
+profFileInput.onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  myProfile.ava=await compressImageToDataUrl(file,96,0.65);
+  refreshProfileUI();
+  e.target.value="";
+};
+
+saveProfBtn.onclick=async()=>{
+  const newCs=profCallInput.value.trim();
+  if(newCs)me=newCs;
+  myProfile.bio=profBioInput.value.trim()||"KALAH Node";
+  saveLocalProfile();
+  refreshProfileUI();
+  profileModal.classList.remove("on");
+  if(room){
+    try{
+      const pEnc=await encM(JSON.stringify(myProfile),pass,room);
+      await set(ref(db,"rooms/"+room+"/profiles/"+encodeKey(me)),pEnc);
+      chatStatus.textContent="Profile updated.";
+    }catch{}
+  }
+};
+
+function encodeKey(s){return String(s).replace(/[.#$[\]/]/g,"_");}
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+function compressImageToDataUrl(file,maxDim,quality){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
+        else if(h>=w&&h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        resolve(c.toDataURL("image/jpeg",quality));
+      };
+      img.onerror=reject;img.src=reader.result;
+    };
+    reader.onerror=reject;reader.readAsDataURL(file);
+  });
+}
+
+function setReply(sender,preview){
+  replyTarget={sender,preview};
+  replyText.textContent="Reply to @"+sender+": "+preview;
+  replyStrip.classList.add("on");
+  msgInput.focus();
+}
+cancelReplyBtn.onclick=()=>{replyTarget=null;replyStrip.classList.remove("on");};
+
+let typingTimer=null;
+msgInput.addEventListener("input",()=>{
+  if(!room||!me)return;
+  set(ref(db,"rooms/"+room+"/typing/"+encodeKey(me)),Date.now()).catch(()=>{});
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>{
+    remove(ref(db,"rooms/"+room+"/typing/"+encodeKey(me))).catch(()=>{});
+  },1800);
+});
+
+chatFeed.addEventListener("scroll",()=>{
+  const nearBottom=chatFeed.scrollHeight-chatFeed.scrollTop-chatFeed.clientHeight<60;
+  scrollBtn.classList.toggle("show",!nearBottom);
+});
+scrollBtn.onclick=()=>{chatFeed.scrollTop=chatFeed.scrollHeight;scrollBtn.classList.remove("show");};
+
+joinBtn.onclick=async()=>{
+  const c=csInput.value.trim(),r=encodeKey(rmInput.value.trim()),p=psInput.value;
+  if(!c||!r||!p){authStatus.textContent="Callsign, Room ID, and Passcode are required.";return}
+  me=c;room=r;pass=p;
+  chatFeed.innerHTML="";
+  refreshProfileUI();
+  window.goView("chat");
+
+  try{
+    const pEnc=await encM(JSON.stringify(myProfile),pass,room);
+    await set(ref(db,"rooms/"+room+"/profiles/"+encodeKey(me)),pEnc);
+  }catch{}
+
+  onValue(ref(db,"rooms/"+room+"/typing"),snap=>{
+    const val=snap.val()||{};
+    const now=Date.now();
+    const active=Object.entries(val)
+      .filter(([k,ts])=>k!==encodeKey(me)&&now-ts<2500)
+      .map(([k])=>"@"+k);
+    typingBar.textContent=active.length?active.join(", ")+" typing...":"";
+  });
+
+  mRef=ref(db,"rooms/"+room+"/messages");
+  onChildAdded(mRef,async snap=>{
+    const d=snap.val();if(!d)return;
+    const expTime=d.exp||((d.ts||Date.now())+DEFAULT_TTL_SECONDS*1000);
+    if(Date.now()>expTime){remove(ref(db,"rooms/"+room+"/messages/"+snap.key)).catch(()=>{});return}
+    try{
+      const s=await decM(d.s,pass,room);
+      const rawBody=await decM(d.b,pass,room);
+      let payload;
+      try{payload=JSON.parse(rawBody);}catch{payload={kind:"text",text:rawBody};}
+      addB(snap.key,s,payload,d.ts,s===me,expTime,d.ava||"");
+      if(s!==me&&navigator.vibrate)navigator.vibrate(25);
+    }catch{
+      addB(snap.key,"UNKNOWN",{kind:"text",text:"[Key mismatch]"},d.ts,false,expTime,"");
+    }
+  });
+  onChildRemoved(mRef,snap=>{const el=document.getElementById("m-"+snap.key);if(el)el.remove()});
+};
+
+function addB(id,s,payload,ts,mine,exp,ava){
+  if(document.getElementById("m-"+id))return;
+  const nearBottom=chatFeed.scrollHeight-chatFeed.scrollTop-chatFeed.clientHeight<80;
+  const d=document.createElement("div");d.id="m-"+id;d.className="msg"+(mine?" mine":"");
+  const tm=new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  const avatarSrc=mine?(myProfile.ava||ava||DEFAULT_AVA):(ava||DEFAULT_AVA);
+
+  let quoteHtml="";
+  if(payload.reply){
+    quoteHtml='<div class="quote-box"><b>@'+esc(payload.reply.sender)+':</b> '+esc(payload.reply.preview)+'</div>';
+  }
+
+  let bodyHtml="";
+  let plainForCopy="";
+  if(payload.kind==="image"&&payload.img){
+    bodyHtml='<img class="msg-img" src="'+payload.img+'" alt="photo">';
+    plainForCopy="[Photo]";
+  }else if(payload.kind==="audio"&&payload.audio){
+    bodyHtml='<audio class="msg-audio" controls src="'+payload.audio+'"></audio>';
+    plainForCopy="[Voice note]";
+  }else{
+    bodyHtml='<div>'+esc(payload.text||"")+'</div>';
+    plainForCopy=payload.text||"";
+  }
+
+  d.innerHTML=
+    '<div class="msg-top"><span class="msg-user"><img class="msg-ava" src="'+avatarSrc+'" alt=""><span class="msg-call">@'+esc(s)+'</span></span><span>'+tm+'</span></div>'+
+    quoteHtml+bodyHtml+
+    '<div class="msg-acts"><button type="button" class="act-rep">Reply</button><button type="button" class="act-cp">Copy</button></div>';
+
+  d.querySelector(".act-rep").onclick=()=>setReply(s,plainForCopy);
+  d.querySelector(".act-cp").onclick=async()=>{
+    try{await navigator.clipboard.writeText(plainForCopy);chatStatus.textContent="Copied.";}
+    catch{chatStatus.textContent="Copy unavailable.";}
+  };
+
+  chatFeed.appendChild(d);
+  if(nearBottom||mine)chatFeed.scrollTop=chatFeed.scrollHeight;
+  else scrollBtn.classList.add("show");
+
+  if(exp)setTimeout(()=>remove(ref(db,"rooms/"+room+"/messages/"+id)).catch(()=>{}),Math.max(0,exp-Date.now()));
+}
+
+async function sendPayload(payload){
+  if(!mRef)return;
+  if(replyTarget){payload.reply=replyTarget;}
+  const ttlS=parseInt(ttlSelect.value,10)||DEFAULT_TTL_SECONDS;
+  const now=Date.now();
+  const exp=now+ttlS*1000;
+  await push(mRef,{
+    s:await encM(me,pass,room),
+    b:await encM(JSON.stringify(payload),pass,room),
+    ava:myProfile.ava||"",
+    ts:now,
+    exp
+  });
+  replyTarget=null;replyStrip.classList.remove("on");
+  remove(ref(db,"rooms/"+room+"/typing/"+encodeKey(me))).catch(()=>{});
+}
+
+msgForm.onsubmit=async e=>{
+  e.preventDefault();const t=msgInput.value.trim();if(!t||!mRef)return;
+  try{
+    await sendPayload({kind:"text",text:t});
+    msgInput.value="";
+    chatStatus.textContent="Encrypted & sent (auto-deletes in 15m).";
+  }catch(err){chatStatus.textContent="Error: "+err.message}
+};
+
+imgBtn.onclick=()=>imgFileInput.click();
+imgFileInput.onchange=async e=>{
+  const file=e.target.files[0];if(!file||!mRef)return;
+  try{
+    chatStatus.textContent="Compressing & encrypting photo...";
+    const dataUrl=await compressImageToDataUrl(file,220,0.55);
+    await sendPayload({kind:"image",img:dataUrl});
+    chatStatus.textContent="Encrypted photo sent (auto-deletes in 15m).";
+  }catch(err){chatStatus.textContent="Photo error: "+err.message}
+  e.target.value="";
+};
+
+/* <= 15 KB Voice Recorder */
+let recorder=null,chunks=[],recInterval=null,recStart=0;
+const MAX_VOICE_BYTES=15*1024;
+
+voiceBtn.onclick=async()=>{
+  if(recorder&&recorder.state==="recording"){
+    recorder.stop();
+    return;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    chatStatus.textContent="Microphone not supported in browser.";
+    return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mimeType=MediaRecorder.isTypeSupported("audio/webm;codecs=opus")?"audio/webm;codecs=opus":"";
+    recorder=new MediaRecorder(stream,mimeType?{mimeType,audioBitsPerSecond:16000}:{audioBitsPerSecond:16000});
+    chunks=[];
+    recStart=Date.now();
+    voiceBtn.classList.add("rec");
+    voiceBtn.textContent="⏹ Stop (≤15KB)";
+
+    recInterval=setInterval(()=>{
+      const sec=((Date.now()-recStart)/1000).toFixed(1);
+      const approxBytes=chunks.reduce((a,b)=>a+b.size,0);
+      voiceTimer.textContent=sec+"s · "+(approxBytes/1024).toFixed(1)+"KB";
+      if(approxBytes>=MAX_VOICE_BYTES||Date.now()-recStart>=8000){
+        if(recorder&&recorder.state==="recording")recorder.stop();
+      }
+    },150);
+
+    recorder.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
+    recorder.onstop=async()=>{
+      clearInterval(recInterval);
+      voiceBtn.classList.remove("rec");
+      voiceBtn.textContent="🎙️ Voice ≤15KB";
+      voiceTimer.textContent="";
+      stream.getTracks().forEach(tr=>tr.stop());
+
+      const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});
+      if(blob.size===0)return;
+      if(blob.size>MAX_VOICE_BYTES){
+        chatStatus.textContent="Voice "+(blob.size/1024).toFixed(1)+"KB exceeded 15KB limit — keep it shorter.";
+        return;
+      }
+      const reader=new FileReader();
+      reader.onload=async()=>{
+        try{
+          await sendPayload({kind:"audio",audio:reader.result});
+          chatStatus.textContent="Voice ("+(blob.size/1024).toFixed(1)+"KB) sent (auto-deletes in 15m).";
+        }catch(err){chatStatus.textContent="Voice error: "+err.message}
+      };
+      reader.readAsDataURL(blob);
+    };
+
+    recorder.start(200);
+  }catch(err){
+    chatStatus.textContent="Mic error: "+err.message;
+  }
+};
+
+nukeBtn.onclick=async()=>{
+  if(!room)return;await set(ref(db,"rooms/"+room),null);chatFeed.innerHTML="";chatStatus.textContent="Room nuked.";
+};
+</script>
+</body>
+</html>
