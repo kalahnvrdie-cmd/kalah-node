@@ -15,7 +15,6 @@
       --accent: #ff2a55;
       --accent-2: #7c4dff;
       --cyan: #00e5ff;
-      --ok: #00e676;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
@@ -50,11 +49,7 @@
       color: var(--muted);
     }
 
-    .badge {
-      color: var(--cyan);
-      letter-spacing: 1px;
-      font-weight: 700;
-    }
+    .badge { color: var(--cyan); letter-spacing: 1px; font-weight: 700; }
 
     .btn {
       background: var(--panel-2);
@@ -64,7 +59,6 @@
       padding: 7px 11px;
       font-size: 12px;
       cursor: pointer;
-      transition: 0.15s ease;
     }
     .btn:hover { border-color: var(--cyan); }
     .btn-accent {
@@ -77,9 +71,7 @@
       border-color: rgba(255, 42, 85, 0.5);
       color: #ff6b88;
     }
-    .btn-danger:hover { background: rgba(255, 42, 85, 0.15); }
 
-    /* Calculator Decoy */
     .calc-wrap { padding: 18px; }
     .calc-screen {
       background: #050508;
@@ -106,11 +98,9 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .key:active { transform: scale(0.97); }
     .key-op { color: var(--cyan); }
     .key-eq { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #fff; }
 
-    /* Auth / Room Setup */
     .view { display: none; padding: 18px; }
     .view.active { display: block; }
     .field { margin-bottom: 12px; }
@@ -127,7 +117,6 @@
     }
     input:focus, select:focus { border-color: var(--cyan); }
 
-    /* Chat View */
     .chat-meta {
       display: flex;
       gap: 8px;
@@ -167,10 +156,7 @@
       margin-bottom: 3px;
     }
     .msg-sender { color: var(--cyan); font-weight: 700; }
-    .composer {
-      display: flex;
-      gap: 8px;
-    }
+    .composer { display: flex; gap: 8px; }
     .composer input { flex: 1; }
     .status-note { font-size: 11px; color: var(--muted); margin-top: 8px; }
   </style>
@@ -180,12 +166,11 @@
     <div class="topbar">
       <span class="badge" id="headerBadge">CALC // 1.0</span>
       <div style="display:flex; gap:6px;">
-        <button class="btn" id="lockBtn" title="Lock to Calculator">LOCK</button>
-        <button class="btn btn-danger" id="panicBtn" title="Panic Exit">PANIC</button>
+        <button class="btn" id="lockBtn" type="button">LOCK</button>
+        <button class="btn btn-danger" id="panicBtn" type="button">PANIC</button>
       </div>
     </div>
 
-    <!-- 1. DECOY CALCULATOR -->
     <div class="view active" id="calcView">
       <div class="calc-wrap">
         <div class="calc-screen">
@@ -196,7 +181,6 @@
       </div>
     </div>
 
-    <!-- 2. ROOM & CALLSIGN UNLOCK -->
     <div class="view" id="authView">
       <h3 style="margin-bottom:12px; font-size:15px; color:var(--cyan);">ENCRYPTED NODE ACCESS</h3>
       <div class="field">
@@ -211,11 +195,10 @@
         <label>Shared Secret Passcode (AES-256-GCM)</label>
         <input type="password" id="passInput" placeholder="Strong shared key" />
       </div>
-      <button class="btn btn-accent" style="width:100%; padding:11px;" id="enterRoomBtn">ENTER CHANNEL</button>
+      <button class="btn btn-accent" style="width:100%; padding:11px;" id="enterRoomBtn" type="button">ENTER CHANNEL</button>
       <p class="status-note" id="authStatus">Encryption runs locally in your browser via Web Crypto API.</p>
     </div>
 
-    <!-- 3. ENCRYPTED CHAT -->
     <div class="view" id="chatView">
       <div class="chat-meta">
         <span id="roomLabel">ROOM: -</span>
@@ -226,7 +209,7 @@
             <option value="120" selected>TTL: 2m</option>
             <option value="600">TTL: 10m</option>
           </select>
-          <button class="btn btn-danger" id="nukeBtn" style="padding:5px 9px; font-size:11px;">NUKE</button>
+          <button class="btn btn-danger" id="nukeBtn" type="button" style="padding:5px 9px; font-size:11px;">NUKE</button>
         </div>
       </div>
 
@@ -240,20 +223,7 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDyVqsqYbsVr0ffvo_lUThdSHR6DlAV-2M",
-      databaseURL: "https://kalah-private-node-default-rtdb.asia-southeast1.firebasedatabase.app",
-      storageBucket: "kalah-private-node.firebasestorage.app"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // --- UI NAVIGATION ---
+  <script>
     const views = {
       calc: document.getElementById("calcView"),
       auth: document.getElementById("authView"),
@@ -263,7 +233,7 @@
 
     function showView(name) {
       Object.values(views).forEach(v => v.classList.remove("active"));
-      views[name].classList.add("active");
+      if (views[name]) views[name].classList.add("active");
       headerBadge.textContent = name === "calc" ? "CALC // 1.0" : name === "auth" ? "AUTH // GATE" : "LINK // ACTIVE";
     }
 
@@ -272,7 +242,6 @@
       window.location.replace("https://www.google.com");
     });
 
-    // --- CALCULATOR DECOY (1.618=) ---
     const calcExprEl = document.getElementById("calcExpr");
     const calcValEl = document.getElementById("calcVal");
     const calcGrid = document.getElementById("calcGrid");
@@ -324,12 +293,12 @@
         }
         try {
           if (!/^[0-9+\-*/().\s]+$/.test(expr)) throw new Error("Invalid");
-          const result = Function(`"use strict"; return (${expr})`)();
+          const result = Function('"use strict"; return (' + expr + ')')();
           calcExprEl.textContent = expr + " =";
           calcValEl.textContent = String(result);
           expr = String(result);
           rawSeq = "";
-        } catch {
+        } catch (e) {
           calcValEl.textContent = "ERR";
           expr = "";
           rawSeq = "";
@@ -340,8 +309,21 @@
       rawSeq += k;
       calcValEl.textContent = expr;
     }
+  </script>
 
-    // --- CLIENT-SIDE AES-256-GCM ---
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDyVqsqYbsVr0ffvo_lUThdSHR6DlAV-2M",
+      databaseURL: "https://kalah-private-node-default-rtdb.asia-southeast1.firebasedatabase.app",
+      storageBucket: "kalah-private-node.firebasestorage.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     async function deriveKey(passcode, saltHex) {
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey(
@@ -353,7 +335,7 @@
       );
       const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt, iterations: 120000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: salt, iterations: 120000, hash: "SHA-256" },
         keyMaterial,
         { name: "AES-GCM", length: 256 },
         false,
@@ -362,7 +344,7 @@
     }
 
     function bufToB64(buf) {
-      return btoa(String.fromCharCode(...new Uint8Array(buf)));
+      return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
     }
     function b64ToBuf(b64) {
       return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -374,7 +356,7 @@
       const key = await deriveKey(passcode, saltHex);
       const iv = crypto.getRandomValues(new Uint8Array(12));
       const cipher = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv },
+        { name: "AES-GCM", iv: iv },
         key,
         new TextEncoder().encode(plainText)
       );
@@ -393,7 +375,6 @@
       return new TextDecoder().decode(plainBuf);
     }
 
-    // --- ROOM & CHAT LOGIC ---
     let currentCallsign = "";
     let currentRoom = "";
     let currentPass = "";
@@ -401,114 +382,5 @@
     const messagesBox = document.getElementById("messagesBox");
     const chatStatus = document.getElementById("chatStatus");
 
-    document.getElementById("enterRoomBtn").addEventListener("click", async () => {
+    document.getElementById("enterRoomBtn").addEventListener("click", () => {
       const callsign = document.getElementById("callsignInput").value.trim();
-      const room = document.getElementById("roomInput").value.trim().replace(/[.#$[\]/]/g, "_");
-      const pass = document.getElementById("passInput").value;
-      const authStatus = document.getElementById("authStatus");
-
-      if (!callsign || !room || !pass) {
-        authStatus.textContent = "Callsign, Room ID, and Passcode are required.";
-        return;
-      }
-
-      currentCallsign = callsign;
-      currentRoom = room;
-      currentPass = pass;
-      messagesBox.innerHTML = "";
-      document.getElementById("roomLabel").textContent = `ROOM: ${currentRoom} // @${currentCallsign}`;
-      showView("chat");
-      startRoomListener();
-    });
-
-    function startRoomListener() {
-      roomRef = ref(db, `rooms/${currentRoom}/messages`);
-      onChildAdded(roomRef, async (snap) => {
-        const data = snap.val();
-        if (!data) return;
-
-        // Auto-delete check
-        if (data.expiresAt && Date.now() > data.expiresAt) {
-          remove(ref(db, `rooms/${currentRoom}/messages/${snap.key}`));
-          return;
-        }
-
-        try {
-          const sender = await decryptPayload(data.senderEnc, currentPass, currentRoom);
-          const text = await decryptPayload(data.bodyEnc, currentPass, currentRoom);
-          renderMessage(snap.key, sender, text, data.ts, sender === currentCallsign, data.expiresAt);
-        } catch {
-          renderMessage(snap.key, "UNKNOWN", "[Decryption failed — check passcode]", data.ts, false, data.expiresAt);
-        }
-      });
-
-      onChildRemoved(roomRef, (snap) => {
-        const el = document.getElementById(`msg-${snap.key}`);
-        if (el) el.remove();
-      });
-    }
-
-    function renderMessage(id, sender, text, ts, isMine, expiresAt) {
-      if (document.getElementById(`msg-${id}`)) return;
-      const div = document.createElement("div");
-      div.id = `msg-${id}`;
-      div.className = `msg ${isMine ? "mine" : ""}`;
-
-      const timeStr = new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      div.innerHTML = `
-        <div class="msg-head">
-          <span class="msg-sender">@${escapeHtml(sender)}</span>
-          <span>${timeStr}</span>
-        </div>
-        <div>${escapeHtml(text)}</div>
-      `;
-      messagesBox.appendChild(div);
-      messagesBox.scrollTop = messagesBox.scrollHeight;
-
-      if (expiresAt) {
-        const delay = Math.max(0, expiresAt - Date.now());
-        setTimeout(() => {
-          remove(ref(db, `rooms/${currentRoom}/messages/${id}`)).catch(() => {});
-        }, delay);
-      }
-    }
-
-    document.getElementById("sendForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const input = document.getElementById("msgInput");
-      const plain = input.value.trim();
-      if (!plain || !roomRef) return;
-
-      const ttlSec = parseInt(document.getElementById("ttlSelect").value, 10);
-      const now = Date.now();
-      const expiresAt = ttlSec > 0 ? now + ttlSec * 1000 : null;
-
-      try {
-        const senderEnc = await encryptPayload(currentCallsign, currentPass, currentRoom);
-        const bodyEnc = await encryptPayload(plain, currentPass, currentRoom);
-        await push(roomRef, {
-          senderEnc,
-          bodyEnc,
-          ts: now,
-          expiresAt
-        });
-        input.value = "";
-        chatStatus.textContent = ttlSec > 0 ? `Encrypted & sent (auto-delete in ${ttlSec}s).` : "Encrypted & sent.";
-      } catch (err) {
-        chatStatus.textContent = "Send error: " + err.message;
-      }
-    });
-
-    document.getElementById("nukeBtn").addEventListener("click", async () => {
-      if (!currentRoom) return;
-      await set(ref(db, `rooms/${currentRoom}`), null);
-      messagesBox.innerHTML = "";
-      chatStatus.textContent = "Room nuked.";
-    });
-
-    function escapeHtml(s) {
-      return s.replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
-    }
-  </script>
-</body>
-</html>
