@@ -5,104 +5,383 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Calculator</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#06080f;color:#f4f6ff;padding:16px}
-.box{width:100%;max-width:410px;background:#101422;border:1px solid #222942;border-radius:24px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7)}
-.top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:#151a2c;border-bottom:1px solid #222942;font-size:12px}
-.top span{font-weight:700;color:#dce4ff}
-.top button{border:1px solid #2b3454;background:#1c233b;color:#dce4ff;padding:5px 10px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer}
-.top .panic{border-color:#ff3b6b66;background:#ff3b6b1c;color:#ff7a98}
-.view{display:none;padding:16px}.view.on{display:block}
-.scr{background:#080a12;border:1px solid #222942;border-radius:16px;padding:16px;text-align:right;margin-bottom:14px;min-height:96px}
-.hist{font-size:12px;color:#8892b8;min-height:16px}
-.out{font-size:34px;font-weight:700;margin-top:4px;word-break:break-all}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.k{height:56px;border-radius:14px;border:1px solid #242c47;background:#171d31;color:#f4f6ff;font-size:18px;font-weight:600;cursor:pointer}
-.k:active{transform:scale(.96)}
-.k.fn{color:#93c5fd;background:#1c294a}
-.k.op{color:#22d3ee}
-.k.eq{background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff}
-.f{margin-bottom:11px}
-label{display:block;font-size:11px;color:#8892b8;margin-bottom:5px;text-transform:uppercase}
-input,select{width:100%;padding:10px 12px;border-radius:11px;border:1px solid #252e4a;background:#080a12;color:#f4f6ff;font-size:13px}
-.go{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:700;cursor:pointer}
-.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:#9aa4c7;margin-bottom:10px}
-.msgs{height:320px;overflow-y:auto;background:#080a12;border:1px solid #222942;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.m{background:#151b2e;border:1px solid #232c48;border-radius:12px;padding:8px 10px;font-size:13px}
-.m.me{border-left:3px solid #22d3ee}
-.mh{display:flex;justify-content:space-between;font-size:10px;color:#8892b8;margin-bottom:3px}
-.mh b{color:#22d3ee}
-.row{display:flex;gap:8px}.row input{flex:1}
-.send{padding:0 15px;border:none;border-radius:11px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:700;cursor:pointer}
-.nuke{padding:4px 9px;border-radius:8px;border:1px solid #ff3b6b66;background:#ff3b6b1c;color:#ff7a98;font-size:11px;font-weight:700;cursor:pointer}
-.note{font-size:11px;color:#8892b8;margin-top:7px;min-height:14px}
+:root{
+  --wa-bg:#0b141a;
+  --wa-panel:#111b21;
+  --wa-elev:#202c33;
+  --wa-elev-2:#2a3942;
+  --wa-border:#25333d;
+  --wa-text:#e9edef;
+  --wa-muted:#8696a0;
+  --red:#e11d48;
+  --red-dark:#9f1239;
+  --red-bright:#ff335f;
+  --red-soft:rgba(225,29,72,0.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 85% 15%,rgba(225,29,72,0.16),transparent 42%),
+    radial-gradient(circle at 15% 85%,rgba(159,18,57,0.14),transparent 45%),
+    var(--wa-bg);
+  color:var(--wa-text);
+  padding:14px;
+}
+.app{
+  width:100%;
+  max-width:420px;
+  background:var(--wa-panel);
+  border:1px solid var(--wa-border);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,0.72),0 0 0 1px rgba(225,29,72,0.08);
+}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:13px 16px;
+  background:var(--wa-elev);
+  border-bottom:1px solid var(--wa-border);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  color:var(--wa-text);
+}
+.brand-tag{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.1px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:var(--red-soft);
+  border:1px solid rgba(255,51,95,0.4);
+  color:var(--red-bright);
+}
+.actions{display:flex;gap:7px}
+.btn-top{
+  border:1px solid var(--wa-border);
+  background:var(--wa-elev-2);
+  color:var(--wa-text);
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.15s ease;
+}
+.btn-top:hover{border-color:rgba(255,51,95,0.5)}
+.btn-panic{
+  border-color:rgba(255,51,95,0.45);
+  background:var(--red-soft);
+  color:#ff7590;
+}
+
+.view{display:none;padding:16px}
+.view.on{display:block}
+
+/* Calculator */
+.calc-screen{
+  background:var(--wa-bg);
+  border:1px solid var(--wa-border);
+  border-radius:16px;
+  padding:16px;
+  text-align:right;
+  margin-bottom:14px;
+  min-height:98px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.calc-hist{font-size:12px;color:var(--wa-muted);min-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calc-out{font-size:35px;font-weight:700;letter-spacing:-0.5px;color:var(--wa-text);margin-top:4px;word-break:break-all}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.key{
+  height:56px;
+  border-radius:14px;
+  border:1px solid var(--wa-border);
+  background:var(--wa-elev);
+  color:var(--wa-text);
+  font-size:18px;
+  font-weight:600;
+  cursor:pointer;
+  transition:transform 0.08s ease,background 0.15s ease,border-color 0.15s ease;
+}
+.key:hover{background:var(--wa-elev-2)}
+.key:active{transform:scale(0.95)}
+.key.fn{background:var(--red-soft);border-color:rgba(225,29,72,0.32);color:#ff859d}
+.key.op{color:#ff5c7c;background:#18242c}
+.key.eq{
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  border:none;
+  color:#fff;
+  box-shadow:0 8px 22px rgba(225,29,72,0.35);
+}
+
+/* Auth Gate */
+.gate-banner{
+  background:linear-gradient(135deg,rgba(225,29,72,0.18),rgba(32,44,51,0.7));
+  border:1px solid rgba(255,51,95,0.32);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:14px;
+}
+.gate-banner h3{font-size:14px;font-weight:800;letter-spacing:0.8px;color:#fff}
+.gate-banner p{font-size:11px;color:var(--wa-muted);margin-top:3px}
+
+.field{margin-bottom:12px}
+.field label{
+  display:block;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.7px;
+  color:var(--wa-muted);
+  margin-bottom:5px;
+  text-transform:uppercase;
+}
+.field input,.field select{
+  width:100%;
+  padding:11px 13px;
+  border-radius:12px;
+  border:1px solid var(--wa-border);
+  background:var(--wa-bg);
+  color:var(--wa-text);
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.15s ease;
+}
+.field input:focus,.field select:focus{border-color:var(--red-bright)}
+
+.btn-red{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:0.7px;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(225,29,72,0.3);
+}
+
+/* Chat Room */
+.room-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:9px 11px;
+  border-radius:12px;
+  background:var(--wa-elev);
+  border:1px solid var(--wa-border);
+  margin-bottom:10px;
+  font-size:11px;
+}
+.room-info{font-weight:700;color:var(--wa-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-info span{color:var(--red-bright)}
+.room-tools{display:flex;gap:6px;align-items:center}
+.ttl-sel{
+  background:var(--wa-bg);
+  border:1px solid var(--wa-border);
+  color:var(--wa-text);
+  border-radius:8px;
+  padding:4px 7px;
+  font-size:11px;
+  outline:none;
+}
+.btn-nuke{
+  border:1px solid rgba(255,51,95,0.45);
+  background:linear-gradient(135deg,rgba(225,29,72,0.28),rgba(159,18,57,0.25));
+  color:#ff859d;
+  border-radius:8px;
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.chat-feed{
+  height:325px;
+  overflow-y:auto;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(225,29,72,0.04),transparent 65%),
+    var(--wa-bg);
+  border:1px solid var(--wa-border);
+  border-radius:14px;
+  padding:11px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:10px;
+}
+.msg{
+  max-width:86%;
+  background:var(--wa-elev);
+  border:1px solid var(--wa-border);
+  border-radius:12px;
+  padding:8px 11px;
+  font-size:13px;
+  line-height:1.4;
+  align-self:flex-start;
+}
+.msg.mine{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#3b0d19,#231118);
+  border-color:rgba(255,51,95,0.42);
+}
+.msg-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:10px;
+  color:var(--wa-muted);
+  margin-bottom:3px;
+}
+.msg-call{color:#ff6b88;font-weight:800}
+.msg.mine .msg-call{color:#ffa3b5}
+
+.composer{display:flex;gap:8px}
+.composer input{
+  flex:1;
+  padding:11px 13px;
+  border-radius:999px;
+  border:1px solid var(--wa-border);
+  background:var(--wa-elev);
+  color:var(--wa-text);
+  font-size:13px;
+  outline:none;
+}
+.composer input:focus{border-color:var(--red-bright)}
+.btn-send{
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--red-bright),var(--red-dark));
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  flex-shrink:0;
+  box-shadow:0 6px 18px rgba(225,29,72,0.35);
+}
+.status{font-size:11px;color:var(--wa-muted);margin-top:7px;min-height:14px}
 </style>
 </head>
 <body>
-<div class="box">
-  <div class="top">
-    <span id="titleLbl">Calculator</span>
-    <div style="display:flex;gap:6px">
-      <button type="button" id="lockBtn">LOCK</button>
-      <button type="button" class="panic" id="panicBtn">PANIC</button>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <span id="topTitle">Calculator</span>
+      <span class="brand-tag" id="topTag" style="display:none">KALAH</span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-top" id="lockBtn">LOCK</button>
+      <button type="button" class="btn-top btn-panic" id="panicBtn">PANIC</button>
     </div>
   </div>
 
-  <div class="view on" id="calcV">
-    <div class="scr"><div class="hist" id="hist"></div><div class="out" id="out">0</div></div>
-    <div class="grid" id="grid"></div>
-  </div>
+  <!-- Decoy Calculator -->
+  <section class="view on" id="calcView">
+    <div class="calc-screen">
+      <div class="calc-hist" id="calcHist"></div>
+      <div class="calc-out" id="calcOut">0</div>
+    </div>
+    <div class="calc-grid" id="calcGrid"></div>
+  </section>
 
-  <div class="view" id="authV">
-    <div class="f"><label>Callsign</label><input id="cs" maxlength="24" placeholder="Callsign"></div>
-    <div class="f"><label>Room ID</label><input id="rm" maxlength="40" placeholder="Room ID"></div>
-    <div class="f"><label>Passcode</label><input id="ps" type="password" placeholder="Secret passcode"></div>
-    <button type="button" class="go" id="joinBtn">UNLOCK NODE</button>
-    <div class="note" id="authNote">AES-256-GCM local encryption</div>
-  </div>
+  <!-- KALAH Node Gate -->
+  <section class="view" id="authView">
+    <div class="gate-banner">
+      <h3>KALAH // SECURE NODE</h3>
+      <p>End-to-end encrypted room (AES-256-GCM)</p>
+    </div>
+    <div class="field">
+      <label>Callsign</label>
+      <input id="csInput" maxlength="24" placeholder="Enter your callsign">
+    </div>
+    <div class="field">
+      <label>Room ID</label>
+      <input id="rmInput" maxlength="40" placeholder="Enter room ID">
+    </div>
+    <div class="field">
+      <label>Shared Passcode</label>
+      <input id="psInput" type="password" placeholder="Enter secret passcode">
+    </div>
+    <button type="button" class="btn-red" id="joinBtn">ENTER KALAH NODE</button>
+    <div class="status" id="authStatus">Local browser encryption active.</div>
+  </section>
 
-  <div class="view" id="chatV">
-    <div class="meta">
-      <span id="rmLbl">ROOM</span>
-      <div style="display:flex;gap:6px;align-items:center">
-        <select id="ttl" style="width:auto;padding:4px 7px;font-size:11px">
+  <!-- KALAH Encrypted Chat -->
+  <section class="view" id="chatView">
+    <div class="room-bar">
+      <div class="room-info" id="roomTitle">KALAH <span>// ROOM</span></div>
+      <div class="room-tools">
+        <select class="ttl-sel" id="ttlSelect">
           <option value="0">TTL Off</option>
           <option value="30">30s</option>
           <option value="120" selected>2m</option>
           <option value="600">10m</option>
         </select>
-        <button type="button" class="nuke" id="nukeBtn">NUKE</button>
+        <button type="button" class="btn-nuke" id="nukeBtn">NUKE</button>
       </div>
     </div>
-    <div class="msgs" id="msgs"></div>
-    <form class="row" id="form"><input id="txt" autocomplete="off" placeholder="Encrypted message..." required><button class="send" type="submit">SEND</button></form>
-    <div class="note" id="chatNote"></div>
-  </div>
+    <div class="chat-feed" id="chatFeed"></div>
+    <form class="composer" id="msgForm">
+      <input id="msgInput" autocomplete="off" placeholder="Message KALAH node..." required>
+      <button class="btn-send" type="submit">➤</button>
+    </form>
+    <div class="status" id="chatStatus"></div>
+  </section>
 </div>
 
 <script>
-const V={calc:calcV,auth:authV,chat:chatV};
-window.goView=n=>{Object.values(V).forEach(x=>x.classList.remove("on"));V[n].classList.add("on");titleLbl.textContent=n==="calc"?"Calculator":n==="auth"?"Node Gate":"Encrypted Link"};
+const V={calc:calcView,auth:authView,chat:chatView};
+window.goView=n=>{
+  Object.values(V).forEach(x=>x.classList.remove("on"));
+  V[n].classList.add("on");
+  if(n==="calc"){
+    topTitle.textContent="Calculator";
+    topTag.style.display="none";
+  }else if(n==="auth"){
+    topTitle.textContent="KALAH Node";
+    topTag.style.display="inline-block";
+  }else{
+    topTitle.textContent="KALAH Chat";
+    topTag.style.display="inline-block";
+  }
+};
 lockBtn.onclick=()=>window.goView("calc");
 panicBtn.onclick=()=>location.replace("https://www.google.com");
 
 let ex="",seq="";
 const ks=["C","(",")","/","7","8","9","*","4","5","6","-","1","2","3","+",".","0","⌫","="];
 ks.forEach(k=>{
-  const b=document.createElement("button");b.type="button";b.textContent=k;b.className="k";
+  const b=document.createElement("button");b.type="button";b.textContent=k;b.className="key";
   if(["C","(",")","⌫"].includes(k))b.classList.add("fn");
   if(["/","*","-","+"].includes(k))b.classList.add("op");
   if(k==="=")b.classList.add("eq");
-  b.onclick=()=>tap(k);grid.appendChild(b);
+  b.onclick=()=>tap(k);calcGrid.appendChild(b);
 });
 function tap(k){
-  if(k==="C"){ex="";seq="";hist.textContent="";out.textContent="0";return}
-  if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);out.textContent=ex||"0";return}
+  if(k==="C"){ex="";seq="";calcHist.textContent="";calcOut.textContent="0";return}
+  if(k==="⌫"){ex=ex.slice(0,-1);seq=seq.slice(0,-1);calcOut.textContent=ex||"0";return}
   if(k==="="){
     const s=(seq+"=").replace(/\s+/g,"");
     const cur=ex.replace(/\s+/g,"");
     if(s.endsWith("1.618=")||s.endsWith("1618=")||cur==="1.618"||cur==="1618"){
-      ex="";seq="";hist.textContent="";out.textContent="0";
+      ex="";seq="";calcHist.textContent="";calcOut.textContent="0";
       if(typeof window.goView==="function")window.goView("auth");
       return;
     }
@@ -111,11 +390,11 @@ function tap(k){
       const r=Function('"use strict";return('+ex+')')();
       if(typeof r!=="number"||!isFinite(r))throw 0;
       const clean=String(Number(r.toFixed(10)));
-      hist.textContent=ex+" =";out.textContent=clean;ex=clean;seq="";
-    }catch{out.textContent="Error";ex="";seq=""}
+      calcHist.textContent=ex+" =";calcOut.textContent=clean;ex=clean;seq="";
+    }catch{calcOut.textContent="Error";ex="";seq=""}
     return;
   }
-  ex+=k;seq+=k;out.textContent=ex;
+  ex+=k;seq+=k;calcOut.textContent=ex;
 }
 </script>
 
@@ -146,9 +425,10 @@ let me="",room="",pass="",mRef=null;
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 
 joinBtn.onclick=()=>{
-  const c=cs.value.trim(),r=rm.value.trim().replace(/[.#$[\]/]/g,"_"),p=ps.value;
-  if(!c||!r||!p){authNote.textContent="All fields required.";return}
-  me=c;room=r;pass=p;msgs.innerHTML="";rmLbl.textContent="ROOM: "+room+" // @"+me;
+  const c=csInput.value.trim(),r=rmInput.value.trim().replace(/[.#$[\]/]/g,"_"),p=psInput.value;
+  if(!c||!r||!p){authStatus.textContent="Callsign, Room ID, and Passcode are required.";return}
+  me=c;room=r;pass=p;chatFeed.innerHTML="";
+  roomTitle.innerHTML="KALAH <span>// "+esc(room)+" (@"+esc(me)+")</span>";
   window.goView("chat");
   mRef=ref(db,"rooms/"+room+"/messages");
   onChildAdded(mRef,async snap=>{
@@ -164,24 +444,24 @@ joinBtn.onclick=()=>{
 
 function addB(id,s,b,ts,mine,exp){
   if(document.getElementById("m-"+id))return;
-  const d=document.createElement("div");d.id="m-"+id;d.className="m"+(mine?" me":"");
+  const d=document.createElement("div");d.id="m-"+id;d.className="msg"+(mine?" mine":"");
   const tm=new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-  d.innerHTML='<div class="mh"><b>@'+esc(s)+'</b><span>'+tm+'</span></div><div>'+esc(b)+'</div>';
-  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+  d.innerHTML='<div class="msg-head"><span class="msg-call">@'+esc(s)+'</span><span>'+tm+'</span></div><div>'+esc(b)+'</div>';
+  chatFeed.appendChild(d);chatFeed.scrollTop=chatFeed.scrollHeight;
   if(exp)setTimeout(()=>remove(ref(db,"rooms/"+room+"/messages/"+id)).catch(()=>{}),Math.max(0,exp-Date.now()));
 }
 
-form.onsubmit=async e=>{
-  e.preventDefault();const t=txt.value.trim();if(!t||!mRef)return;
-  const ttlS=parseInt(ttl.value,10),now=Date.now(),exp=ttlS>0?now+ttlS*1000:null;
+msgForm.onsubmit=async e=>{
+  e.preventDefault();const t=msgInput.value.trim();if(!t||!mRef)return;
+  const ttlS=parseInt(ttlSelect.value,10),now=Date.now(),exp=ttlS>0?now+ttlS*1000:null;
   try{
     await push(mRef,{s:await encM(me,pass,room),b:await encM(t,pass,room),ts:now,exp});
-    txt.value="";chatNote.textContent="Encrypted & sent.";
-  }catch(err){chatNote.textContent="Error: "+err.message}
+    msgInput.value="";chatStatus.textContent="Encrypted & sent to KALAH node.";
+  }catch(err){chatStatus.textContent="Error: "+err.message}
 };
 
 nukeBtn.onclick=async()=>{
-  if(!room)return;await set(ref(db,"rooms/"+room),null);msgs.innerHTML="";chatNote.textContent="Room nuked.";
+  if(!room)return;await set(ref(db,"rooms/"+room),null);chatFeed.innerHTML="";chatStatus.textContent="Room nuked.";
 };
 </script>
 </body>
