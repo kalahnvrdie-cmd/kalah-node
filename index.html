@@ -119,29 +119,10 @@
       background: radial-gradient(circle at top, #131d33 0%, var(--bg-main) 70%);
     }
 
-    .calc-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 6px;
-    }
-
-    .calc-screen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-end;
-      padding: 16px 10px;
-      word-break: break-all;
-    }
-
+    .calc-top { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 4px 6px; }
+    .calc-screen { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; padding: 16px 10px; word-break: break-all; }
     .calc-expr { font-family: var(--font-mono); font-size: 20px; color: var(--text-muted); min-height: 28px; margin-bottom: 8px; }
     .calc-result { font-family: var(--font-mono); font-size: 46px; font-weight: 700; color: var(--text-main); line-height: 1.1; }
-
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
     .calc-btn {
@@ -160,45 +141,39 @@
     .calc-btn.eq { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; box-shadow: 0 6px 18px var(--accent-glow); }
     .calc-btn.clear { color: #fca5a5; }
 
-    #appView {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-main);
-    }
+    #appView { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--bg-main); }
 
     .topbar {
       background: rgba(14, 22, 39, 0.96);
       border-bottom: 1px solid var(--border);
-      padding: 11px 13px;
+      padding: 10px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .brand-group { display: flex; align-items: center; gap: 8px; }
-    .brand-title { font-weight: 800; font-size: 17px; letter-spacing: 1px; color: #fff; }
+    .brand-group { display: flex; align-items: center; gap: 7px; }
+    .brand-title { font-weight: 800; font-size: 16px; letter-spacing: 0.8px; color: #fff; }
     .brand-badge {
       font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 3px 8px;
       border-radius: 999px;
       background: var(--accent-soft);
       color: var(--accent-text);
       border: 1px solid var(--accent-glow);
     }
 
-    .top-actions { display: flex; align-items: center; gap: 6px; }
+    .top-actions { display: flex; align-items: center; gap: 5px; }
 
     .btn-sm {
       border: 1px solid var(--border);
       background: var(--bg-card);
       color: var(--text-main);
       border-radius: 10px;
-      padding: 6px 10px;
+      padding: 6px 9px;
       font-family: var(--font-ui);
       font-size: 11px;
       font-weight: 700;
@@ -206,13 +181,10 @@
     }
     .btn-sm:active { transform: scale(0.96); }
     .btn-sm.accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+    .btn-sm.ai-pill { background: linear-gradient(135deg, rgba(14, 165, 233, 0.24), rgba(168, 85, 247, 0.24)); border-color: #7dd3fc; color: #e0f2fe; }
     .btn-sm.danger { background: rgba(239, 68, 68, 0.18); border-color: #ef4444; color: #fecaca; }
 
-    #authScreen {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 14px 32px;
-    }
+    #authScreen { flex: 1; overflow-y: auto; padding: 16px 14px 32px; }
 
     .card {
       background: var(--bg-panel);
@@ -241,12 +213,7 @@
     }
     .input:focus { border-color: var(--accent); }
 
-    .auth-method-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 12px;
-    }
+    .auth-method-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
     .auth-chip {
       padding: 8px 6px;
       border-radius: 11px;
@@ -258,11 +225,7 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .auth-chip.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: #fff;
-    }
+    .auth-chip.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
 
     .btn-primary {
       width: 100%;
@@ -278,11 +241,7 @@
     }
     .btn-primary:active { background: var(--accent-hover); }
 
-    .tabs {
-      display: flex;
-      background: var(--bg-panel);
-      border-bottom: 1px solid var(--border);
-    }
+    .tabs { display: flex; background: var(--bg-panel); border-bottom: 1px solid var(--border); }
 
     .tab-btn {
       flex: 1;
@@ -296,30 +255,13 @@
       font-weight: 800;
       cursor: pointer;
     }
-    .tab-btn.active {
-      color: #fff;
-      border-bottom-color: var(--accent);
-      background: var(--accent-soft);
-    }
+    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: var(--accent-soft); }
 
     #mainArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .tab-pane { flex: 1; overflow-y: auto; padding: 12px; }
 
-    .status-strip {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 4px 2px 12px;
-      margin-bottom: 6px;
-    }
-    .status-bubble-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      min-width: 64px;
-      cursor: pointer;
-    }
+    .status-strip { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; margin-bottom: 6px; }
+    .status-bubble-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 64px; cursor: pointer; }
     .status-ring {
       width: 54px;
       height: 54px;
@@ -330,9 +272,7 @@
       align-items: center;
       justify-content: center;
     }
-    .status-ring.muted {
-      background: var(--border);
-    }
+    .status-ring.muted { background: var(--border); }
     .status-inner {
       width: 100%;
       height: 100%;
@@ -392,6 +332,7 @@
       cursor: pointer;
     }
     .list-item.pinned { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+    .list-item.ai-item { border-color: #38bdf8; background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(14, 22, 39, 0.96)); }
     .list-item:active { background: var(--bg-card); }
 
     .item-meta { flex: 1; min-width: 0; }
@@ -418,6 +359,15 @@
     }
 
     .chat-header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+    .chat-search-bar {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .messages-box {
       flex: 1;
@@ -455,14 +405,8 @@
     .msg-row.theirs .msg-bubble { border-bottom-left-radius: 5px; }
     .msg-sender { font-size: 11px; font-weight: 700; color: var(--accent-text); margin-bottom: 3px; }
 
-    .msg-link {
-      color: #7dd3fc;
-      text-decoration: underline;
-      word-break: break-all;
-    }
-    .msg-row.mine .msg-link {
-      color: #fff;
-    }
+    .msg-link { color: #7dd3fc; text-decoration: underline; word-break: break-all; }
+    .msg-row.mine .msg-link { color: #fff; }
 
     .missed-call-card {
       background: rgba(239, 68, 68, 0.14);
@@ -472,6 +416,16 @@
       font-size: 12px;
       font-weight: 700;
       color: #fecaca;
+    }
+
+    .call-log-card {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #bbf7d0;
     }
 
     .msg-reply-quote {
@@ -485,6 +439,7 @@
     }
 
     .msg-photo { max-width: 225px; max-height: 245px; border-radius: 12px; display: block; margin-top: 4px; cursor: pointer; }
+    .msg-caption { margin-top: 6px; font-size: 13.5px; line-height: 1.45; }
 
     .msg-footer {
       display: flex;
@@ -499,7 +454,7 @@
 
     .seen-tag { color: #86efac; font-weight: 700; }
 
-    .msg-actions { display: flex; gap: 10px; margin-top: 3px; font-size: 11px; color: var(--accent-text); padding: 0 4px; }
+    .msg-actions { display: flex; gap: 10px; margin-top: 3px; font-size: 11px; color: var(--accent-text); padding: 0 4px; flex-wrap: wrap; }
     .msg-actions span { cursor: pointer; }
 
     .reactions-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
@@ -582,7 +537,7 @@
     }
     .emoji-drawer span { cursor: pointer; }
 
-    #statusModal, #callModal {
+    #statusModal, #callModal, #forwardModal {
       position: fixed;
       inset: 0;
       background: rgba(7, 11, 20, 0.96);
@@ -591,9 +546,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .call-ring {
@@ -609,12 +564,7 @@
       box-shadow: 0 0 28px var(--accent-glow);
     }
 
-    .call-timer {
-      font-family: var(--font-mono);
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--accent-text);
-    }
+    .call-timer { font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: var(--accent-text); }
   </style>
 </head>
 <body>
@@ -673,6 +623,7 @@
         <span class="brand-badge">E2EE • 12h</span>
       </div>
       <div class="top-actions">
+        <button class="btn-sm ai-pill" onclick="openAiChat()">✦ AI</button>
         <button class="btn-sm accent" onclick="lockApp()">LOCK</button>
         <button class="btn-sm danger" onclick="panicExit()">PANIC</button>
       </div>
@@ -815,9 +766,15 @@
             </div>
           </div>
           <div class="top-actions">
-            <button class="btn-sm accent" onclick="startVoiceCall()">📞 Call</button>
+            <button class="btn-sm" onclick="toggleChatSearch()">🔍</button>
+            <button class="btn-sm accent" id="callHeaderBtn" onclick="startVoiceCall()">📞 Call</button>
             <button class="btn-sm danger" onclick="nukeCurrentChat()">NUKE</button>
           </div>
+        </div>
+
+        <div id="chatSearchBar" class="chat-search-bar hidden">
+          <input id="chatSearchInput" class="msg-input" style="padding:6px 12px; font-size:13px;" placeholder="Search in chat..." oninput="applyChatSearch()" />
+          <button class="btn-sm" onclick="toggleChatSearch(false)">✕</button>
         </div>
 
         <div id="messagesBox" class="messages-box"></div>
@@ -866,9 +823,22 @@
   <div id="statusModal" class="hidden">
     <div style="font-size:16px; font-weight:800; color:var(--accent-text);" id="statusViewerAuthor">Status</div>
     <div style="font-size:11px; color:var(--text-muted);" id="statusViewerTime"></div>
-    <img id="statusViewerImg" class="hidden" style="max-width:92vw; max-height:52vh; border-radius:16px; object-fit:contain;" />
+    <div class="mono" style="font-size:11px; color:#86efac;" id="statusViewerViews"></div>
+    <img id="statusViewerImg" class="hidden" style="max-width:92vw; max-height:44vh; border-radius:16px; object-fit:contain;" />
     <div id="statusViewerCaption" style="font-size:15px; line-height:1.55; max-width:90vw; word-break:break-word;"></div>
-    <button class="btn-sm accent" style="padding:9px 20px; font-size:13px;" onclick="closeStatusModal()">Close</button>
+    <div id="statusQuickReplyBox" style="display:flex; gap:8px; width:100%; max-width:340px;">
+      <input id="statusReplyInput" class="msg-input" style="padding:8px 12px; font-size:13px;" placeholder="Reply to status..." onkeydown="if(event.key==='Enter') sendStatusQuickReply()" />
+      <button class="btn-sm accent" onclick="sendStatusQuickReply()">Send</button>
+    </div>
+    <button class="btn-sm" style="padding:8px 18px; font-size:13px;" onclick="closeStatusModal()">Close</button>
+  </div>
+
+  <div id="forwardModal" class="hidden">
+    <div class="card" style="width:100%; max-width:360px; max-height:75vh; overflow-y:auto; text-align:left;">
+      <div class="card-title">Forward Message To</div>
+      <div id="forwardTargetList"></div>
+      <button class="btn-sm" style="width:100%; padding:9px; margin-top:8px;" onclick="closeForwardModal()">Cancel</button>
+    </div>
   </div>
 
   <div id="callModal" class="hidden">
@@ -918,6 +888,8 @@
     let activeChat = null;
     let replyToMsg = null;
     let editingMsgId = null;
+    let forwardPayloadDraft = null;
+    let activeStatusPost = null;
     let viewOncePhoto = false;
     let seenMsgIds = new Set();
     let renderedMsgSignatures = new Map();
@@ -930,6 +902,8 @@
     let mediaRecorder = null;
     let voiceChunks = [];
     let isRecording = false;
+    let voiceTimerInterval = null;
+    let voiceSec = 0;
 
     let pc = null;
     let localStream = null;
@@ -957,11 +931,8 @@
     function applyThemeAccent(theme) {
       themeAccent = theme || "crimson";
       saveLocal("kalah_theme_v3", themeAccent);
-      if (themeAccent === "crimson") {
-        document.body.removeAttribute("data-theme");
-      } else {
-        document.body.setAttribute("data-theme", themeAccent);
-      }
+      if (themeAccent === "crimson") document.body.removeAttribute("data-theme");
+      else document.body.setAttribute("data-theme", themeAccent);
     }
 
     function setThemeAccent(theme) {
@@ -989,9 +960,7 @@
     }
 
     window.addEventListener("focus", () => {
-      if (isPickingFile) {
-        setTimeout(() => { isPickingFile = false; }, 1500);
-      }
+      if (isPickingFile) setTimeout(() => { isPickingFile = false; }, 1500);
     });
 
     function getCustomUnlockCode() {
@@ -1011,16 +980,8 @@
       updateCalcScreen();
     }
 
-    function calcClear() {
-      calcExpr = "";
-      calcJustEvaluated = false;
-      updateCalcScreen("0");
-    }
-
-    function calcBack() {
-      calcExpr = calcExpr.slice(0, -1);
-      updateCalcScreen(calcExpr || "0");
-    }
+    function calcClear() { calcExpr = ""; calcJustEvaluated = false; updateCalcScreen("0"); }
+    function calcBack() { calcExpr = calcExpr.slice(0, -1); updateCalcScreen(calcExpr || "0"); }
 
     function calcSquare() {
       if (!calcExpr) return;
@@ -1030,9 +991,7 @@
         calcExpr = String(sq);
         calcJustEvaluated = true;
         updateCalcScreen(String(sq));
-      } catch {
-        updateCalcScreen("Error");
-      }
+      } catch { updateCalcScreen("Error"); }
     }
 
     function calcEquals() {
@@ -1049,20 +1008,15 @@
         const val = Function(`"use strict"; return (${safeExpr})`)();
         calcJustEvaluated = true;
         updateCalcScreen(Number.isFinite(val) ? String(val) : "Error");
-      } catch {
-        updateCalcScreen("Error");
-      }
+      } catch { updateCalcScreen("Error"); }
     }
 
     function unlockKalah() {
       document.getElementById("calcView").classList.add("hidden");
       document.getElementById("appView").classList.remove("hidden");
       document.title = "KALAH";
-      if (!me || !me.id || !me.secret) {
-        showAuthForm();
-      } else {
-        enterMainApp();
-      }
+      if (!me || !me.id || !me.secret) showAuthForm();
+      else enterMainApp();
     }
 
     function lockApp() {
@@ -1116,24 +1070,17 @@
       }
     }
 
-    function playAlertTone() {
-      playTonePattern([760, 980]);
-    }
+    function playAlertTone() { playTonePattern([760, 980]); }
 
     function startRingtoneLoop() {
       stopRingtoneLoop();
       if (!soundEnabled) return;
       playTonePattern([587.33, 880, 587.33]);
-      ringtoneTimer = setInterval(() => {
-        playTonePattern([587.33, 880, 587.33]);
-      }, 1700);
+      ringtoneTimer = setInterval(() => { playTonePattern([587.33, 880, 587.33]); }, 1700);
     }
 
     function stopRingtoneLoop() {
-      if (ringtoneTimer) {
-        clearInterval(ringtoneTimer);
-        ringtoneTimer = null;
-      }
+      if (ringtoneTimer) { clearInterval(ringtoneTimer); ringtoneTimer = null; }
     }
 
     async function requestSystemNotifications() {
@@ -1144,11 +1091,8 @@
       try {
         const perm = await Notification.requestPermission();
         updateNotifButtonLabel();
-        if (perm === "granted") {
-          showToast("Notifications Enabled", "Background alerts are now active.");
-        } else {
-          showToast("Permission Denied", "Allow notifications in browser settings.");
-        }
+        if (perm === "granted") showToast("Notifications Enabled", "Background alerts are now active.");
+        else showToast("Permission Denied", "Allow notifications in browser settings.");
       } catch {
         showToast("Alert Info", "Could not request notification permission.");
       }
@@ -1166,11 +1110,7 @@
       if (!("Notification" in window) || Notification.permission !== "granted") return;
       if (!document.hidden && document.hasFocus()) return;
       try {
-        const n = new Notification(title, {
-          body,
-          tag: targetChat || "kalah_alert",
-          renotify: true
-        });
+        const n = new Notification(title, { body, tag: targetChat || "kalah_alert", renotify: true });
         n.onclick = () => {
           window.focus();
           if (targetChat && chatsMeta[targetChat]) {
@@ -1194,15 +1134,11 @@
       window._toastTimer = setTimeout(hideToast, 4500);
     }
 
-    function hideToast() {
-      document.getElementById("toastBanner").classList.remove("show");
-    }
+    function hideToast() { document.getElementById("toastBanner").classList.remove("show"); }
 
     function handleToastClick() {
       hideToast();
-      if (lastToastChatId && chatsMeta[lastToastChatId]) {
-        openChatRoom(chatsMeta[lastToastChatId]);
-      }
+      if (lastToastChatId && chatsMeta[lastToastChatId]) openChatRoom(chatsMeta[lastToastChatId]);
     }
 
     function toggleSound() {
@@ -1211,9 +1147,7 @@
       document.getElementById("soundToggleBtn").textContent = `Sound: ${soundEnabled ? "ON" : "OFF"}`;
     }
 
-    function testNotify() {
-      showToast("KALAH Alert", "Ringtone, banner & notification ready!");
-    }
+    function testNotify() { showToast("KALAH Alert", "Ringtone, banner & notification ready!"); }
 
     async function deriveAesKey(passphrase, saltStr) {
       const enc = new TextEncoder();
@@ -1239,11 +1173,7 @@
       if (!packet || !packet.iv || !packet.ct) return null;
       try {
         const key = await deriveAesKey(passphrase, saltStr);
-        const plainBuf = await crypto.subtle.decrypt(
-          { name: "AES-GCM", iv: b64ToBytes(packet.iv) },
-          key,
-          b64ToBytes(packet.ct)
-        );
+        const plainBuf = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(packet.iv) }, key, b64ToBytes(packet.ct));
         return JSON.parse(new TextDecoder().decode(plainBuf));
       } catch {
         return { kind: "text", text: "[Encrypted message - Vault Key mismatch]", _mismatch: true };
@@ -1263,36 +1193,22 @@
       return arr;
     }
 
-    function dbUrl(path) {
-      return `${DB_ROOT}/${PREFIX}/${path}.json`;
-    }
+    function dbUrl(path) { return `${DB_ROOT}/${PREFIX}/${path}.json`; }
 
     async function dbPut(path, data) {
-      const res = await fetch(dbUrl(path), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(dbUrl(path), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
       return res.json();
     }
 
     async function dbPost(path, data) {
-      const res = await fetch(dbUrl(path), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(dbUrl(path), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
       return res.json();
     }
 
     async function dbPatch(path, data) {
-      const res = await fetch(dbUrl(path), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(dbUrl(path), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
       return res.json();
     }
@@ -1315,16 +1231,9 @@
       });
       const lbl = document.getElementById("authContactLabel");
       const inp = document.getElementById("authContactInput");
-      if (method === "email") {
-        lbl.textContent = "Email Address";
-        inp.placeholder = "you@example.com";
-      } else if (method === "phone") {
-        lbl.textContent = "Phone Number";
-        inp.placeholder = "+94 7X XXX XXXX";
-      } else {
-        lbl.textContent = "Google Account Email";
-        inp.placeholder = "yourname@gmail.com";
-      }
+      if (method === "email") { lbl.textContent = "Email Address"; inp.placeholder = "you@example.com"; }
+      else if (method === "phone") { lbl.textContent = "Phone Number"; inp.placeholder = "+94 7X XXX XXXX"; }
+      else { lbl.textContent = "Google Account Email"; inp.placeholder = "yourname@gmail.com"; }
     }
 
     function normalizeLookupKey(raw) {
@@ -1353,9 +1262,7 @@
       }
     }
 
-    function openEditProfile() {
-      showAuthForm();
-    }
+    function openEditProfile() { showAuthForm(); }
 
     function readFileAsDataUrl(file) {
       return new Promise((resolve, reject) => {
@@ -1415,38 +1322,15 @@
 
         const lookupKey = normalizeLookupKey(contact);
         let existingId = null;
-        try {
-          existingId = lookupKey ? await dbGet(`directory/${lookupKey}`) : null;
-        } catch {}
+        try { existingId = lookupKey ? await dbGet(`directory/${lookupKey}`) : null; } catch {}
 
         const id = existingId || (me && me.id) || genUserId();
-
-        me = {
-          id,
-          authMethod,
-          contact,
-          name,
-          bio,
-          unlockCode,
-          secret,
-          photo,
-          updatedAt: Date.now()
-        };
+        me = { id, authMethod, contact, name, bio, unlockCode, secret, photo, updatedAt: Date.now() };
         saveLocal("kalah_me_v3", me);
 
         try {
-          if (lookupKey) {
-            await dbPut(`directory/${lookupKey}`, id);
-          }
-          await dbPut(`accounts/${id}`, {
-            id,
-            authMethod,
-            contact,
-            name,
-            bio,
-            photo,
-            lastSeen: Date.now()
-          });
+          if (lookupKey) await dbPut(`directory/${lookupKey}`, id);
+          await dbPut(`accounts/${id}`, { id, authMethod, contact, name, bio, photo, lastSeen: Date.now() });
         } catch (err) {
           showToast("Local Mode", `Firebase sync issue (${err.message}). Check DB rules.`);
         }
@@ -1480,9 +1364,7 @@
       renderStatusFeed();
       startBackgroundListeners();
 
-      if (showWelcomeToast) {
-        showToast("Welcome to KALAH", `Signed in as ${me.name} (${me.id})`);
-      }
+      if (showWelcomeToast) showToast("Welcome to KALAH", `Signed in as ${me.name} (${me.id})`);
 
       heartbeatPresence().catch(() => {});
       syncIncomingFriends().then(() => {
@@ -1529,34 +1411,38 @@
       return `Last seen ${new Date(lastSeen).toLocaleDateString()}`;
     }
 
-    function makeDmChatId(a, b) {
-      return "dm_" + [a, b].sort().join("__");
-    }
+    function makeDmChatId(a, b) { return "dm_" + [a, b].sort().join("__"); }
+    function makeDmSecret(a, b) { return `kalah_dm_room::${[a, b].sort().join("::")}`; }
 
-    function makeDmSecret(a, b) {
-      return `kalah_dm_room::${[a, b].sort().join("::")}`;
+    function getAiChatId() { return me && me.id ? `ai_${me.id}` : "ai_room"; }
+
+    function openAiChat() {
+      if (!me || !me.id) { showAuthForm(); return; }
+      const aiId = getAiChatId();
+      const aiChatObj = {
+        id: aiId,
+        type: "ai",
+        title: "@kalah AI",
+        bio: "Text-only assistant • Ask anything in Sinhala or English",
+        secret: `kalah_ai_secret::${me.id}`
+      };
+      openChatRoom(aiChatObj);
     }
 
     function getEffectiveSecret(chatObj) {
       if (!chatObj) return me ? me.secret : "";
+      if (chatObj.type === "ai") return `kalah_ai_secret::${me ? me.id : "guest"}`;
       if (chatObj.type === "dm") {
-        if (chatObj.peerId && me && me.id) {
-          return makeDmSecret(me.id, chatObj.peerId);
-        }
+        if (chatObj.peerId && me && me.id) return makeDmSecret(me.id, chatObj.peerId);
         const parts = String(chatObj.id || "").replace(/^dm_/, "").split("__").filter(Boolean);
-        if (parts.length === 2) {
-          return makeDmSecret(parts[0], parts[1]);
-        }
+        if (parts.length === 2) return makeDmSecret(parts[0], parts[1]);
       }
       return chatObj.secret || (me ? me.secret : "");
     }
 
     async function addFriendFromInput() {
       const raw = document.getElementById("addFriendInput").value.trim();
-      if (!raw) {
-        showToast("Empty Input", "Enter Email, Phone, or ID.");
-        return;
-      }
+      if (!raw) { showToast("Empty Input", "Enter Email, Phone, or ID."); return; }
 
       try {
         let targetId = raw.toUpperCase();
@@ -1566,16 +1452,10 @@
         if (!acc) {
           const lKey = normalizeLookupKey(raw);
           const mappedId = lKey ? await dbGet(`directory/${lKey}`) : null;
-          if (mappedId) {
-            targetId = mappedId;
-            acc = await dbGet(`accounts/${targetId}`);
-          }
+          if (mappedId) { targetId = mappedId; acc = await dbGet(`accounts/${targetId}`); }
         }
 
-        if (!acc || targetId === me.id) {
-          showToast("Not Found", "No matching account found.");
-          return;
-        }
+        if (!acc || targetId === me.id) { showToast("Not Found", "No matching account found."); return; }
 
         document.getElementById("addFriendInput").value = "";
         friends[targetId] = {
@@ -1676,9 +1556,7 @@
       saveLocal("kalah_chats_v3", chatsMeta);
     }
 
-    function isOnline(lastSeen) {
-      return lastSeen && (Date.now() - lastSeen < 45000);
-    }
+    function isOnline(lastSeen) { return lastSeen && (Date.now() - lastSeen < 45000); }
 
     function renderFriendsList() {
       const box = document.getElementById("friendsListContainer");
@@ -1757,6 +1635,7 @@
           authorPhoto: me.photo || "",
           caption,
           photoUrl,
+          viewedBy: {},
           ts: now,
           expiresAt: now + TTL_MS
         };
@@ -1811,17 +1690,29 @@
       for (const [uid, posts] of Object.entries(statusesCache)) {
         if (!allowedIds.has(uid) || !posts) continue;
         for (const p of Object.values(posts)) {
-          if (p && (!p.expiresAt || now <= p.expiresAt)) {
-            list.push(p);
-          }
+          if (p && (!p.expiresAt || now <= p.expiresAt)) list.push(p);
         }
       }
       return list.sort((a, b) => (b.ts || 0) - (a.ts || 0));
     }
 
     function openStatusModal(post) {
+      activeStatusPost = post;
       document.getElementById("statusViewerAuthor").textContent = `${post.authorName} • ${post.authorId === me.id ? "My Status" : "Contact Status"}`;
       document.getElementById("statusViewerTime").textContent = new Date(post.ts || Date.now()).toLocaleString();
+
+      const viewsMap = { ...(post.viewedBy || {}) };
+      if (post.authorId !== me.id && !viewsMap[me.id]) {
+        viewsMap[me.id] = me.name;
+        post.viewedBy = viewsMap;
+        dbPut(`statuses/${post.authorId}/${post.id}/viewedBy/${me.id}`, me.name).catch(() => {});
+      }
+      const viewers = Object.values(viewsMap);
+      const viewsEl = document.getElementById("statusViewerViews");
+      viewsEl.textContent = post.authorId === me.id
+        ? `Seen by ${viewers.length} (${viewers.join(", ") || "No views yet"})`
+        : `${viewers.length} contact views`;
+
       const imgEl = document.getElementById("statusViewerImg");
       if (post.photoUrl) {
         imgEl.src = post.photoUrl;
@@ -1829,12 +1720,48 @@
       } else {
         imgEl.classList.add("hidden");
       }
+
       const capEl = document.getElementById("statusViewerCaption");
       capEl.innerHTML = post.caption ? linkifyText(post.caption) : "";
+
+      const replyBox = document.getElementById("statusQuickReplyBox");
+      document.getElementById("statusReplyInput").value = "";
+      replyBox.classList.toggle("hidden", post.authorId === me.id);
+
       document.getElementById("statusModal").classList.remove("hidden");
     }
 
+    async function sendStatusQuickReply() {
+      if (!activeStatusPost || activeStatusPost.authorId === me.id) return;
+      const inp = document.getElementById("statusReplyInput");
+      const text = inp.value.trim();
+      if (!text) return;
+
+      const peerId = activeStatusPost.authorId;
+      const peerName = activeStatusPost.authorName || peerId;
+      const dmId = makeDmChatId(me.id, peerId);
+      const dmObj = chatsMeta[dmId] || {
+        id: dmId,
+        type: "dm",
+        peerId,
+        title: peerName,
+        secret: makeDmSecret(me.id, peerId)
+      };
+      chatsMeta[dmId] = dmObj;
+      saveLocal("kalah_chats_v3", chatsMeta);
+
+      const snippet = (activeStatusPost.caption || "Photo Status").slice(0, 40);
+      await sendEncryptedToChat(dmObj, {
+        kind: "text",
+        text: `Status Reply (${snippet}): ${text}`
+      });
+      inp.value = "";
+      closeStatusModal();
+      showToast("Reply Sent", `Sent to ${peerName}.`);
+    }
+
     function closeStatusModal() {
+      activeStatusPost = null;
       document.getElementById("statusModal").classList.add("hidden");
     }
 
@@ -1844,9 +1771,7 @@
       const items = getVisibleStatusesList();
       let html = `
         <div class="status-bubble-item" onclick="switchTab('status')">
-          <div class="status-ring muted">
-            <div class="status-inner">+</div>
-          </div>
+          <div class="status-ring muted"><div class="status-inner">+</div></div>
           <div class="status-label">My Status</div>
         </div>
       `;
@@ -1855,9 +1780,7 @@
         html += `
           <div class="status-bubble-item" onclick='openStatusModal(${JSON.stringify(st).replace(/'/g, "&#39;")})'>
             <div class="status-ring">
-              <div class="status-inner">
-                ${av ? `<img src="${av}" />` : escapeHtml((st.authorName || "S").charAt(0).toUpperCase())}
-              </div>
+              <div class="status-inner">${av ? `<img src="${av}" />` : escapeHtml((st.authorName || "S").charAt(0).toUpperCase())}</div>
             </div>
             <div class="status-label">${escapeHtml(st.authorName)}</div>
           </div>
@@ -1879,10 +1802,11 @@
         const div = document.createElement("div");
         div.className = "card";
         const timeStr = new Date(st.ts || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const viewsCount = st.viewedBy ? Object.keys(st.viewedBy).length : 0;
         div.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-weight:800; font-size:13px; color:var(--accent-text);">${escapeHtml(st.authorName)}</div>
-            <div class="mono" style="font-size:11px; color:var(--text-muted);">${timeStr} • 12h</div>
+            <div class="mono" style="font-size:11px; color:var(--text-muted);">${timeStr} • 12h • ${viewsCount} views</div>
           </div>
           ${st.caption ? `<div style="font-size:14px; line-height:1.5; margin-bottom:8px; word-break:break-word;">${linkifyText(st.caption)}</div>` : ""}
           ${st.photoUrl ? `<img src="${st.photoUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px; cursor:pointer;" onclick="openPhotoPreview('${st.photoUrl}')" />` : ""}
@@ -1894,10 +1818,7 @@
     function renderGroupFriendChecks() {
       const box = document.getElementById("groupFriendChecks");
       const list = Object.values(friends);
-      if (!list.length) {
-        box.innerHTML = `<div class="item-sub">Add friends first to make a group.</div>`;
-        return;
-      }
+      if (!list.length) { box.innerHTML = `<div class="item-sub">Add friends first to make a group.</div>`; return; }
       box.innerHTML = list.map(f => `
         <label style="display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:13px;">
           <input type="checkbox" class="grp-chk" value="${f.id}" />
@@ -1911,10 +1832,7 @@
       const gSecret = document.getElementById("groupSecretInput").value.trim();
       const selected = Array.from(document.querySelectorAll(".grp-chk:checked")).map(c => c.value);
 
-      if (!gName || !gSecret) {
-        showToast("Missing Info", "Enter group name and group vault key.");
-        return;
-      }
+      if (!gName || !gSecret) { showToast("Missing Info", "Enter group name and group vault key."); return; }
 
       const grpId = "grp_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 6);
       const members = Array.from(new Set([me.id, ...selected]));
@@ -1924,9 +1842,7 @@
         for (const mId of members) {
           await dbPut(`userChats/${mId}/${grpId}`, { id: grpId, type: "group", title: gName, members });
         }
-      } catch (err) {
-        showToast("Group Sync Issue", err.message || "Saved locally.");
-      }
+      } catch (err) { showToast("Group Sync Issue", err.message || "Saved locally."); }
 
       chatsMeta[grpId] = { id: grpId, type: "group", title: gName, secret: gSecret, members };
       saveLocal("kalah_chats_v3", chatsMeta);
@@ -1962,18 +1878,33 @@
 
     function renderChatList() {
       const box = document.getElementById("chatListContainer");
-      const list = Object.values(chatsMeta).sort((a, b) => {
-        const pa = pinnedChats[a.id] ? 1 : 0;
-        const pb = pinnedChats[b.id] ? 1 : 0;
-        return pb - pa;
-      });
+      box.innerHTML = "";
+
+      const aiCard = document.createElement("div");
+      aiCard.className = "list-item ai-item";
+      aiCard.innerHTML = `
+        <div class="avatar" style="border-color:#38bdf8; color:#7dd3fc;">✦</div>
+        <div class="item-meta">
+          <div class="item-name">@kalah AI</div>
+          <div class="item-sub">Text Assistant • Sinhala & English • 12h TTL</div>
+        </div>
+        <button class="btn-sm ai-pill">Open AI</button>
+      `;
+      aiCard.onclick = () => openAiChat();
+      box.appendChild(aiCard);
+
+      const list = Object.values(chatsMeta)
+        .filter(c => c.type !== "ai")
+        .sort((a, b) => (pinnedChats[b.id] ? 1 : 0) - (pinnedChats[a.id] ? 1 : 0));
 
       if (!list.length) {
-        box.innerHTML = `<div class="card"><div class="item-sub">No conversations yet. Go to FRIENDS to start chatting.</div></div>`;
+        const empty = document.createElement("div");
+        empty.className = "card";
+        empty.innerHTML = `<div class="item-sub">No friend chats yet. Tap @kalah AI above or go to FRIENDS.</div>`;
+        box.appendChild(empty);
         return;
       }
 
-      box.innerHTML = "";
       list.forEach(c => {
         const isPinned = !!pinnedChats[c.id];
         const div = document.createElement("div");
@@ -2002,6 +1933,18 @@
       if (!activeChat) return;
       const aboutEl = document.getElementById("chatAboutLine");
       const subEl = document.getElementById("chatSub");
+      const callBtn = document.getElementById("callHeaderBtn");
+
+      if (activeChat.type === "ai") {
+        subEl.textContent = "Text-only AI • 12h auto-delete";
+        aboutEl.textContent = "Ask anything in Sinhala or English";
+        aboutEl.classList.remove("hidden");
+        if (callBtn) callBtn.classList.add("hidden");
+        return;
+      }
+
+      if (callBtn) callBtn.classList.remove("hidden");
+
       if (activeChat.type === "dm") {
         const peer = activeChat.peerId ? friends[activeChat.peerId] : null;
         const bioText = activeChat.bio || (peer && peer.bio) || "";
@@ -2029,6 +1972,7 @@
       renderedMsgSignatures.clear();
       initialLoadDoneForChat = false;
       cancelEditOrReply();
+      toggleChatSearch(false);
 
       ["chats", "status", "friends", "group", "me"].forEach(t => {
         document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("hidden");
@@ -2036,10 +1980,10 @@
       document.getElementById("chatScreen").classList.remove("hidden");
 
       document.getElementById("chatTitle").textContent = activeChat.title || "Chat";
-      setAvatarContent(document.getElementById("chatAvatarBox"), activeChat.title, activeChat.photo || "");
+      setAvatarContent(document.getElementById("chatAvatarBox"), activeChat.type === "ai" ? "✦" : activeChat.title, activeChat.photo || "");
       updateChatHeaderMeta();
 
-      if (activeChat.type !== "dm" && !activeChat.secret) {
+      if (activeChat.type === "group" && !activeChat.secret) {
         const entered = prompt("Enter Vault Key for this group:");
         if (entered && entered.trim()) {
           activeChat.secret = entered.trim();
@@ -2054,8 +1998,31 @@
     function closeChatRoom() {
       activeChat = null;
       cancelEditOrReply();
+      toggleChatSearch(false);
       document.getElementById("chatScreen").classList.add("hidden");
       switchTab(activeTab || "chats");
+    }
+
+    function toggleChatSearch(forceState = null) {
+      const bar = document.getElementById("chatSearchBar");
+      const inp = document.getElementById("chatSearchInput");
+      const nextOpen = forceState !== null ? forceState : bar.classList.contains("hidden");
+      bar.classList.toggle("hidden", !nextOpen);
+      if (!nextOpen) {
+        inp.value = "";
+        applyChatSearch();
+      } else {
+        inp.focus();
+      }
+    }
+
+    function applyChatSearch() {
+      const q = (document.getElementById("chatSearchInput").value || "").trim().toLowerCase();
+      const rows = document.querySelectorAll("#messagesBox .msg-row");
+      rows.forEach(r => {
+        const txt = (r.textContent || "").toLowerCase();
+        r.classList.toggle("hidden", !!q && !txt.includes(q));
+      });
     }
 
     async function markMessagesSeen(chatId, entries) {
@@ -2069,9 +2036,7 @@
       }
     }
 
-    function isNearBottom(box) {
-      return box.scrollHeight - box.scrollTop - box.clientHeight < 110;
-    }
+    function isNearBottom(box) { return box.scrollHeight - box.scrollTop - box.clientHeight < 110; }
 
     function linkifyText(rawText) {
       const str = String(rawText || "");
@@ -2098,10 +2063,7 @@
 
       try {
         const rawMsgs = await dbGet(`messages/${activeChat.id}`);
-        if (!rawMsgs) {
-          initialLoadDoneForChat = true;
-          return;
-        }
+        if (!rawMsgs) { initialLoadDoneForChat = true; return; }
 
         const now = Date.now();
         const entries = Object.entries(rawMsgs).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
@@ -2132,10 +2094,8 @@
 
       const seenCount = pkt.seenBy ? Object.keys(pkt.seenBy).length : 0;
       const reactKey = JSON.stringify(pkt.reactions || {});
-      const sig = `${dec.kind}|${dec.text || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
-      if (renderedMsgSignatures.get(msgId) === sig && document.getElementById(`msg_${msgId}`)) {
-        return;
-      }
+      const sig = `${dec.kind}|${dec.text || ""}|${dec.caption || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
+      if (renderedMsgSignatures.get(msgId) === sig && document.getElementById(`msg_${msgId}`)) return;
       renderedMsgSignatures.set(msgId, sig);
 
       const existing = document.getElementById(`msg_${msgId}`);
@@ -2157,6 +2117,8 @@
 
       if (dec.kind === "missed_call") {
         bodyHtml += `<div class="missed-call-card">📞 ${escapeHtml(dec.text || "Missed Voice Call")}</div>`;
+      } else if (dec.kind === "call_log") {
+        bodyHtml += `<div class="call-log-card">📞 ${escapeHtml(dec.text || "Voice Call")}</div>`;
       } else if (dec.kind === "text") {
         bodyHtml += `<div>${linkifyText(dec.text)}</div>`;
       } else if (dec.kind === "photo") {
@@ -2165,6 +2127,9 @@
         } else {
           bodyHtml += `<img class="msg-photo" src="${dec.dataUrl}" onclick="openPhotoPreview('${dec.dataUrl}')" />`;
           if (dec.viewOnce) bodyHtml += `<div style="font-size:10px; color:var(--accent-text); margin-top:3px;">1x View-Once</div>`;
+        }
+        if (dec.caption) {
+          bodyHtml += `<div class="msg-caption">${linkifyText(dec.caption)}</div>`;
         }
       } else if (dec.kind === "voice") {
         bodyHtml += `<audio controls src="${dec.dataUrl}" style="max-width:210px; height:32px;"></audio>`;
@@ -2191,20 +2156,17 @@
         </div>
         <div class="msg-actions">
           ${dec.kind === "text" ? `<span onclick="setReply('${escapeHtml(pkt.senderName || "User")}', '${escapeJs(dec.text)}')">Reply</span>` : ""}
+          ${dec.kind === "text" ? `<span onclick="openForwardModal('${escapeJs(dec.text)}')">Forward</span>` : ""}
           ${dec.kind === "text" ? `<span onclick="copyText('${escapeJs(dec.text)}')">Copy</span>` : ""}
           ${isMine && dec.kind === "text" ? `<span onclick="startEditMessage('${msgId}', '${escapeJs(dec.text)}')">Edit</span>` : ""}
           ${isMine ? `<span onclick="deleteSingleMessage('${msgId}')">Delete</span>` : ""}
         </div>
       `;
 
-      if (dec.kind === "photo" && dec.viewOnce && !isMine) {
-        row.dataset.viewOnceData = dec.dataUrl;
-      }
+      if (dec.kind === "photo" && dec.viewOnce && !isMine) row.dataset.viewOnceData = dec.dataUrl;
 
       box.appendChild(row);
-      if (shouldAutoScroll) {
-        box.scrollTop = box.scrollHeight;
-      }
+      if (shouldAutoScroll) box.scrollTop = box.scrollHeight;
     }
     function startEditMessage(msgId, currentText) {
       editingMsgId = msgId;
@@ -2224,9 +2186,41 @@
         const el = document.getElementById(`msg_${msgId}`);
         if (el) el.remove();
         showToast("Deleted", "Message removed.");
-      } catch (err) {
-        showToast("Delete Failed", err.message || "Could not delete message.");
+      } catch (err) { showToast("Delete Failed", err.message || "Could not delete message."); }
+    }
+
+    function openForwardModal(textToForward) {
+      forwardPayloadDraft = { kind: "text", text: textToForward };
+      const box = document.getElementById("forwardTargetList");
+      const targets = Object.values(chatsMeta).filter(c => c.type !== "ai");
+      if (!targets.length) {
+        box.innerHTML = `<div class="item-sub">No friend or group chats available.</div>`;
+      } else {
+        box.innerHTML = targets.map(t => `
+          <div class="list-item" onclick="executeForwardTo('${t.id}')">
+            <div class="item-meta">
+              <div class="item-name">${escapeHtml(t.title)}</div>
+              <div class="item-sub">${escapeHtml(t.type.toUpperCase())}</div>
+            </div>
+            <button class="btn-sm accent">Send</button>
+          </div>
+        `).join("");
       }
+      document.getElementById("forwardModal").classList.remove("hidden");
+    }
+
+    function closeForwardModal() {
+      forwardPayloadDraft = null;
+      document.getElementById("forwardModal").classList.add("hidden");
+    }
+
+    async function executeForwardTo(targetChatId) {
+      if (!forwardPayloadDraft || !chatsMeta[targetChatId]) return;
+      const target = chatsMeta[targetChatId];
+      const payload = { ...forwardPayloadDraft, text: `↪ Forwarded: ${forwardPayloadDraft.text}` };
+      closeForwardModal();
+      await sendEncryptedToChat(target, payload);
+      showToast("Forwarded", `Sent to ${target.title}`);
     }
 
     function openViewOncePhoto(msgId, btnEl) {
@@ -2241,19 +2235,17 @@
 
     function openPhotoPreview(src) {
       const w = window.open("", "_blank");
-      if (w) {
-        w.document.write(`<body style="margin:0;background:#070b14;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${src}" style="max-width:100%;max-height:100%;" /></body>`);
-      }
+      if (w) w.document.write(`<body style="margin:0;background:#070b14;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${src}" style="max-width:100%;max-height:100%;" /></body>`);
     }
 
-    async function sendEncryptedToChat(targetChatObj, payloadObj) {
+    async function sendEncryptedToChat(targetChatObj, payloadObj, senderOverride = null) {
       if (!targetChatObj || !me) return;
       const secret = getEffectiveSecret(targetChatObj);
       const enc = await encryptPayload(payloadObj, secret, targetChatObj.id);
       const now = Date.now();
       const record = {
-        senderId: me.id,
-        senderName: me.name,
+        senderId: senderOverride ? senderOverride.id : me.id,
+        senderName: senderOverride ? senderOverride.name : me.name,
         ts: now,
         expiresAt: now + TTL_MS,
         iv: enc.iv,
@@ -2270,11 +2262,42 @@
 
     async function sendEncryptedMessage(payloadObj) {
       if (!activeChat || !me) return;
+      try { await sendEncryptedToChat(activeChat, payloadObj); }
+      catch (err) { showToast("Send Failed", err.message || "Check Firebase rules & internet."); }
+    }
+
+    async function generateAiTextReply(promptText) {
+      const clean = String(promptText || "").trim();
+      const isSinhala = /[\u0D80-\u0DFF]/.test(clean);
       try {
-        await sendEncryptedToChat(activeChat, payloadObj);
-      } catch (err) {
-        showToast("Send Failed", err.message || "Check Firebase rules & internet.");
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 7000);
+        const sys = isSinhala
+          ? "Reply concisely in clear Sinhala text only. No markdown tables."
+          : "Reply concisely in clear English text only. No markdown tables.";
+        const url = `https://text.pollinations.ai/${encodeURIComponent(sys + "\n\nUser: " + clean)}`;
+        const res = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(timer);
+        if (res.ok) {
+          const out = (await res.text() || "").trim();
+          if (out && !out.toLowerCase().includes("<!doctype html")) {
+            return out.slice(0, 900);
+          }
+        }
+      } catch {}
+
+      if (isSinhala) {
+        return `මට "${clean.slice(0, 80)}" ගැන පොඩි note එකක් ලැබුණා. දැන් network එක ටිකක් busy නිසා short reply එකක් දුන්නේ—තව ටිකකින් ආයෙත් අහන්න!`;
       }
+      return `Got your note: "${clean.slice(0, 80)}". Live text endpoint was slow, so here is a quick text ack—try again in a moment!`;
+    }
+
+    async function handleAiPromptInChat(aiChatObj, promptText) {
+      const tBar = document.getElementById("typingBar");
+      if (activeChat && activeChat.id === aiChatObj.id) tBar.textContent = "@kalah AI typing...";
+      const replyText = await generateAiTextReply(promptText);
+      if (activeChat && activeChat.id === aiChatObj.id) tBar.textContent = "";
+      await sendEncryptedToChat(aiChatObj, { kind: "text", text: replyText }, { id: "KALAH_AI", name: "@kalah AI" });
     }
 
     async function sendTextMessage() {
@@ -2297,15 +2320,18 @@
             renderOrUpdateMessage(targetId, updated, { kind: "text", text, edited: true }, false);
             showToast("Updated", "Message edited.");
           }
-        } catch (err) {
-          showToast("Edit Failed", err.message || "Could not edit message.");
-        }
+        } catch (err) { showToast("Edit Failed", err.message || "Could not edit message."); }
         return;
       }
 
       const obj = { kind: "text", text, replyTo: replyToMsg };
+      const currentRoom = { ...activeChat };
       cancelEditOrReply();
       await sendEncryptedMessage(obj);
+
+      if (currentRoom.type === "ai") {
+        handleAiPromptInChat(currentRoom, text).catch(() => {});
+      }
     }
 
     function setReply(sender, preview) {
@@ -2326,9 +2352,7 @@
       showToast("Copied", txt.slice(0, 40));
     }
 
-    function toggleEmojiDrawer() {
-      document.getElementById("emojiDrawer").classList.toggle("hidden");
-    }
+    function toggleEmojiDrawer() { document.getElementById("emojiDrawer").classList.toggle("hidden"); }
 
     function insertEmoji(em) {
       const inp = document.getElementById("msgInput");
@@ -2350,15 +2374,37 @@
         showToast("Photo > 10MB", `Selected ${(file.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
         return;
       }
+      const caption = (document.getElementById("msgInput").value || "").trim();
+      document.getElementById("msgInput").value = "";
       showToast("Processing Photo", "Compressing image for fast send...");
       const rawUrl = await readFileAsDataUrl(file);
       const maxW = file.size > 2 * 1024 * 1024 ? 720 : 860;
       const qual = file.size > 2 * 1024 * 1024 ? 0.56 : 0.66;
       const dataUrl = await compressImageDataUrl(rawUrl, maxW, qual);
-      await sendEncryptedMessage({ kind: "photo", dataUrl, viewOnce: viewOncePhoto, replyTo: replyToMsg });
+      await sendEncryptedMessage({ kind: "photo", dataUrl, caption, viewOnce: viewOncePhoto, replyTo: replyToMsg });
       cancelEditOrReply();
       viewOncePhoto = false;
       document.getElementById("viewOnceToggleBtn").textContent = "1x: OFF";
+    }
+
+    function startVoiceTimer() {
+      stopVoiceTimer();
+      voiceSec = 0;
+      const btn = document.getElementById("voiceBtn");
+      btn.textContent = "⏹ 0:00";
+      voiceTimerInterval = setInterval(() => {
+        voiceSec += 1;
+        const m = Math.floor(voiceSec / 60);
+        const s = String(voiceSec % 60).padStart(2, "0");
+        btn.textContent = `⏹ ${m}:${s}`;
+      }, 1000);
+    }
+
+    function stopVoiceTimer() {
+      if (voiceTimerInterval) { clearInterval(voiceTimerInterval); voiceTimerInterval = null; }
+      voiceSec = 0;
+      const btn = document.getElementById("voiceBtn");
+      if (btn) btn.textContent = "🎙️ ≤15KB";
     }
 
     async function toggleVoiceRecord() {
@@ -2368,10 +2414,9 @@
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           voiceChunks = [];
           mediaRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 16000 });
-          mediaRecorder.ondataavailable = e => {
-            if (e.data && e.data.size > 0) voiceChunks.push(e.data);
-          };
+          mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) voiceChunks.push(e.data); };
           mediaRecorder.onstop = async () => {
+            stopVoiceTimer();
             stream.getTracks().forEach(t => t.stop());
             const blob = new Blob(voiceChunks, { type: mediaRecorder.mimeType || "audio/webm" });
             if (blob.size > MAX_VOICE_BYTES) {
@@ -2387,16 +2432,12 @@
           };
           mediaRecorder.start();
           isRecording = true;
-          document.getElementById("voiceBtn").textContent = "⏹ Stop";
-          setTimeout(() => {
-            if (isRecording) toggleVoiceRecord();
-          }, 5000);
-        } catch {
-          showToast("Mic Blocked", "Allow microphone permission.");
-        }
+          startVoiceTimer();
+          setTimeout(() => { if (isRecording) toggleVoiceRecord(); }, 5000);
+        } catch { showToast("Mic Blocked", "Allow microphone permission."); }
       } else {
         isRecording = false;
-        document.getElementById("voiceBtn").textContent = "🎙️ ≤15KB";
+        stopVoiceTimer();
         if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
       }
     }
@@ -2430,18 +2471,14 @@
         seenMsgIds.clear();
         document.getElementById("messagesBox").innerHTML = "";
         showToast("NUKED", "Chat messages wiped.");
-      } catch (err) {
-        showToast("NUKE Failed", err.message || "Check DB rules.");
-      }
+      } catch (err) { showToast("NUKE Failed", err.message || "Check DB rules."); }
     }
 
     function onTypingInput() {
-      if (!activeChat || !me) return;
+      if (!activeChat || !me || activeChat.type === "ai") return;
       dbPut(`typing/${activeChat.id}/${me.id}`, { name: me.name, ts: Date.now() }).catch(() => {});
       clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        dbDelete(`typing/${activeChat.id}/${me.id}`).catch(() => {});
-      }, 2000);
+      typingTimeout = setTimeout(() => { dbDelete(`typing/${activeChat.id}/${me.id}`).catch(() => {}); }, 2000);
     }
 
     function startBackgroundListeners() {
@@ -2472,17 +2509,10 @@
       await refreshFriendsPresence().catch(() => {});
       await syncStatuses().catch(() => {});
 
-      if (activeChat) {
-        updateChatHeaderMeta();
-      } else if (activeTab === "chats") {
-        renderStatusStrip();
-        renderChatList();
-      } else if (activeTab === "status") {
-        renderStatusStrip();
-        renderStatusFeed();
-      } else if (activeTab === "friends") {
-        renderFriendsList();
-      }
+      if (activeChat) updateChatHeaderMeta();
+      else if (activeTab === "chats") { renderStatusStrip(); renderChatList(); }
+      else if (activeTab === "status") { renderStatusStrip(); renderStatusFeed(); }
+      else if (activeTab === "friends") renderFriendsList();
 
       for (const chatObj of Object.values(chatsMeta)) {
         try {
@@ -2493,9 +2523,7 @@
           const isCurrentRoom = activeChat && activeChat.id === chatObj.id;
           const secret = getEffectiveSecret(isCurrentRoom ? activeChat : chatObj);
 
-          if (isCurrentRoom) {
-            markMessagesSeen(chatObj.id, entries);
-          }
+          if (isCurrentRoom) markMessagesSeen(chatObj.id, entries);
 
           for (const [msgId, pkt] of entries) {
             if (pkt.expiresAt && now > pkt.expiresAt) {
@@ -2525,7 +2553,7 @@
             const dec = await decryptPayload(pkt, secret, chatObj.id);
             if (!dec) continue;
 
-            const nextSig = `${dec.kind}|${dec.text || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
+            const nextSig = `${dec.kind}|${dec.text || ""}|${dec.caption || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
             if (prevSig !== nextSig || !document.getElementById(`msg_${msgId}`)) {
               renderOrUpdateMessage(msgId, pkt, dec, false);
             }
@@ -2538,7 +2566,7 @@
         } catch {}
       }
 
-      if (activeChat) {
+      if (activeChat && activeChat.type !== "ai") {
         try {
           const typ = await dbGet(`typing/${activeChat.id}`);
           const tBar = document.getElementById("typingBar");
@@ -2547,9 +2575,7 @@
               .filter(([uid, info]) => uid !== me.id && info && (Date.now() - info.ts < 3500))
               .map(([, info]) => info.name);
             tBar.textContent = activeTypers.length ? `${activeTypers.join(", ")} typing...` : "";
-          } else {
-            tBar.textContent = "";
-          }
+          } else { tBar.textContent = ""; }
         } catch {}
       }
 
@@ -2557,8 +2583,14 @@
     }
     const RTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-    async function logMissedCallIfNeeded(peerId, peerName, wasConnected) {
-      if (!peerId || !me || !me.id || wasConnected) return;
+    function formatCallDuration(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, "0");
+      const s = String(sec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    async function logCallOutcomeIfNeeded(peerId, peerName, wasConnected, durationSec) {
+      if (!peerId || !me || !me.id) return;
       const dmId = makeDmChatId(me.id, peerId);
       const dmObj = chatsMeta[dmId] || {
         id: dmId,
@@ -2568,10 +2600,17 @@
         secret: makeDmSecret(me.id, peerId)
       };
       try {
-        await sendEncryptedToChat(dmObj, {
-          kind: "missed_call",
-          text: `Missed Voice Call with ${peerName || peerId}`
-        });
+        if (!wasConnected) {
+          await sendEncryptedToChat(dmObj, {
+            kind: "missed_call",
+            text: `Missed Voice Call with ${peerName || peerId}`
+          });
+        } else {
+          await sendEncryptedToChat(dmObj, {
+            kind: "call_log",
+            text: `Voice Call • ${formatCallDuration(durationSec)}`
+          });
+        }
       } catch {}
     }
 
@@ -2582,17 +2621,12 @@
       el.textContent = "00:00";
       callTimerInterval = setInterval(() => {
         callSeconds += 1;
-        const mins = String(Math.floor(callSeconds / 60)).padStart(2, "0");
-        const secs = String(callSeconds % 60).padStart(2, "0");
-        el.textContent = `${mins}:${secs}`;
+        el.textContent = formatCallDuration(callSeconds);
       }, 1000);
     }
 
     function stopCallTimer() {
-      if (callTimerInterval) {
-        clearInterval(callTimerInterval);
-        callTimerInterval = null;
-      }
+      if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
       callSeconds = 0;
       const el = document.getElementById("callTimerText");
       if (el) el.textContent = "00:00";
@@ -2601,9 +2635,7 @@
     function toggleMuteCall() {
       if (!localStream) return;
       isCallMuted = !isCallMuted;
-      localStream.getAudioTracks().forEach(track => {
-        track.enabled = !isCallMuted;
-      });
+      localStream.getAudioTracks().forEach(track => { track.enabled = !isCallMuted; });
       document.getElementById("muteCallBtn").textContent = isCallMuted ? "🔇 Mute: ON" : "🎙️ Mute: OFF";
     }
 
@@ -2611,13 +2643,9 @@
       isSpeakerOn = !isSpeakerOn;
       const audioEl = document.getElementById("remoteAudio");
       if (audioEl && typeof audioEl.setSinkId === "function") {
-        try {
-          await audioEl.setSinkId(isSpeakerOn ? "speaker" : "default");
-        } catch {}
+        try { await audioEl.setSinkId(isSpeakerOn ? "speaker" : "default"); } catch {}
       }
-      if (audioEl) {
-        audioEl.volume = isSpeakerOn ? 1.0 : 0.65;
-      }
+      if (audioEl) audioEl.volume = isSpeakerOn ? 1.0 : 0.65;
       document.getElementById("speakerCallBtn").textContent = isSpeakerOn ? "🔊 Speaker: ON" : "🔉 Speaker: OFF";
     }
 
@@ -2725,15 +2753,14 @@
         pendingOfferSignal = null;
         document.getElementById("callStatusText").textContent = "Connected";
         startCallTimer();
-      } catch {
-        endVoiceCall(false, false);
-      }
+      } catch { endVoiceCall(false, false); }
     }
 
     function endVoiceCall(notifyPeer, remoteHungUp = false) {
       const peerId = activeCallPeerId;
       const peerName = activeCallPeerName;
       const wasConnected = callConnected;
+      const dur = callSeconds;
 
       stopRingtoneLoop();
       stopCallTimer();
@@ -2743,8 +2770,8 @@
       if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
       if (pc) { pc.close(); pc = null; }
 
-      if (!wasConnected && peerId && (notifyPeer || remoteHungUp)) {
-        logMissedCallIfNeeded(peerId, peerName, false);
+      if (peerId && (notifyPeer || remoteHungUp)) {
+        logCallOutcomeIfNeeded(peerId, peerName, wasConnected, dur);
       }
 
       isCallMuted = false;
