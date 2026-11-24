@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kalah — Full Low-Data Private Vault</title>
+  <title>Kalah — Full Low-Data Private Vault + Call</title>
   <style>
     :root {
       --bg: #080507;
@@ -17,7 +17,6 @@
       --muted: #a1a1aa;
       --border: rgba(225, 29, 72, 0.3);
       --ok: #22c55e;
-      --warn: #f59e0b;
     }
 
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
@@ -130,6 +129,11 @@
       border: none;
     }
 
+    button.success {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      border: none;
+    }
+
     button.ghost {
       background: transparent;
       border: 1px solid var(--border);
@@ -157,6 +161,25 @@
       margin-bottom: 11px;
     }
 
+    .call-box {
+      background: #1a0910;
+      border: 1px solid var(--red);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .call-timer {
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fda4af;
+      background: rgba(225, 29, 72, 0.2);
+      padding: 3px 8px;
+      border-radius: 8px;
+    }
+
     .friend-item {
       display: flex;
       justify-content: space-between;
@@ -175,7 +198,7 @@
     }
 
     .messages-box {
-      height: 230px;
+      height: 220px;
       overflow-y: auto;
       background: #080406;
       border: 1px solid var(--border);
@@ -243,6 +266,7 @@
     </div>
 
     <div id="noticeBox" class="notice"></div>
+    <audio id="remoteAudio" autoplay playsinline></audio>
 
     <!-- 1. Calculator Lock Screen -->
     <div id="calcView" class="view active">
@@ -286,7 +310,7 @@
         <div class="nav-tab" id="tabProfile" onclick="switchTab('profile')">Profile & Status</div>
       </div>
 
-      <!-- Tab A: Active Chat -->
+      <!-- Tab A: Active Chat & Call -->
       <div id="panelChat" class="view active">
         <div class="card" id="noChatCard">
           <div class="between">
@@ -304,9 +328,36 @@
               <strong id="activeChatName">Friend</strong>
               <div class="small" id="activeFriendStatusText">Status: ...</div>
             </div>
-            <button class="ghost" style="padding:6px 9px; font-size:11px;" onclick="refreshActiveFriendStatus()">
-              Check Status
-            </button>
+            <div class="row">
+              <button class="ghost" style="padding:6px 9px; font-size:11px;" onclick="refreshActiveFriendStatus()">
+                Status
+              </button>
+              <button class="success" id="callBtn" style="padding:6px 11px; font-size:12px;" onclick="startVoiceCall()">
+                Call
+              </button>
+            </div>
+          </div>
+
+          <!-- Call Status & Timer Panel -->
+          <div class="call-box" id="callBox">
+            <div class="between" style="margin-bottom:8px;">
+              <div>
+                <strong id="callStateLabel">Calling...</strong>
+                <div class="small" id="callSubLabel">Voice channel</div>
+              </div>
+              <span class="call-timer" id="callTimerText">00:00</span>
+            </div>
+            <div class="row">
+              <button class="success" id="answerCallBtn" style="display:none; flex:1; padding:8px; font-size:12px;" onclick="answerIncomingCall()">
+                Answer
+              </button>
+              <button class="ghost" id="muteCallBtn" style="flex:1; padding:8px; font-size:12px;" onclick="toggleMute()">
+                Mute
+              </button>
+              <button class="primary" style="flex:1; padding:8px; font-size:12px;" onclick="endVoiceCall(true)">
+                End Call
+              </button>
+            </div>
           </div>
 
           <div class="messages-box" id="messagesBox"></div>
@@ -394,6 +445,10 @@
       measurementId: "G-L6FY0HFFLC"
     };
 
+    const RTC_CONFIG = {
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    };
+
     const KEYS = {
       myId: "kalah_pro_my_id_v1",
       profile: "kalah_pro_profile_v1",
@@ -406,6 +461,15 @@
     let activeFriend = null;
     let activeMsgRef = null;
     let calcExpr = "";
+
+    // Call state
+    let pc = null;
+    let localStream = null;
+    let callRef = null;
+    let callTimerInterval = null;
+    let callSeconds = 0;
+    let isMuted = false;
+    let pendingOffer = null;
 
     function showNotice(msg) {
       const box = document.getElementById("noticeBox");
@@ -475,6 +539,12 @@
       return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
 
+    function formatCallDuration(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, "0");
+      const s = String(sec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
     function updateQueueCounter() {
       const q = loadJson(KEYS.queue, []);
       document.getElementById("queueCountText").textContent = "Queue: " + q.length;
@@ -532,6 +602,7 @@
     }
 
     function lockApp() {
+      endVoiceCall(false);
       if (activeMsgRef) {
         activeMsgRef.off();
         activeMsgRef = null;
@@ -665,6 +736,7 @@
 
       if (db && navigator.onLine) {
         refreshActiveFriendStatus();
+        attachCallSignalListener(roomId);
         activeMsgRef = db.ref(`chats/${roomId}/messages`).limitToLast(25);
         activeMsgRef.on(
           "value",
@@ -682,7 +754,6 @@
       }
     }
 
-    // Low-data one-time status check for active friend only
     async function refreshActiveFriendStatus() {
       if (!activeFriend || !db) return;
       try {
@@ -697,6 +768,216 @@
       } catch (err) {
         document.getElementById("activeFriendStatusText").textContent = "Status: unavailable";
         showNotice("Status Check Error (" + (err.code || "err") + "): " + err.message);
+      }
+    }
+
+    // Call & Timer Logic (WebRTC + Firebase Signaling)
+    function startCallTimer() {
+      stopCallTimer();
+      callSeconds = 0;
+      document.getElementById("callTimerText").textContent = "00:00";
+      callTimerInterval = setInterval(() => {
+        callSeconds += 1;
+        document.getElementById("callTimerText").textContent = formatCallDuration(callSeconds);
+      }, 1000);
+    }
+
+    function stopCallTimer() {
+      if (callTimerInterval) {
+        clearInterval(callTimerInterval);
+        callTimerInterval = null;
+      }
+    }
+
+    function showCallUi(stateText, subText, showAnswer = false) {
+      document.getElementById("callBox").style.display = "block";
+      document.getElementById("callStateLabel").textContent = stateText;
+      document.getElementById("callSubLabel").textContent = subText;
+      document.getElementById("answerCallBtn").style.display = showAnswer ? "inline-block" : "none";
+    }
+
+    function createPeerConnection(roomId, role) {
+      const peer = new RTCPeerConnection(RTC_CONFIG);
+
+      if (localStream) {
+        localStream.getTracks().forEach((track) => peer.addTrack(track, localStream));
+      }
+
+      peer.ontrack = (event) => {
+        const audioEl = document.getElementById("remoteAudio");
+        if (event.streams && event.streams[0]) {
+          audioEl.srcObject = event.streams[0];
+        }
+      };
+
+      peer.onicecandidate = (event) => {
+        if (event.candidate && db) {
+          db.ref(`calls/${roomId}/candidates/${role}`).push(event.candidate.toJSON());
+        }
+      };
+
+      peer.onconnectionstatechange = () => {
+        if (peer.connectionState === "connected") {
+          showCallUi("Connected", "Voice call active");
+          startCallTimer();
+        } else if (["failed", "disconnected", "closed"].includes(peer.connectionState)) {
+          stopCallTimer();
+        }
+      };
+
+      return peer;
+    }
+
+    async function ensureMic() {
+      if (localStream) return localStream;
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Microphone API not supported in this browser/WebView.");
+      }
+      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      isMuted = false;
+      document.getElementById("muteCallBtn").textContent = "Mute";
+      return localStream;
+    }
+
+    async function startVoiceCall() {
+      if (!activeFriend) return;
+      if (!db || !navigator.onLine) {
+        showNotice("Call ගන්න internet/database connection ඕන.");
+        return;
+      }
+
+      try {
+        await ensureMic();
+        const roomId = makeRoomId(getMyId(), activeFriend);
+        callRef = db.ref(`calls/${roomId}`);
+        await callRef.remove();
+
+        pc = createPeerConnection(roomId, "caller");
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        await callRef.set({
+          from: getMyId(),
+          to: activeFriend,
+          status: "ringing",
+          offer: { type: offer.type, sdp: offer.sdp },
+          ts: Date.now()
+        });
+
+        showCallUi("Calling...", `Ringing ${activeFriend}`);
+      } catch (err) {
+        showNotice("Call Start Error: " + (err.code || err.name || "err") + " - " + err.message);
+        endVoiceCall(false);
+      }
+    }
+
+    function attachCallSignalListener(roomId) {
+      if (!db) return;
+      if (callRef) {
+        callRef.off();
+      }
+      callRef = db.ref(`calls/${roomId}`);
+
+      callRef.on("value", async (snap) => {
+        const data = snap.val();
+        if (!data) {
+          stopCallTimer();
+          document.getElementById("callBox").style.display = "none";
+          return;
+        }
+
+        const myId = getMyId();
+
+        // Incoming call to me
+        if (data.status === "ringing" && data.from !== myId && data.offer && !pc) {
+          pendingOffer = data.offer;
+          showCallUi("Incoming Call", `${data.from} is calling...`, true);
+        }
+
+        // Caller receives answer
+        if (data.status === "answered" && data.from === myId && data.answer && pc && !pc.currentRemoteDescription) {
+          await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+          showCallUi("Connected", "Voice call active");
+          startCallTimer();
+        }
+
+        if (data.status === "ended") {
+          endVoiceCall(false);
+        }
+      });
+
+      callRef.child("candidates").on("child_added", async (roleSnap) => {
+        const role = roleSnap.key;
+        const myRole = pc ? (roleSnap.val() ? null : null) : null;
+        roleSnap.ref.on("child_added", async (candSnap) => {
+          if (!pc || !pc.remoteDescription) return;
+          const cand = candSnap.val();
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(cand));
+          } catch {}
+        });
+      });
+    }
+
+    async function answerIncomingCall() {
+      if (!activeFriend || !pendingOffer || !db) return;
+      try {
+        await ensureMic();
+        const roomId = makeRoomId(getMyId(), activeFriend);
+        callRef = db.ref(`calls/${roomId}`);
+
+        pc = createPeerConnection(roomId, "callee");
+        await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        await callRef.update({
+          status: "answered",
+          answer: { type: answer.type, sdp: answer.sdp }
+        });
+
+        pendingOffer = null;
+        showCallUi("Connected", "Voice call active", false);
+        startCallTimer();
+      } catch (err) {
+        showNotice("Answer Error: " + err.message);
+        endVoiceCall(true);
+      }
+    }
+
+    function toggleMute() {
+      if (!localStream) return;
+      isMuted = !isMuted;
+      localStream.getAudioTracks().forEach((t) => {
+        t.enabled = !isMuted;
+      });
+      document.getElementById("muteCallBtn").textContent = isMuted ? "Unmute" : "Mute";
+    }
+
+    async function endVoiceCall(notifyRemote = true) {
+      const durationText = callSeconds > 0 ? formatCallDuration(callSeconds) : null;
+      stopCallTimer();
+      pendingOffer = null;
+
+      if (pc) {
+        try { pc.close(); } catch {}
+        pc = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach((t) => t.stop());
+        localStream = null;
+      }
+
+      if (notifyRemote && activeFriend && db) {
+        try {
+          const roomId = makeRoomId(getMyId(), activeFriend);
+          await db.ref(`calls/${roomId}`).update({ status: "ended", endedAt: Date.now() });
+        } catch {}
+      }
+
+      document.getElementById("callBox").style.display = "none";
+      if (durationText) {
+        showNotice("Call ended · Duration: " + durationText);
       }
     }
 
