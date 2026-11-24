@@ -691,7 +691,7 @@
         <div class="card">
           <div class="card-title">Add Friend (Email / Phone / ID)</div>
           <input id="addFriendInput" class="input" placeholder="Enter friend's Email, Phone, or ID..." />
-          <button class="btn-primary" onclick="addFriendFromInput()">Find & Add Friend</button>
+          <button type="button" id="addFriendBtn" class="btn-primary" onclick="addFriendFromInput()">Find & Add Friend</button>
         </div>
         <div id="friendsListContainer"></div>
       </div>
@@ -879,6 +879,7 @@
     let friends = loadLocal("kalah_friends_v3", {});
     let chatsMeta = loadLocal("kalah_chats_v3", {});
     let pinnedChats = loadLocal("kalah_pinned_v3", {});
+    let unreadCounts = loadLocal("kalah_unread_v3", {});
     let soundEnabled = loadLocal("kalah_sound_v3", true);
     let themeAccent = loadLocal("kalah_theme_v3", "crimson");
     let wallpaperStyle = loadLocal("kalah_wallpaper_v3", "obsidian");
@@ -1195,33 +1196,48 @@
 
     function dbUrl(path) { return `${DB_ROOT}/${PREFIX}/${path}.json`; }
 
+    async function safeDbFetch(url, options = {}, retries = 2) {
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 8500);
+        try {
+          const res = await fetch(url, { ...options, cache: "no-store", signal: ctrl.signal });
+          clearTimeout(timer);
+          if (!res.ok) throw new Error(`Server HTTP ${res.status}`);
+          return res;
+        } catch (err) {
+          clearTimeout(timer);
+          if (attempt === retries) {
+            if (err.name === "AbortError") throw new Error("Connection timed out. Check mobile data/signal.");
+            throw new Error("Network blocked or offline. Check Private DNS / Data.");
+          }
+          await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        }
+      }
+    }
+
     async function dbPut(path, data) {
-      const res = await fetch(dbUrl(path), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
+      const res = await safeDbFetch(dbUrl(path), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       return res.json();
     }
 
     async function dbPost(path, data) {
-      const res = await fetch(dbUrl(path), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
+      const res = await safeDbFetch(dbUrl(path), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       return res.json();
     }
 
     async function dbPatch(path, data) {
-      const res = await fetch(dbUrl(path), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
+      const res = await safeDbFetch(dbUrl(path), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       return res.json();
     }
 
     async function dbGet(path) {
-      const res = await fetch(dbUrl(path));
-      if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
+      const res = await safeDbFetch(dbUrl(path), { method: "GET" });
       return res.json();
     }
 
     async function dbDelete(path) {
-      const res = await fetch(dbUrl(path), { method: "DELETE" });
-      if (!res.ok) throw new Error(`DB HTTP ${res.status}`);
+      await safeDbFetch(dbUrl(path), { method: "DELETE" });
     }
 
     function setAuthMethod(method) {
@@ -1332,7 +1348,7 @@
           if (lookupKey) await dbPut(`directory/${lookupKey}`, id);
           await dbPut(`accounts/${id}`, { id, authMethod, contact, name, bio, photo, lastSeen: Date.now() });
         } catch (err) {
-          showToast("Local Mode", `Firebase sync issue (${err.message}). Check DB rules.`);
+          showToast("Local Mode", err.message || "Firebase sync issue.");
         }
 
         await enterMainApp(false);
@@ -1444,6 +1460,10 @@
       const raw = document.getElementById("addFriendInput").value.trim();
       if (!raw) { showToast("Empty Input", "Enter Email, Phone, or ID."); return; }
 
+      const btn = document.getElementById("addFriendBtn");
+      const origTxt = btn ? btn.textContent : "Find & Add Friend";
+      if (btn) btn.textContent = "Searching...";
+
       try {
         let targetId = raw.toUpperCase();
         let acc = null;
@@ -1455,7 +1475,10 @@
           if (mappedId) { targetId = mappedId; acc = await dbGet(`accounts/${targetId}`); }
         }
 
-        if (!acc || targetId === me.id) { showToast("Not Found", "No matching account found."); return; }
+        if (!acc || targetId === me.id) {
+          showToast("Not Found", "No matching account found.");
+          return;
+        }
 
         document.getElementById("addFriendInput").value = "";
         friends[targetId] = {
@@ -1493,7 +1516,9 @@
         renderChatList();
         showToast("Friend Added", `${acc.name} is now in your list.`);
       } catch (err) {
-        showToast("Add Friend Failed", err.message || "Check connection / DB rules.");
+        showToast("Add Friend Failed", err.message || "Check connection / Private DNS.");
+      } finally {
+        if (btn) btn.textContent = origTxt;
       }
     }
 
@@ -1876,6 +1901,12 @@
       renderChatList();
     }
 
+    function clearUnreadForChat(chatId) {
+      if (!chatId || !unreadCounts[chatId]) return;
+      delete unreadCounts[chatId];
+      saveLocal("kalah_unread_v3", unreadCounts);
+    }
+
     function renderChatList() {
       const box = document.getElementById("chatListContainer");
       box.innerHTML = "";
@@ -1907,6 +1938,7 @@
 
       list.forEach(c => {
         const isPinned = !!pinnedChats[c.id];
+        const uCount = unreadCounts[c.id] || 0;
         const div = document.createElement("div");
         div.className = `list-item ${isPinned ? "pinned" : ""}`;
         const badge = c.type === "group" ? "GROUP" : "DIRECT";
@@ -1922,7 +1954,10 @@
             <div class="item-sub">${escapeHtml(subLine)}</div>
             ${c.type === "dm" && (c.bio || (peer && peer.bio)) ? `<div class="item-about">${escapeHtml(c.bio || peer.bio)}</div>` : ""}
           </div>
-          <button class="btn-sm ${isPinned ? "accent" : ""}" onclick="togglePinChat('${c.id}', event)">${isPinned ? "Pinned" : "Pin"}</button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            ${uCount > 0 ? `<span class="brand-badge" style="background:var(--accent); color:#fff; border-color:var(--accent);">${uCount > 99 ? "99+" : uCount}</span>` : ""}
+            <button class="btn-sm ${isPinned ? "accent" : ""}" onclick="togglePinChat('${c.id}', event)">${isPinned ? "Pinned" : "Pin"}</button>
+          </div>
         `;
         div.onclick = () => openChatRoom(c);
         box.appendChild(div);
@@ -1963,6 +1998,7 @@
 
     function openChatRoom(chatObj) {
       activeChat = { ...chatObj };
+      clearUnreadForChat(activeChat.id);
       if (activeChat.type === "dm") {
         activeChat.secret = getEffectiveSecret(activeChat);
         chatsMeta[activeChat.id] = activeChat;
@@ -2168,41 +2204,114 @@
       box.appendChild(row);
       if (shouldAutoScroll) box.scrollTop = box.scrollHeight;
     }
-    function startEditMessage(msgId, currentText) {
-      editingMsgId = msgId;
-      replyToMsg = null;
-      const inp = document.getElementById("msgInput");
-      inp.value = currentText;
-      inp.focus();
-      document.getElementById("replyBar").classList.remove("hidden");
-      document.getElementById("replyText").textContent = `Editing message...`;
+    async function sendEncryptedToChat(chatObj, payloadObj) {
+      if (!me || !me.id || !chatObj || !chatObj.id) return;
+      const secret = getEffectiveSecret(chatObj);
+      const now = Date.now();
+      const pkt = {
+        senderId: me.id,
+        senderName: me.name,
+        ts: now,
+        expiresAt: now + TTL_MS,
+        seenBy: { [me.id]: now },
+        reactions: {},
+        ...(await encryptPayload(payloadObj, secret, chatObj.id))
+      };
+
+      const res = await dbPost(`messages/${chatObj.id}`, pkt);
+      const newId = res && res.name ? res.name : ("m_" + now.toString(36));
+      seenMsgIds.add(newId);
+
+      if (activeChat && activeChat.id === chatObj.id) {
+        renderOrUpdateMessage(newId, pkt, payloadObj, true);
+      }
+      return { id: newId, pkt };
     }
 
-    async function deleteSingleMessage(msgId) {
-      if (!activeChat || !msgId) return;
+    async function generateAiTextReply(promptText) {
+      const clean = String(promptText || "").trim();
+      if (!clean) return "Ask me anything in Sinhala or English!";
+      const isSinhala = /[\u0D80-\u0DFF]/.test(clean);
+      const instruction = isSinhala
+        ? `Reply concisely and helpfully in Sinhala to: ${clean}`
+        : `Reply concisely and helpfully in English to: ${clean}`;
+
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 7500);
       try {
-        await dbDelete(`messages/${activeChat.id}/${msgId}`);
-        renderedMsgSignatures.delete(msgId);
-        const el = document.getElementById(`msg_${msgId}`);
-        if (el) el.remove();
-        showToast("Deleted", "Message removed.");
-      } catch (err) { showToast("Delete Failed", err.message || "Could not delete message."); }
+        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(instruction)}`, { signal: ctrl.signal });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error("AI unavailable");
+        const txt = (await res.text() || "").trim();
+        if (!txt || txt.toLowerCase().includes("<!doctype html")) throw new Error("Empty AI reply");
+        return txt.slice(0, 1000);
+      } catch {
+        clearTimeout(timer);
+        if (isSinhala) {
+          return `මට "${clean.slice(0, 80)}" ගැන කෙටියෙන් කියන්න පුළුවන්: දැනට network/server එක ටිකක් slow නිසා විස්තරාත්මකව පස්සේ උත්සාහ කරන්න.`;
+        }
+        return `Quick note on "${clean.slice(0, 80)}": AI endpoint was slow/offline, please try again in a moment.`;
+      }
+    }
+
+    async function triggerAiReplyForPrompt(aiChatObj, promptText) {
+      const typingEl = document.getElementById("typingBar");
+      if (activeChat && activeChat.id === aiChatObj.id && typingEl) {
+        typingEl.textContent = "@kalah AI typing...";
+      }
+      const replyStr = await generateAiTextReply(promptText);
+      if (typingEl && activeChat && activeChat.id === aiChatObj.id) {
+        typingEl.textContent = "";
+      }
+      await sendEncryptedToChat(aiChatObj, { kind: "text", text: replyStr });
+    }
+
+    async function sendTextMessage() {
+      if (!activeChat) return;
+      const inp = document.getElementById("msgInput");
+      const text = inp.value.trim();
+      if (!text) return;
+
+      if (editingMsgId) {
+        await saveEditedMessage(editingMsgId, text);
+        inp.value = "";
+        return;
+      }
+
+      const payload = { kind: "text", text };
+      if (replyToMsg) {
+        payload.replyTo = replyToMsg;
+        cancelEditOrReply();
+      }
+
+      inp.value = "";
+      clearTypingFlag().catch(() => {});
+
+      try {
+        const targetChat = { ...activeChat };
+        await sendEncryptedToChat(targetChat, payload);
+        if (targetChat.type === "ai") {
+          triggerAiReplyForPrompt(targetChat, text).catch(() => {});
+        }
+      } catch (err) {
+        showToast("Send Failed", err.message || "Could not send message.");
+      }
     }
 
     function openForwardModal(textToForward) {
       forwardPayloadDraft = { kind: "text", text: textToForward };
       const box = document.getElementById("forwardTargetList");
-      const targets = Object.values(chatsMeta).filter(c => c.type !== "ai");
+      const targets = Object.values(chatsMeta).filter(c => c.type !== "ai" && (!activeChat || c.id !== activeChat.id));
       if (!targets.length) {
-        box.innerHTML = `<div class="item-sub">No friend or group chats available.</div>`;
+        box.innerHTML = `<div class="item-sub">No other chats available to forward to.</div>`;
       } else {
         box.innerHTML = targets.map(t => `
-          <div class="list-item" onclick="executeForwardTo('${t.id}')">
+          <div class="list-item" style="margin-bottom:6px;" onclick='forwardToTarget(${JSON.stringify(t).replace(/'/g, "&#39;")})'>
             <div class="item-meta">
               <div class="item-name">${escapeHtml(t.title)}</div>
-              <div class="item-sub">${escapeHtml(t.type.toUpperCase())}</div>
+              <div class="item-sub">${t.type === "group" ? "Group Chat" : "Direct Chat"}</div>
             </div>
-            <button class="btn-sm accent">Send</button>
+            <span class="btn-sm accent">Send</span>
           </div>
         `).join("");
       }
@@ -2214,131 +2323,34 @@
       document.getElementById("forwardModal").classList.add("hidden");
     }
 
-    async function executeForwardTo(targetChatId) {
-      if (!forwardPayloadDraft || !chatsMeta[targetChatId]) return;
-      const target = chatsMeta[targetChatId];
-      const payload = { ...forwardPayloadDraft, text: `↪ Forwarded: ${forwardPayloadDraft.text}` };
+    async function forwardToTarget(targetChat) {
+      if (!forwardPayloadDraft || !targetChat) return;
+      const draft = { ...forwardPayloadDraft };
       closeForwardModal();
-      await sendEncryptedToChat(target, payload);
-      showToast("Forwarded", `Sent to ${target.title}`);
-    }
-
-    function openViewOncePhoto(msgId, btnEl) {
-      const row = document.getElementById(`msg_${msgId}`);
-      const dataUrl = row ? row.dataset.viewOnceData : "";
-      if (!dataUrl) return;
-      openPhotoPreview(dataUrl);
-      if (btnEl) btnEl.textContent = "Opened (1x)";
-      if (row) delete row.dataset.viewOnceData;
-      if (activeChat) dbDelete(`messages/${activeChat.id}/${msgId}`).catch(() => {});
-    }
-
-    function openPhotoPreview(src) {
-      const w = window.open("", "_blank");
-      if (w) w.document.write(`<body style="margin:0;background:#070b14;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${src}" style="max-width:100%;max-height:100%;" /></body>`);
-    }
-
-    async function sendEncryptedToChat(targetChatObj, payloadObj, senderOverride = null) {
-      if (!targetChatObj || !me) return;
-      const secret = getEffectiveSecret(targetChatObj);
-      const enc = await encryptPayload(payloadObj, secret, targetChatObj.id);
-      const now = Date.now();
-      const record = {
-        senderId: senderOverride ? senderOverride.id : me.id,
-        senderName: senderOverride ? senderOverride.name : me.name,
-        ts: now,
-        expiresAt: now + TTL_MS,
-        iv: enc.iv,
-        ct: enc.ct,
-        reactions: {},
-        seenBy: {}
-      };
-      const posted = await dbPost(`messages/${targetChatObj.id}`, record);
-      if (posted && posted.name && activeChat && activeChat.id === targetChatObj.id) {
-        seenMsgIds.add(posted.name);
-        renderOrUpdateMessage(posted.name, record, payloadObj, true);
-      }
-    }
-
-    async function sendEncryptedMessage(payloadObj) {
-      if (!activeChat || !me) return;
-      try { await sendEncryptedToChat(activeChat, payloadObj); }
-      catch (err) { showToast("Send Failed", err.message || "Check Firebase rules & internet."); }
-    }
-
-    async function generateAiTextReply(promptText) {
-      const clean = String(promptText || "").trim();
-      const isSinhala = /[\u0D80-\u0DFF]/.test(clean);
       try {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 7000);
-        const sys = isSinhala
-          ? "Reply concisely in clear Sinhala text only. No markdown tables."
-          : "Reply concisely in clear English text only. No markdown tables.";
-        const url = `https://text.pollinations.ai/${encodeURIComponent(sys + "\n\nUser: " + clean)}`;
-        const res = await fetch(url, { signal: ctrl.signal });
-        clearTimeout(timer);
-        if (res.ok) {
-          const out = (await res.text() || "").trim();
-          if (out && !out.toLowerCase().includes("<!doctype html")) {
-            return out.slice(0, 900);
-          }
-        }
-      } catch {}
-
-      if (isSinhala) {
-        return `මට "${clean.slice(0, 80)}" ගැන පොඩි note එකක් ලැබුණා. දැන් network එක ටිකක් busy නිසා short reply එකක් දුන්නේ—තව ටිකකින් ආයෙත් අහන්න!`;
-      }
-      return `Got your note: "${clean.slice(0, 80)}". Live text endpoint was slow, so here is a quick text ack—try again in a moment!`;
-    }
-
-    async function handleAiPromptInChat(aiChatObj, promptText) {
-      const tBar = document.getElementById("typingBar");
-      if (activeChat && activeChat.id === aiChatObj.id) tBar.textContent = "@kalah AI typing...";
-      const replyText = await generateAiTextReply(promptText);
-      if (activeChat && activeChat.id === aiChatObj.id) tBar.textContent = "";
-      await sendEncryptedToChat(aiChatObj, { kind: "text", text: replyText }, { id: "KALAH_AI", name: "@kalah AI" });
-    }
-
-    async function sendTextMessage() {
-      const inp = document.getElementById("msgInput");
-      const text = inp.value.trim();
-      if (!text || !activeChat) return;
-      inp.value = "";
-
-      if (editingMsgId) {
-        const targetId = editingMsgId;
-        cancelEditOrReply();
-        try {
-          const existing = await dbGet(`messages/${activeChat.id}/${targetId}`);
-          if (existing) {
-            const secret = getEffectiveSecret(activeChat);
-            const enc = await encryptPayload({ kind: "text", text, edited: true }, secret, activeChat.id);
-            const updated = { ...existing, iv: enc.iv, ct: enc.ct };
-            await dbPut(`messages/${activeChat.id}/${targetId}`, updated);
-            renderedMsgSignatures.delete(targetId);
-            renderOrUpdateMessage(targetId, updated, { kind: "text", text, edited: true }, false);
-            showToast("Updated", "Message edited.");
-          }
-        } catch (err) { showToast("Edit Failed", err.message || "Could not edit message."); }
-        return;
-      }
-
-      const obj = { kind: "text", text, replyTo: replyToMsg };
-      const currentRoom = { ...activeChat };
-      cancelEditOrReply();
-      await sendEncryptedMessage(obj);
-
-      if (currentRoom.type === "ai") {
-        handleAiPromptInChat(currentRoom, text).catch(() => {});
+        await sendEncryptedToChat(targetChat, draft);
+        showToast("Forwarded", `Sent to ${targetChat.title}.`);
+      } catch (err) {
+        showToast("Forward Failed", err.message || "Could not forward.");
       }
     }
 
     function setReply(sender, preview) {
       editingMsgId = null;
-      replyToMsg = { sender, preview: preview.slice(0, 60) };
-      document.getElementById("replyBar").classList.remove("hidden");
+      replyToMsg = { sender, preview: String(preview || "").slice(0, 70) };
       document.getElementById("replyText").textContent = `Replying to ${sender}: ${replyToMsg.preview}`;
+      document.getElementById("replyBar").classList.remove("hidden");
+      document.getElementById("msgInput").focus();
+    }
+
+    function startEditMessage(msgId, currentText) {
+      replyToMsg = null;
+      editingMsgId = msgId;
+      document.getElementById("replyText").textContent = "Editing your message...";
+      document.getElementById("replyBar").classList.remove("hidden");
+      const inp = document.getElementById("msgInput");
+      inp.value = currentText;
+      inp.focus();
     }
 
     function cancelEditOrReply() {
@@ -2347,9 +2359,166 @@
       document.getElementById("replyBar").classList.add("hidden");
     }
 
-    function copyText(txt) {
-      navigator.clipboard?.writeText(txt).catch(() => {});
-      showToast("Copied", txt.slice(0, 40));
+    async function saveEditedMessage(msgId, newText) {
+      if (!activeChat) return;
+      const secret = getEffectiveSecret(activeChat);
+      const updated = { kind: "text", text: newText, edited: true };
+      const enc = await encryptPayload(updated, secret, activeChat.id);
+      await dbPatch(`messages/${activeChat.id}/${msgId}`, enc);
+      cancelEditOrReply();
+      loadMessagesOnce();
+    }
+
+    async function deleteSingleMessage(msgId) {
+      if (!activeChat) return;
+      await dbDelete(`messages/${activeChat.id}/${msgId}`).catch(() => {});
+      renderedMsgSignatures.delete(msgId);
+      const el = document.getElementById(`msg_${msgId}`);
+      if (el) el.remove();
+    }
+
+    async function toggleReaction(msgId, emoji) {
+      if (!activeChat) return;
+      const pill = document.querySelector(`#reacts_${msgId} .react-pill`);
+      let nextCount = 1;
+      if (pill) {
+        const match = (pill.textContent || "").trim().match(new RegExp(`^${emoji}\\s+(\\d+)$`));
+        if (match) nextCount = parseInt(match[1], 10) + 1;
+      }
+      await dbPut(`messages/${activeChat.id}/${msgId}/reactions/${encodeURIComponent(emoji)}`, nextCount).catch(() => {});
+      loadMessagesOnce();
+    }
+
+    function toggleViewOnce() {
+      viewOncePhoto = !viewOncePhoto;
+      const btn = document.getElementById("viewOnceToggleBtn");
+      btn.textContent = `1x: ${viewOncePhoto ? "ON" : "OFF"}`;
+      btn.classList.toggle("accent", viewOncePhoto);
+    }
+
+    async function handleChatPhoto(ev) {
+      isPickingFile = false;
+      const file = ev.target.files[0];
+      ev.target.value = "";
+      if (!file || !activeChat) return;
+
+      if (file.size > MAX_CHAT_PHOTO_BYTES) {
+        showToast("Photo > 10MB", `Selected ${(file.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
+        return;
+      }
+
+      const caption = document.getElementById("msgInput").value.trim();
+      const raw = await readFileAsDataUrl(file);
+      const compressed = await compressImageDataUrl(raw, 760, 0.58);
+      if (caption) document.getElementById("msgInput").value = "";
+
+      const isOnce = viewOncePhoto;
+      if (viewOncePhoto) toggleViewOnce();
+
+      try {
+        await sendEncryptedToChat(activeChat, { kind: "photo", dataUrl: compressed, caption, viewOnce: isOnce });
+      } catch (err) {
+        showToast("Photo Failed", err.message || "Could not send photo.");
+      }
+    }
+
+    function openViewOncePhoto(msgId, btnEl) {
+      const row = document.getElementById(`msg_${msgId}`);
+      const dataUrl = row ? row.dataset.viewOnceData : "";
+      if (!dataUrl) return;
+      openPhotoPreview(dataUrl);
+      if (btnEl) {
+        btnEl.textContent = "Opened (1x)";
+        btnEl.disabled = true;
+      }
+      deleteSingleMessage(msgId);
+    }
+
+    function openPhotoPreview(dataUrl) {
+      document.getElementById("statusViewerAuthor").textContent = "Photo Preview";
+      document.getElementById("statusViewerTime").textContent = "";
+      document.getElementById("statusViewerViews").textContent = "";
+      const img = document.getElementById("statusViewerImg");
+      img.src = dataUrl;
+      img.classList.remove("hidden");
+      document.getElementById("statusViewerCaption").textContent = "";
+      document.getElementById("statusQuickReplyBox").classList.add("hidden");
+      document.getElementById("statusModal").classList.remove("hidden");
+    }
+
+    function formatVoiceTimer(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function startVoiceTimer() {
+      stopVoiceTimer();
+      voiceSec = 0;
+      const btn = document.getElementById("voiceBtn");
+      if (btn) btn.textContent = `⏹ ${formatVoiceTimer(voiceSec)}`;
+      voiceTimerInterval = setInterval(() => {
+        voiceSec += 1;
+        if (btn && isRecording) btn.textContent = `⏹ ${formatVoiceTimer(voiceSec)}`;
+      }, 1000);
+    }
+
+    function stopVoiceTimer() {
+      if (voiceTimerInterval) {
+        clearInterval(voiceTimerInterval);
+        voiceTimerInterval = null;
+      }
+    }
+
+    async function toggleVoiceRecord() {
+      if (!activeChat) return;
+      const btn = document.getElementById("voiceBtn");
+
+      if (!isRecording) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast("Mic Unsupported", "Voice recording is not supported here.");
+          return;
+        }
+        try {
+          markFilePicking();
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          voiceChunks = [];
+          mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+          mediaRecorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) voiceChunks.push(e.data);
+          };
+          mediaRecorder.onstop = async () => {
+            stopVoiceTimer();
+            isPickingFile = false;
+            stream.getTracks().forEach(t => t.stop());
+            const blob = new Blob(voiceChunks, { type: "audio/webm" });
+            if (blob.size > MAX_VOICE_BYTES) {
+              showToast("Voice > 1MB", `Clip is ${(blob.size / (1024 * 1024)).toFixed(2)}MB. Max allowed is 1MB.`);
+              return;
+            }
+            const dataUrl = await readFileAsDataUrl(blob);
+            try {
+              await sendEncryptedToChat(activeChat, { kind: "voice", dataUrl });
+            } catch (err) {
+              showToast("Voice Failed", err.message || "Could not send voice note.");
+            }
+          };
+          mediaRecorder.start();
+          isRecording = true;
+          btn.classList.add("accent");
+          startVoiceTimer();
+        } catch {
+          stopVoiceTimer();
+          isPickingFile = false;
+          showToast("Mic Permission", "Allow microphone permission to record.");
+        }
+      } else {
+        isRecording = false;
+        stopVoiceTimer();
+        btn.classList.remove("accent");
+        btn.textContent = "🎙️ ≤1MB";
+        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+      }
     }
 
     function toggleEmojiDrawer() { document.getElementById("emojiDrawer").classList.toggle("hidden"); }
@@ -2358,442 +2527,438 @@
       const inp = document.getElementById("msgInput");
       inp.value += em;
       inp.focus();
+      onTypingInput();
     }
 
-    function toggleViewOnce() {
-      viewOncePhoto = !viewOncePhoto;
-      document.getElementById("viewOnceToggleBtn").textContent = `1x: ${viewOncePhoto ? "ON" : "OFF"}`;
+    function onTypingInput() {
+      if (!activeChat || !me) return;
+      dbPut(`typing/${activeChat.id}/${me.id}`, Date.now()).catch(() => {});
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => { clearTypingFlag().catch(() => {}); }, 2500);
     }
 
-    async function handleChatPhoto(ev) {
-      const file = ev.target.files[0];
-      ev.target.value = "";
-      isPickingFile = false;
-      if (!file || !activeChat) return;
-      if (file.size > MAX_CHAT_PHOTO_BYTES) {
-        showToast("Photo > 10MB", `Selected ${(file.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
-        return;
-      }
-      const caption = (document.getElementById("msgInput").value || "").trim();
-      document.getElementById("msgInput").value = "";
-      showToast("Processing Photo", "Compressing image for fast send...");
-      const rawUrl = await readFileAsDataUrl(file);
-      const maxW = file.size > 2 * 1024 * 1024 ? 720 : 860;
-      const qual = file.size > 2 * 1024 * 1024 ? 0.56 : 0.66;
-      const dataUrl = await compressImageDataUrl(rawUrl, maxW, qual);
-      await sendEncryptedMessage({ kind: "photo", dataUrl, caption, viewOnce: viewOncePhoto, replyTo: replyToMsg });
-      cancelEditOrReply();
-      viewOncePhoto = false;
-      document.getElementById("viewOnceToggleBtn").textContent = "1x: OFF";
-    }
-
-    function startVoiceTimer() {
-      stopVoiceTimer();
-      voiceSec = 0;
-      const btn = document.getElementById("voiceBtn");
-      btn.textContent = "⏹ 0:00";
-      voiceTimerInterval = setInterval(() => {
-        voiceSec += 1;
-        const m = Math.floor(voiceSec / 60);
-        const s = String(voiceSec % 60).padStart(2, "0");
-        btn.textContent = `⏹ ${m}:${s}`;
-      }, 1000);
-    }
-
-    function stopVoiceTimer() {
-      if (voiceTimerInterval) { clearInterval(voiceTimerInterval); voiceTimerInterval = null; }
-      voiceSec = 0;
-      const btn = document.getElementById("voiceBtn");
-      if (btn) btn.textContent = "🎙️ ≤15KB";
-    }
-
-    async function toggleVoiceRecord() {
-      if (!activeChat) return;
-      if (!isRecording) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          voiceChunks = [];
-          mediaRecorder = new MediaRecorder(stream, { audioBitsPerSecond: 16000 });
-          mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) voiceChunks.push(e.data); };
-          mediaRecorder.onstop = async () => {
-            stopVoiceTimer();
-            stream.getTracks().forEach(t => t.stop());
-            const blob = new Blob(voiceChunks, { type: mediaRecorder.mimeType || "audio/webm" });
-            if (blob.size > MAX_VOICE_BYTES) {
-              showToast("Voice > 15KB", `Size ${(blob.size / 1024).toFixed(1)}KB. Keep clip short (<=15KB).`);
-              return;
-            }
-            const reader = new FileReader();
-            reader.onload = async () => {
-              await sendEncryptedMessage({ kind: "voice", dataUrl: reader.result, replyTo: replyToMsg });
-              cancelEditOrReply();
-            };
-            reader.readAsDataURL(blob);
-          };
-          mediaRecorder.start();
-          isRecording = true;
-          startVoiceTimer();
-          setTimeout(() => { if (isRecording) toggleVoiceRecord(); }, 5000);
-        } catch { showToast("Mic Blocked", "Allow microphone permission."); }
-      } else {
-        isRecording = false;
-        stopVoiceTimer();
-        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-      }
-    }
-
-    async function toggleReaction(msgId, emoji) {
-      if (!activeChat) return;
-      try {
-        const cur = await dbGet(`messages/${activeChat.id}/${msgId}/reactions/${emoji}`);
-        const nextCount = (cur || 0) + 1;
-        await dbPut(`messages/${activeChat.id}/${msgId}/reactions/${emoji}`, nextCount);
-        const box = document.getElementById(`reacts_${msgId}`);
-        if (box) {
-          let pill = box.querySelector(`[data-em="${emoji}"]`);
-          if (!pill) {
-            pill = document.createElement("span");
-            pill.className = "react-pill";
-            pill.dataset.em = emoji;
-            pill.onclick = () => toggleReaction(msgId, emoji);
-            box.appendChild(pill);
-          }
-          pill.textContent = `${emoji} ${nextCount}`;
-        }
-      } catch {}
+    async function clearTypingFlag() {
+      if (!activeChat || !me) return;
+      await dbDelete(`typing/${activeChat.id}/${me.id}`);
     }
 
     async function nukeCurrentChat() {
       if (!activeChat) return;
-      try {
-        await dbDelete(`messages/${activeChat.id}`);
-        renderedMsgSignatures.clear();
-        seenMsgIds.clear();
-        document.getElementById("messagesBox").innerHTML = "";
-        showToast("NUKED", "Chat messages wiped.");
-      } catch (err) { showToast("NUKE Failed", err.message || "Check DB rules."); }
-    }
-
-    function onTypingInput() {
-      if (!activeChat || !me || activeChat.type === "ai") return;
-      dbPut(`typing/${activeChat.id}/${me.id}`, { name: me.name, ts: Date.now() }).catch(() => {});
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => { dbDelete(`typing/${activeChat.id}/${me.id}`).catch(() => {}); }, 2000);
+      await dbDelete(`messages/${activeChat.id}`).catch(() => {});
+      document.getElementById("messagesBox").innerHTML = "";
+      renderedMsgSignatures.clear();
+      showToast("Chat Nuked", "Messages cleared for this room.");
     }
 
     function startBackgroundListeners() {
-      if (window._kalahPollTimer) clearInterval(window._kalahPollTimer);
-      window._kalahPollTimer = setInterval(pollAll, 2600);
+      clearInterval(window._kalahPollTimer);
+      pollAll();
+      window._kalahPollTimer = setInterval(pollAll, 2400);
     }
 
     async function pollAll() {
-      if (!me || !me.id || document.getElementById("appView").classList.contains("hidden")) return;
-
+      if (!me || !me.id) return;
       try {
-        const myGroups = await dbGet(`userChats/${me.id}`);
-        if (myGroups) {
-          let changed = false;
-          for (const [gid, gMeta] of Object.entries(myGroups)) {
-            if (!chatsMeta[gid]) {
-              chatsMeta[gid] = { id: gid, type: "group", title: gMeta.title || "Group", members: gMeta.members || [], secret: "" };
-              changed = true;
+        const userChats = await dbGet(`userChats/${me.id}`);
+        if (userChats) {
+          for (const [cid, meta] of Object.entries(userChats)) {
+            if (!chatsMeta[cid]) {
+              chatsMeta[cid] = { ...meta, secret: meta.secret || me.secret };
+              saveLocal("kalah_chats_v3", chatsMeta);
             }
-          }
-          if (changed) {
-            saveLocal("kalah_chats_v3", chatsMeta);
-            if (activeTab === "chats" && !activeChat) renderChatList();
           }
         }
       } catch {}
 
       await refreshFriendsPresence().catch(() => {});
       await syncStatuses().catch(() => {});
+      renderStatusStrip();
+      if (activeTab === "status") renderStatusFeed();
+      if (activeTab === "friends") renderFriendsList();
+      if (activeTab === "chats" && !activeChat) renderChatList();
 
-      if (activeChat) updateChatHeaderMeta();
-      else if (activeTab === "chats") { renderStatusStrip(); renderChatList(); }
-      else if (activeTab === "status") { renderStatusStrip(); renderStatusFeed(); }
-      else if (activeTab === "friends") renderFriendsList();
+      if (activeChat) {
+        updateChatHeaderMeta();
+        await pollSingleChat(activeChat.id, true);
+      }
 
       for (const chatObj of Object.values(chatsMeta)) {
-        try {
-          const raw = await dbGet(`messages/${chatObj.id}`);
-          if (!raw) continue;
-          const now = Date.now();
-          const entries = Object.entries(raw).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
-          const isCurrentRoom = activeChat && activeChat.id === chatObj.id;
-          const secret = getEffectiveSecret(isCurrentRoom ? activeChat : chatObj);
-
-          if (isCurrentRoom) markMessagesSeen(chatObj.id, entries);
-
-          for (const [msgId, pkt] of entries) {
-            if (pkt.expiresAt && now > pkt.expiresAt) {
-              dbDelete(`messages/${chatObj.id}/${msgId}`).catch(() => {});
-              renderedMsgSignatures.delete(msgId);
-              const oldEl = document.getElementById(`msg_${msgId}`);
-              if (oldEl) oldEl.remove();
-              continue;
-            }
-
-            const isNewMsg = !seenMsgIds.has(msgId);
-            seenMsgIds.add(msgId);
-
-            const seenCount = pkt.seenBy ? Object.keys(pkt.seenBy).length : 0;
-            const reactKey = JSON.stringify(pkt.reactions || {});
-            const prevSig = renderedMsgSignatures.get(msgId);
-
-            if (!isCurrentRoom) {
-              if (pkt.senderId !== me.id && isNewMsg && initialLoadDoneForChat) {
-                const dec = await decryptPayload(pkt, secret, chatObj.id);
-                const preview = dec && dec.text ? dec.text : (dec ? `[${dec.kind}]` : "New message");
-                showToast(`${pkt.senderName || "Friend"} • ${chatObj.title}`, preview, chatObj.id);
-              }
-              continue;
-            }
-
-            const dec = await decryptPayload(pkt, secret, chatObj.id);
-            if (!dec) continue;
-
-            const nextSig = `${dec.kind}|${dec.text || ""}|${dec.caption || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
-            if (prevSig !== nextSig || !document.getElementById(`msg_${msgId}`)) {
-              renderOrUpdateMessage(msgId, pkt, dec, false);
-            }
-
-            if (pkt.senderId !== me.id && isNewMsg && initialLoadDoneForChat && (document.hidden || !document.hasFocus())) {
-              const preview = dec.text ? dec.text : `[${dec.kind}]`;
-              triggerSystemNotification(`${pkt.senderName || "Friend"} • ${chatObj.title}`, preview, chatObj.id);
-            }
-          }
-        } catch {}
+        if (chatObj.type === "ai") continue;
+        if (!activeChat || activeChat.id !== chatObj.id) {
+          await pollSingleChat(chatObj.id, false);
+        }
       }
 
-      if (activeChat && activeChat.type !== "ai") {
-        try {
-          const typ = await dbGet(`typing/${activeChat.id}`);
-          const tBar = document.getElementById("typingBar");
-          if (typ) {
-            const activeTypers = Object.entries(typ)
-              .filter(([uid, info]) => uid !== me.id && info && (Date.now() - info.ts < 3500))
-              .map(([, info]) => info.name);
-            tBar.textContent = activeTypers.length ? `${activeTypers.join(", ")} typing...` : "";
-          } else { tBar.textContent = ""; }
-        } catch {}
-      }
-
-      await pollCallSignals();
-    }
-    const RTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
-    function formatCallDuration(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, "0");
-      const s = String(sec % 60).padStart(2, "0");
-      return `${m}:${s}`;
+      await pollIncomingCalls().catch(() => {});
     }
 
-    async function logCallOutcomeIfNeeded(peerId, peerName, wasConnected, durationSec) {
-      if (!peerId || !me || !me.id) return;
-      const dmId = makeDmChatId(me.id, peerId);
-      const dmObj = chatsMeta[dmId] || {
-        id: dmId,
-        type: "dm",
-        peerId,
-        title: peerName || peerId,
-        secret: makeDmSecret(me.id, peerId)
-      };
+    async function pollSingleChat(chatId, isCurrentRoom) {
+      const chatObj = chatsMeta[chatId] || (isCurrentRoom ? activeChat : null);
+      if (!chatObj) return;
+      const secret = getEffectiveSecret(chatObj);
+
       try {
-        if (!wasConnected) {
-          await sendEncryptedToChat(dmObj, {
-            kind: "missed_call",
-            text: `Missed Voice Call with ${peerName || peerId}`
-          });
-        } else {
-          await sendEncryptedToChat(dmObj, {
-            kind: "call_log",
-            text: `Voice Call • ${formatCallDuration(durationSec)}`
-          });
+        const rawMsgs = await dbGet(`messages/${chatId}`);
+        if (!rawMsgs) return;
+
+        const now = Date.now();
+        const entries = Object.entries(rawMsgs).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+        let addedUnreadCount = 0;
+
+        for (const [msgId, pkt] of entries) {
+          if (pkt.expiresAt && now > pkt.expiresAt) {
+            dbDelete(`messages/${chatId}/${msgId}`).catch(() => {});
+            continue;
+          }
+
+          const isNew = !seenMsgIds.has(msgId);
+          seenMsgIds.add(msgId);
+          const dec = await decryptPayload(pkt, secret, chatId);
+          if (!dec) continue;
+
+          if (isCurrentRoom) {
+            renderOrUpdateMessage(msgId, pkt, dec, false);
+            if (isNew && initialLoadDoneForChat && pkt.senderId !== me.id) playAlertTone();
+          } else if (isNew && pkt.senderId && pkt.senderId !== me.id) {
+            addedUnreadCount += 1;
+            const preview = dec.kind === "text"
+              ? dec.text
+              : dec.kind === "photo"
+                ? (dec.caption ? `📷 ${dec.caption}` : "📷 Photo")
+                : dec.kind === "voice"
+                  ? "🎙️ Voice message"
+                  : dec.kind === "missed_call"
+                    ? "📞 Missed Voice Call"
+                    : dec.kind === "call_log"
+                      ? `📞 ${dec.text || "Voice Call"}`
+                      : "New message";
+            showToast(`${pkt.senderName || chatObj.title} (${chatObj.title})`, preview, chatId);
+          }
+        }
+
+        if (addedUnreadCount > 0 && !isCurrentRoom) {
+          unreadCounts[chatId] = (unreadCounts[chatId] || 0) + addedUnreadCount;
+          saveLocal("kalah_unread_v3", unreadCounts);
+          if (activeTab === "chats" && !activeChat) renderChatList();
+        }
+
+        if (isCurrentRoom) {
+          markMessagesSeen(chatId, entries);
+          const typ = await dbGet(`typing/${chatId}`);
+          const typingBar = document.getElementById("typingBar");
+          if (typ && typingBar) {
+            const activeTypers = Object.entries(typ)
+              .filter(([uid, ts]) => uid !== me.id && (now - ts < 3500))
+              .map(([uid]) => friends[uid]?.name || uid);
+            typingBar.textContent = activeTypers.length ? `${activeTypers.join(", ")} typing...` : "";
+          }
         }
       } catch {}
+    }
+    function getPeerIdForCurrentChat() {
+      if (!activeChat || activeChat.type !== "dm") return null;
+      if (activeChat.peerId) return activeChat.peerId;
+      const parts = String(activeChat.id || "").replace(/^dm_/, "").split("__").filter(Boolean);
+      if (parts.length === 2) return parts[0] === me.id ? parts[1] : parts[0];
+      return null;
+    }
+
+    function formatCallDuration(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
 
     function startCallTimer() {
       stopCallTimer();
       callSeconds = 0;
-      const el = document.getElementById("callTimerText");
-      el.textContent = "00:00";
+      document.getElementById("callTimerText").textContent = "00:00";
       callTimerInterval = setInterval(() => {
         callSeconds += 1;
-        el.textContent = formatCallDuration(callSeconds);
+        document.getElementById("callTimerText").textContent = formatCallDuration(callSeconds);
       }, 1000);
     }
 
     function stopCallTimer() {
-      if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
-      callSeconds = 0;
-      const el = document.getElementById("callTimerText");
-      if (el) el.textContent = "00:00";
-    }
-
-    function toggleMuteCall() {
-      if (!localStream) return;
-      isCallMuted = !isCallMuted;
-      localStream.getAudioTracks().forEach(track => { track.enabled = !isCallMuted; });
-      document.getElementById("muteCallBtn").textContent = isCallMuted ? "🔇 Mute: ON" : "🎙️ Mute: OFF";
-    }
-
-    async function toggleSpeakerCall() {
-      isSpeakerOn = !isSpeakerOn;
-      const audioEl = document.getElementById("remoteAudio");
-      if (audioEl && typeof audioEl.setSinkId === "function") {
-        try { await audioEl.setSinkId(isSpeakerOn ? "speaker" : "default"); } catch {}
+      if (callTimerInterval) {
+        clearInterval(callTimerInterval);
+        callTimerInterval = null;
       }
-      if (audioEl) audioEl.volume = isSpeakerOn ? 1.0 : 0.65;
-      document.getElementById("speakerCallBtn").textContent = isSpeakerOn ? "🔊 Speaker: ON" : "🔉 Speaker: OFF";
+    }
+
+    function createPeerConnection(peerId) {
+      const conn = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+      if (localStream) localStream.getTracks().forEach(track => conn.addTrack(track, localStream));
+      conn.ontrack = event => {
+        const audioEl = document.getElementById("remoteAudio");
+        if (audioEl && event.streams && event.streams[0]) {
+          audioEl.srcObject = event.streams[0];
+          audioEl.play().catch(() => {});
+        }
+      };
+      conn.onicecandidate = event => {
+        if (event.candidate) {
+          dbPost(`calls/${peerId}/candidates`, {
+            fromId: me.id,
+            candidate: event.candidate.toJSON(),
+            ts: Date.now()
+          }).catch(() => {});
+        }
+      };
+      conn.onconnectionstatechange = () => {
+        if (conn.connectionState === "connected") {
+          callConnected = true;
+          stopRingtoneLoop();
+          startCallTimer();
+          document.getElementById("callStatusText").textContent = "Connected (Voice)";
+        } else if (conn.connectionState === "disconnected" || conn.connectionState === "failed") {
+          endVoiceCall(false, false);
+        }
+      };
+      return conn;
     }
 
     async function startVoiceCall() {
-      if (!activeChat || activeChat.type !== "dm" || !activeChat.peerId) {
-        showToast("Direct Call Only", "Select a private chat to call.");
+      if (!activeChat || activeChat.type !== "dm") {
+        showToast("Direct Chat Only", "Open a direct friend chat to call.");
         return;
       }
+      const peerId = getPeerIdForCurrentChat();
+      if (!peerId) {
+        showToast("Call Error", "Friend ID missing for this chat.");
+        return;
+      }
+
+      try {
+        markFilePicking();
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        isPickingFile = false;
+      } catch {
+        isPickingFile = false;
+        showToast("Mic Blocked", "Microphone access needed for voice call.");
+        return;
+      }
+
+      activeCallPeerId = peerId;
+      activeCallPeerName = activeChat.title || friends[peerId]?.name || peerId;
+      callConnected = false;
       isCallMuted = false;
       isSpeakerOn = false;
-      callConnected = false;
       document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
-      document.getElementById("speakerCallBtn").textContent = "🔉 Speaker: OFF";
-      activeCallPeerId = activeChat.peerId;
-      activeCallPeerName = activeChat.title || activeChat.peerId;
+      document.getElementById("speakerCallBtn").textContent = "🔊 Speaker: OFF";
+      document.getElementById("callTimerText").textContent = "00:00";
+
       document.getElementById("callModal").classList.remove("hidden");
       document.getElementById("acceptCallBtn").classList.add("hidden");
       document.getElementById("callPeerLabel").textContent = `Calling ${activeCallPeerName}...`;
-      document.getElementById("callStatusText").textContent = "Requesting mic...";
+      document.getElementById("callStatusText").textContent = "Ringing...";
       startRingtoneLoop();
 
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        pc = new RTCPeerConnection(RTC_CONFIG);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-        pc.ontrack = e => { document.getElementById("remoteAudio").srcObject = e.streams[0]; };
-        pc.onicecandidate = async e => {
-          if (e.candidate) {
-            await dbPost(`signals/${activeCallPeerId}`, { type: "ice", fromId: me.id, fromName: me.name, candidate: e.candidate.toJSON(), ts: Date.now() }).catch(() => {});
-          }
-        };
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        await dbPost(`signals/${activeCallPeerId}`, { type: "offer", fromId: me.id, fromName: me.name, sdp: offer.sdp, ts: Date.now() });
-        document.getElementById("callStatusText").textContent = "Ringing...";
-      } catch {
-        showToast("Call Error", "Mic permission or WebRTC failed.");
-        endVoiceCall(false, false);
-      }
-    }
+      pc = createPeerConnection(peerId);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
 
-    async function pollCallSignals() {
-      try {
-        const sigs = await dbGet(`signals/${me.id}`);
-        if (!sigs) return;
-        for (const [sid, s] of Object.entries(sigs)) {
-          if (!s || (Date.now() - (s.ts || 0) > 30000)) {
-            dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-            continue;
-          }
-          if (s.type === "offer" && !pc && !pendingOfferSignal) {
-            pendingOfferSignal = s;
-            activeCallPeerId = s.fromId;
-            activeCallPeerName = s.fromName || s.fromId;
-            callConnected = false;
-            document.getElementById("callModal").classList.remove("hidden");
-            document.getElementById("acceptCallBtn").classList.remove("hidden");
-            document.getElementById("callPeerLabel").textContent = `Incoming Call: ${activeCallPeerName}`;
-            document.getElementById("callStatusText").textContent = "Ringing...";
-            startRingtoneLoop();
-            triggerSystemNotification("Incoming KALAH Call", `${activeCallPeerName} is calling...`, null);
-            await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-          } else if (s.type === "answer" && pc && pc.signalingState === "have-local-offer") {
-            stopRingtoneLoop();
+      await dbPut(`calls/${peerId}/offer`, {
+        fromId: me.id,
+        fromName: me.name,
+        sdp: offer.sdp,
+        ts: Date.now()
+      });
+
+      clearInterval(window._callOutTimer);
+      window._callOutTimer = setInterval(async () => {
+        if (!activeCallPeerId || !pc) return;
+        try {
+          const ans = await dbGet(`calls/${me.id}/answer`);
+          if (ans && ans.sdp && !pc.currentRemoteDescription) {
+            await pc.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: ans.sdp }));
             callConnected = true;
-            await pc.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: s.sdp }));
-            document.getElementById("callStatusText").textContent = "Connected";
+            stopRingtoneLoop();
             startCallTimer();
-            await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-          } else if (s.type === "ice" && pc && s.candidate) {
-            try { await pc.addIceCandidate(new RTCIceCandidate(s.candidate)); } catch {}
-            await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-          } else if (s.type === "hangup") {
-            await dbDelete(`signals/${me.id}/${sid}`).catch(() => {});
-            endVoiceCall(false, true);
+            document.getElementById("callStatusText").textContent = "Connected (Voice)";
+            dbDelete(`calls/${me.id}/answer`).catch(() => {});
           }
-        }
-      } catch {}
+          const cands = await dbGet(`calls/${me.id}/candidates`);
+          if (cands) {
+            for (const [cid, item] of Object.entries(cands)) {
+              if (item && item.candidate) {
+                await pc.addIceCandidate(new RTCIceCandidate(item.candidate)).catch(() => {});
+                dbDelete(`calls/${me.id}/candidates/${cid}`).catch(() => {});
+              }
+            }
+          }
+          const hangup = await dbGet(`calls/${me.id}/hangup`);
+          if (hangup) {
+            dbDelete(`calls/${me.id}/hangup`).catch(() => {});
+            endVoiceCall(false, false);
+          }
+        } catch {}
+      }, 1500);
     }
 
-    async function acceptIncomingCall() {
-      if (!pendingOfferSignal) return;
-      stopRingtoneLoop();
-      callConnected = true;
+    async function pollIncomingCalls() {
+      if (!me || !me.id || activeCallPeerId) return;
+      const offer = await dbGet(`calls/${me.id}/offer`);
+      if (!offer || !offer.sdp || !offer.fromId) return;
+      if (offer.ts && Date.now() - offer.ts > 45000) {
+        dbDelete(`calls/${me.id}/offer`).catch(() => {});
+        return;
+      }
+
+      pendingOfferSignal = offer;
+      activeCallPeerId = offer.fromId;
+      activeCallPeerName = offer.fromName || offer.fromId;
+      callConnected = false;
       isCallMuted = false;
       isSpeakerOn = false;
       document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
-      document.getElementById("speakerCallBtn").textContent = "🔉 Speaker: OFF";
-      document.getElementById("acceptCallBtn").classList.add("hidden");
-      document.getElementById("callStatusText").textContent = "Connecting audio...";
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        pc = new RTCPeerConnection(RTC_CONFIG);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-        pc.ontrack = e => { document.getElementById("remoteAudio").srcObject = e.streams[0]; };
-        pc.onicecandidate = async e => {
-          if (e.candidate && activeCallPeerId) {
-            await dbPost(`signals/${activeCallPeerId}`, { type: "ice", fromId: me.id, candidate: e.candidate.toJSON(), ts: Date.now() }).catch(() => {});
-          }
-        };
-        await pc.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: pendingOfferSignal.sdp }));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        await dbPost(`signals/${activeCallPeerId}`, { type: "answer", fromId: me.id, sdp: answer.sdp, ts: Date.now() });
-        pendingOfferSignal = null;
-        document.getElementById("callStatusText").textContent = "Connected";
-        startCallTimer();
-      } catch { endVoiceCall(false, false); }
+      document.getElementById("speakerCallBtn").textContent = "🔊 Speaker: OFF";
+      document.getElementById("callTimerText").textContent = "00:00";
+
+      document.getElementById("callModal").classList.remove("hidden");
+      document.getElementById("callPeerLabel").textContent = `${activeCallPeerName} is calling...`;
+      document.getElementById("callStatusText").textContent = "Incoming Voice Call";
+      document.getElementById("acceptCallBtn").classList.remove("hidden");
+      showToast("Incoming Voice Call", `${activeCallPeerName} is calling you.`);
+      startRingtoneLoop();
     }
 
-    function endVoiceCall(notifyPeer, remoteHungUp = false) {
-      const peerId = activeCallPeerId;
-      const peerName = activeCallPeerName;
-      const wasConnected = callConnected;
-      const dur = callSeconds;
+    async function acceptIncomingCall() {
+      if (!pendingOfferSignal || !activeCallPeerId) return;
+      stopRingtoneLoop();
+      document.getElementById("acceptCallBtn").classList.add("hidden");
+      document.getElementById("callStatusText").textContent = "Connecting audio...";
 
+      try {
+        markFilePicking();
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        isPickingFile = false;
+      } catch {
+        isPickingFile = false;
+        showToast("Mic Blocked", "Allow mic to answer call.");
+        endVoiceCall(true, false);
+        return;
+      }
+
+      pc = createPeerConnection(activeCallPeerId);
+      await pc.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: pendingOfferSignal.sdp }));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      await dbPut(`calls/${activeCallPeerId}/answer`, {
+        fromId: me.id,
+        sdp: answer.sdp,
+        ts: Date.now()
+      });
+      await dbDelete(`calls/${me.id}/offer`).catch(() => {});
+      pendingOfferSignal = null;
+
+      clearInterval(window._callOutTimer);
+      window._callOutTimer = setInterval(async () => {
+        if (!activeCallPeerId || !pc) return;
+        try {
+          const cands = await dbGet(`calls/${me.id}/candidates`);
+          if (cands) {
+            for (const [cid, item] of Object.entries(cands)) {
+              if (item && item.candidate) {
+                await pc.addIceCandidate(new RTCIceCandidate(item.candidate)).catch(() => {});
+                dbDelete(`calls/${me.id}/candidates/${cid}`).catch(() => {});
+              }
+            }
+          }
+          const hangup = await dbGet(`calls/${me.id}/hangup`);
+          if (hangup) {
+            dbDelete(`calls/${me.id}/hangup`).catch(() => {});
+            endVoiceCall(false, false);
+          }
+        } catch {}
+      }, 1500);
+    }
+
+    function toggleMuteCall() {
+      isCallMuted = !isCallMuted;
+      if (localStream) localStream.getAudioTracks().forEach(t => { t.enabled = !isCallMuted; });
+      document.getElementById("muteCallBtn").textContent = `🎙️ Mute: ${isCallMuted ? "ON" : "OFF"}`;
+    }
+
+    function toggleSpeakerCall() {
+      isSpeakerOn = !isSpeakerOn;
+      const audioEl = document.getElementById("remoteAudio");
+      if (audioEl && typeof audioEl.setSinkId === "function") audioEl.setSinkId("").catch(() => {});
+      document.getElementById("speakerCallBtn").textContent = `🔊 Speaker: ${isSpeakerOn ? "ON" : "OFF"}`;
+      showToast("Audio Output", isSpeakerOn ? "Speaker mode selected." : "Earpiece / default output selected.");
+    }
+
+    function endVoiceCall(notifyPeer = true, markMissed = false) {
       stopRingtoneLoop();
       stopCallTimer();
-      if (notifyPeer && peerId && me) {
-        dbPost(`signals/${peerId}`, { type: "hangup", fromId: me.id, ts: Date.now() }).catch(() => {});
+      clearInterval(window._callOutTimer);
+
+      const targetPeer = activeCallPeerId;
+      const wasConnected = callConnected;
+      const finalSec = callSeconds;
+
+      if (notifyPeer && targetPeer) {
+        dbPut(`calls/${targetPeer}/hangup`, { fromId: me ? me.id : "", ts: Date.now() }).catch(() => {});
+        dbDelete(`calls/${targetPeer}/offer`).catch(() => {});
       }
+      if (me && me.id) {
+        dbDelete(`calls/${me.id}/offer`).catch(() => {});
+        dbDelete(`calls/${me.id}/answer`).catch(() => {});
+        dbDelete(`calls/${me.id}/candidates`).catch(() => {});
+      }
+
+      if (pc) { try { pc.close(); } catch {} pc = null; }
       if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-      if (pc) { pc.close(); pc = null; }
 
-      if (peerId && (notifyPeer || remoteHungUp)) {
-        logCallOutcomeIfNeeded(peerId, peerName, wasConnected, dur);
-      }
-
-      isCallMuted = false;
-      isSpeakerOn = false;
-      callConnected = false;
       pendingOfferSignal = null;
       activeCallPeerId = null;
       activeCallPeerName = "";
+      callConnected = false;
+      callSeconds = 0;
+      document.getElementById("callTimerText").textContent = "00:00";
       document.getElementById("callModal").classList.add("hidden");
+
+      if (targetPeer && me && me.id) {
+        const dmId = makeDmChatId(me.id, targetPeer);
+        const dmObj = chatsMeta[dmId] || { id: dmId, type: "dm", peerId: targetPeer, title: targetPeer, secret: makeDmSecret(me.id, targetPeer) };
+        if (markMissed && !wasConnected) {
+          sendEncryptedToChat(dmObj, { kind: "missed_call", text: "Missed Voice Call" }).catch(() => {});
+        } else if (wasConnected && finalSec > 0) {
+          sendEncryptedToChat(dmObj, { kind: "call_log", text: `Voice Call • ${formatCallDuration(finalSec)}` }).catch(() => {});
+        }
+      }
     }
 
     function escapeHtml(str) {
-      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
 
-    function escapeAttr(str) {
-      return String(str || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
+    function escapeAttr(str) { return escapeHtml(str).replace(/'/g, "&#39;"); }
 
     function escapeJs(str) {
-      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      return String(str || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "");
     }
+
+    function copyText(txt) {
+      navigator.clipboard?.writeText(txt).catch(() => {});
+      showToast("Copied", "Text copied.");
+    }
+
+    (function boot() {
+      updateCalcScreen("0");
+      setAuthMethod("email");
+      document.getElementById("calcView").classList.remove("hidden");
+      document.getElementById("appView").classList.add("hidden");
+    })();
   </script>
 </body>
 </html>
