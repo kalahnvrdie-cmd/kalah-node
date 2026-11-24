@@ -1,2964 +1,812 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Calculator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalah — Full Low-Data Private Vault</title>
   <style>
     :root {
-      --bg-main: #070b14;
-      --bg-panel: #0e1627;
-      --bg-card: #152038;
-      --bg-input: #1c2a48;
-      --border: #2a3c61;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #e11d48;
-      --accent-hover: #be123c;
-      --accent-soft: rgba(225, 29, 72, 0.16);
-      --accent-glow: rgba(225, 29, 72, 0.3);
-      --accent-text: #fda4af;
-      --msg-out: linear-gradient(135deg, #e11d48 0%, #9f1239 100%);
-      --msg-in: #152038;
-      --chat-bg: radial-gradient(circle at top, #13203a 0%, #070b14 72%);
+      --bg: #080507;
+      --panel: #130a0e;
+      --panel-2: #1c0e14;
+      --panel-3: #26121b;
+      --red: #e11d48;
+      --red-2: #be123c;
+      --red-dark: #881337;
+      --text: #f9fafb;
+      --muted: #a1a1aa;
+      --border: rgba(225, 29, 72, 0.3);
       --ok: #22c55e;
-      --font-ui: "Outfit", "Noto Sans Sinhala", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "JetBrains Mono", "Noto Sans Sinhala", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --warn: #f59e0b;
     }
 
-    body[data-theme="blue"] {
-      --accent: #0ea5e9;
-      --accent-hover: #0284c7;
-      --accent-soft: rgba(14, 165, 233, 0.16);
-      --accent-glow: rgba(14, 165, 233, 0.3);
-      --accent-text: #7dd3fc;
-      --msg-out: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%);
-    }
-
-    body[data-theme="purple"] {
-      --accent: #a855f7;
-      --accent-hover: #9333ea;
-      --accent-soft: rgba(168, 85, 247, 0.16);
-      --accent-glow: rgba(168, 85, 247, 0.3);
-      --accent-text: #d8b4fe;
-      --msg-out: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
-    }
-
-    body[data-wallpaper="obsidian"] {
-      --chat-bg: radial-gradient(circle at top, #13203a 0%, #070b14 72%);
-    }
-    body[data-wallpaper="crimson-mist"] {
-      --chat-bg: radial-gradient(circle at top right, rgba(225, 29, 72, 0.22), transparent 55%), radial-gradient(circle at bottom left, rgba(159, 18, 57, 0.18), #070b14 75%);
-    }
-    body[data-wallpaper="aurora"] {
-      --chat-bg: radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 55%), radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), #070b14 75%);
-    }
-    body[data-wallpaper="grid"] {
-      --chat-bg: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, #070b14 1px);
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
-    html, body {
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body {
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--bg-main);
-      color: var(--text-main);
-      font-family: var(--font-ui);
-      overflow: hidden;
-      letter-spacing: 0.1px;
-    }
-
-    body[data-wallpaper="grid"] #chatScreen {
-      background-size: 24px 24px;
-    }
-
-    .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-    .hidden { display: none !important; }
-    .privacy-blur { filter: blur(14px); pointer-events: none; }
-
-    #toastBanner {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      z-index: 9999;
-      background: rgba(14, 22, 39, 0.98);
-      border: 1px solid var(--accent);
-      border-left: 5px solid var(--accent);
-      border-radius: 16px;
-      padding: 12px 14px;
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65);
+      background: radial-gradient(circle at top, #1b0910 0%, var(--bg) 65%);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      transform: translateY(-180%);
-      transition: transform 0.24s ease;
+      padding: 10px;
     }
-    #toastBanner.show { transform: translateY(0); }
-    .toast-title { font-size: 12px; font-weight: 800; color: var(--accent-text); }
-    .toast-body { font-size: 13px; color: var(--text-main); margin-top: 2px; word-break: break-word; max-width: 260px; }
 
-    #calcView {
+    .app-shell {
       width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 18px 16px 24px;
-      background: radial-gradient(circle at top, #131d33 0%, var(--bg-main) 70%);
-    }
-
-    .calc-top { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 4px 6px; }
-    .calc-screen { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; padding: 16px 10px; word-break: break-all; }
-    .calc-expr { font-family: var(--font-mono); font-size: 20px; color: var(--text-muted); min-height: 28px; margin-bottom: 8px; }
-    .calc-result { font-family: var(--font-mono); font-size: 46px; font-weight: 700; color: var(--text-main); line-height: 1.1; }
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-
-    .calc-btn {
-      height: 64px;
+      max-width: 460px;
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 18px;
-      background: var(--bg-card);
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 21px;
-      font-weight: 600;
-      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75);
     }
-    .calc-btn:active { transform: scale(0.95); background: var(--bg-input); }
-    .calc-btn.op { color: var(--accent-text); background: var(--accent-soft); border-color: var(--accent-glow); }
-    .calc-btn.eq { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; box-shadow: 0 6px 18px var(--accent-glow); }
-    .calc-btn.clear { color: #fca5a5; }
-
-    #appView { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--bg-main); }
 
     .topbar {
-      background: rgba(14, 22, 39, 0.96);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 12px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
     }
 
-    .brand-group { display: flex; align-items: center; gap: 7px; }
-    .brand-title { font-weight: 800; font-size: 16px; letter-spacing: 0.8px; color: #fff; }
-    .brand-badge {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent-text);
-      border: 1px solid var(--accent-glow);
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #ff4d6d;
+      font-size: 15px;
     }
 
-    .top-actions { display: flex; align-items: center; gap: 5px; }
-
-    .btn-sm {
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-main);
-      border-radius: 10px;
-      padding: 6px 9px;
-      font-family: var(--font-ui);
+    .status-pill {
       font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-sm:active { transform: scale(0.96); }
-    .btn-sm.accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
-    .btn-sm.ai-pill { background: linear-gradient(135deg, rgba(14, 165, 233, 0.24), rgba(168, 85, 247, 0.24)); border-color: #7dd3fc; color: #e0f2fe; }
-    .btn-sm.danger { background: rgba(239, 68, 68, 0.18); border-color: #ef4444; color: #fecaca; }
-
-    #authScreen { flex: 1; overflow-y: auto; padding: 16px 14px 32px; }
-
-    .card {
-      background: var(--bg-panel);
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(225, 29, 72, 0.16);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      white-space: nowrap;
     }
 
-    .card-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; color: var(--accent-text); }
-    .field-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
-
-    .input {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-family: var(--font-ui);
-      font-size: 14px;
-      outline: none;
-      user-select: text;
-      margin-bottom: 10px;
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #0d0609;
+      border-bottom: 1px solid var(--border);
     }
-    .input:focus { border-color: var(--accent); }
 
-    .auth-method-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
-    .auth-chip {
-      padding: 8px 6px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-muted);
-      font-family: var(--font-ui);
+    .nav-tab {
+      padding: 10px 6px;
+      text-align: center;
       font-size: 12px;
       font-weight: 700;
+      color: var(--muted);
       cursor: pointer;
+      border-bottom: 2px solid transparent;
     }
-    .auth-chip.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
 
-    .btn-primary {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 13px;
-      padding: 11px 14px;
-      font-family: var(--font-ui);
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
+    .nav-tab.active {
+      color: #ff6b86;
+      border-bottom-color: var(--red);
+      background: rgba(225, 29, 72, 0.08);
     }
-    .btn-primary:active { background: var(--accent-hover); }
 
-    .tabs { display: flex; background: var(--bg-panel); border-bottom: 1px solid var(--border); }
+    .view { display: none; padding: 13px; }
+    .view.active { display: block; }
 
-    .tab-btn {
-      flex: 1;
-      padding: 11px 4px;
-      background: transparent;
-      border: none;
-      border-bottom: 2.5px solid transparent;
-      color: var(--text-muted);
-      font-family: var(--font-ui);
-      font-size: 11px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .tab-btn.active { color: #fff; border-bottom-color: var(--accent); background: var(--accent-soft); }
-
-    #mainArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .tab-pane { flex: 1; overflow-y: auto; padding: 12px; }
-
-    .status-strip { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 12px; margin-bottom: 6px; }
-    .status-bubble-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 64px; cursor: pointer; }
-    .status-ring {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      padding: 2.5px;
-      background: linear-gradient(135deg, var(--accent), #f59e0b);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .status-ring.muted { background: var(--border); }
-    .status-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: var(--bg-card);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 16px;
-      color: var(--accent-text);
-      overflow: hidden;
-    }
-    .status-inner img { width: 100%; height: 100%; object-fit: cover; }
-    .status-label { font-size: 11px; color: var(--text-muted); max-width: 66px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-
-    .avatar {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: var(--bg-input);
-      border: 1.5px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 16px;
-      color: var(--accent-text);
-      overflow: hidden;
-      flex-shrink: 0;
-      position: relative;
-    }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-    .status-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      background: #64748b;
-      border: 2px solid var(--bg-panel);
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
-    .status-dot.online { background: var(--ok); }
-
-    .list-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: var(--bg-panel);
+    .calc-screen {
+      background: #060305;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: right;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      min-height: 62px;
+      word-break: break-all;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-    }
-    .list-item.pinned { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
-    .list-item.ai-item { border-color: #38bdf8; background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(14, 22, 39, 0.96)); }
-    .list-item:active { background: var(--bg-card); }
-
-    .item-meta { flex: 1; min-width: 0; }
-    .item-name { font-size: 14px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-sub { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-    .item-about { font-size: 11px; color: var(--accent-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; font-style: italic; }
-
-    #chatScreen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--chat-bg);
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .chat-header {
-      background: rgba(14, 22, 39, 0.96);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 10px;
+    button.primary {
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      border: none;
+    }
+
+    button.ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    button:active { transform: scale(0.98); }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b0508;
+      color: var(--text);
+      margin-bottom: 9px;
+      font-size: 13px;
+    }
+
+    .card {
+      background: #0e070a;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 12px;
+      margin-bottom: 11px;
+    }
+
+    .friend-item {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      align-items: center;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: var(--panel-2);
+      margin-top: 7px;
+      cursor: pointer;
+      border: 1px solid transparent;
     }
 
-    .chat-header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
-
-    .chat-search-bar {
-      background: var(--bg-panel);
-      border-bottom: 1px solid var(--border);
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .friend-item:hover, .friend-item.selected {
+      border-color: var(--red);
+      background: var(--panel-3);
     }
 
     .messages-box {
-      flex: 1;
+      height: 230px;
       overflow-y: auto;
-      padding: 12px;
+      background: #080406;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 9px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      user-select: text;
-      scroll-behavior: smooth;
+      gap: 7px;
     }
 
-    .msg-row { display: flex; flex-direction: column; max-width: 83%; }
-    .msg-row.mine { align-self: flex-end; }
-    .msg-row.theirs { align-self: flex-start; }
-
-    .msg-bubble {
-      background: var(--msg-in);
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 18px;
-      padding: 9px 13px;
-      font-size: 14.5px;
-      line-height: 1.52;
-      word-break: break-word;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    .msg {
+      padding: 8px 11px;
+      border-radius: 11px;
+      max-width: 84%;
+      font-size: 13px;
+      line-height: 1.38;
+      background: var(--panel-2);
     }
 
-    .msg-row.mine .msg-bubble {
-      background: var(--msg-out);
-      border-color: rgba(255, 255, 255, 0.16);
-      color: #fff;
-      border-bottom-right-radius: 5px;
+    .msg.me {
+      align-self: flex-end;
+      background: rgba(225, 29, 72, 0.28);
+      border: 1px solid var(--border);
     }
 
-    .msg-row.theirs .msg-bubble { border-bottom-left-radius: 5px; }
-    .msg-sender { font-size: 11px; font-weight: 700; color: var(--accent-text); margin-bottom: 3px; }
-
-    .msg-link { color: #7dd3fc; text-decoration: underline; word-break: break-all; }
-    .msg-row.mine .msg-link { color: #fff; }
-
-    .missed-call-card {
-      background: rgba(239, 68, 68, 0.14);
-      border: 1px solid rgba(248, 113, 113, 0.45);
-      border-radius: 12px;
-      padding: 7px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fecaca;
-    }
-
-    .call-log-card {
-      background: rgba(34, 197, 94, 0.12);
-      border: 1px solid rgba(74, 222, 128, 0.35);
-      border-radius: 12px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #bbf7d0;
-    }
-
-    .msg-reply-quote {
-      background: rgba(0, 0, 0, 0.28);
-      border-left: 3px solid var(--accent-text);
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 11px;
-      margin-bottom: 5px;
-      opacity: 0.92;
-    }
-
-    .msg-photo { max-width: 225px; max-height: 245px; border-radius: 12px; display: block; margin-top: 4px; cursor: pointer; }
-    .msg-caption { margin-top: 6px; font-size: 13.5px; line-height: 1.45; }
-
-    .msg-footer {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      margin-top: 4px;
-      font-family: var(--font-mono);
+    .msg-meta {
       font-size: 10px;
-      opacity: 0.85;
+      color: var(--muted);
+      margin-top: 3px;
+      text-align: right;
     }
 
-    .seen-tag { color: #86efac; font-weight: 700; }
-
-    .msg-actions { display: flex; gap: 10px; margin-top: 3px; font-size: 11px; color: var(--accent-text); padding: 0 4px; flex-wrap: wrap; }
-    .msg-actions span { cursor: pointer; }
-
-    .reactions-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
-    .react-pill {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 1px 7px;
-      cursor: pointer;
-    }
-
-    .quick-react-bar { display: flex; gap: 7px; margin-top: 4px; font-size: 13px; }
-    .quick-react-bar span { cursor: pointer; opacity: 0.8; }
-    .quick-react-bar span:hover { opacity: 1; transform: scale(1.15); }
-
-    .typing-bar { padding: 2px 14px 4px; font-size: 11px; color: var(--accent-text); min-height: 16px; }
-
-    .reply-preview {
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border);
-      border-left: 4px solid var(--accent);
-      padding: 6px 12px;
+    .notice {
       font-size: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      margin: 10px 13px 0;
+      background: rgba(225, 29, 72, 0.17);
+      border: 1px solid var(--red);
+      display: none;
+      word-break: break-word;
     }
 
-    .composer {
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border);
-      padding: 8px 10px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .composer-tools { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
-    .composer-row { display: flex; align-items: center; gap: 6px; }
-
-    .msg-input {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text-main);
+    .row { display: flex; gap: 8px; align-items: center; }
+    .between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .small { font-size: 12px; color: var(--muted); }
+    .badge-status {
+      font-size: 11px;
+      color: #fda4af;
+      background: rgba(225, 29, 72, 0.14);
+      padding: 3px 8px;
       border-radius: 999px;
-      padding: 10px 14px;
-      font-family: var(--font-ui);
-      font-size: 14px;
-      outline: none;
-      user-select: text;
     }
-    .msg-input:focus { border-color: var(--accent); }
-
-    .send-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .emoji-drawer {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      font-size: 20px;
-    }
-    .emoji-drawer span { cursor: pointer; }
-
-    #statusModal, #callModal, #forwardModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(7, 11, 20, 0.96);
-      z-index: 9500;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
-      gap: 12px;
-    }
-
-    .call-ring {
-      width: 86px;
-      height: 86px;
-      border-radius: 50%;
-      background: var(--accent-soft);
-      border: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      box-shadow: 0 0 28px var(--accent-glow);
-    }
-
-    .call-timer { font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: var(--accent-text); }
   </style>
 </head>
 <body>
-
-  <div id="toastBanner" onclick="handleToastClick()">
-    <div>
-      <div class="toast-title" id="toastTitle">KALAH Alert</div>
-      <div class="toast-body" id="toastBody">New message</div>
-    </div>
-    <button class="btn-sm accent" onclick="event.stopPropagation(); hideToast();">✕</button>
-  </div>
-
-  <div id="calcView">
-    <div class="calc-top">
-      <span>SCI-CALC</span>
-      <span>DEG</span>
-    </div>
-
-    <div class="calc-screen">
-      <div class="calc-expr" id="calcExpr"></div>
-      <div class="calc-result" id="calcResult">0</div>
-    </div>
-
-    <div class="calc-grid">
-      <button class="calc-btn clear" onclick="calcClear()">C</button>
-      <button class="calc-btn op" onclick="calcBack()">⌫</button>
-      <button class="calc-btn op" onclick="calcAppend('%')">%</button>
-      <button class="calc-btn op" onclick="calcAppend('/')">÷</button>
-
-      <button class="calc-btn" onclick="calcAppend('7')">7</button>
-      <button class="calc-btn" onclick="calcAppend('8')">8</button>
-      <button class="calc-btn" onclick="calcAppend('9')">9</button>
-      <button class="calc-btn op" onclick="calcAppend('*')">×</button>
-
-      <button class="calc-btn" onclick="calcAppend('4')">4</button>
-      <button class="calc-btn" onclick="calcAppend('5')">5</button>
-      <button class="calc-btn" onclick="calcAppend('6')">6</button>
-      <button class="calc-btn op" onclick="calcAppend('-')">−</button>
-
-      <button class="calc-btn" onclick="calcAppend('1')">1</button>
-      <button class="calc-btn" onclick="calcAppend('2')">2</button>
-      <button class="calc-btn" onclick="calcAppend('3')">3</button>
-      <button class="calc-btn op" onclick="calcAppend('+')">+</button>
-
-      <button class="calc-btn" onclick="calcAppend('.')">.</button>
-      <button class="calc-btn" onclick="calcAppend('0')">0</button>
-      <button class="calc-btn op" onclick="calcSquare()">x²</button>
-      <button class="calc-btn eq" onclick="calcEquals()">=</button>
-    </div>
-  </div>
-
-  <div id="appView" class="hidden">
+  <div class="app-shell">
     <div class="topbar">
-      <div class="brand-group">
-        <span class="brand-title">KALAH</span>
-        <span class="brand-badge">E2EE • 12h</span>
-      </div>
-      <div class="top-actions">
-        <button class="btn-sm ai-pill" onclick="openAiChat()">✦ AI</button>
-        <button class="btn-sm accent" onclick="lockApp()">LOCK</button>
-        <button class="btn-sm danger" onclick="panicExit()">PANIC</button>
+      <div class="brand">KALAH // VAULT PRO</div>
+      <div class="row">
+        <span class="status-pill" id="netBadge">Checking...</span>
+        <button class="ghost" onclick="lockApp()" style="padding:5px 9px; font-size:11px;">Lock</button>
       </div>
     </div>
 
-    <div id="authScreen" class="hidden">
-      <div class="card">
-        <div class="card-title">Sign In / Setup KALAH Account</div>
+    <div id="noticeBox" class="notice"></div>
 
-        <div class="auth-method-row">
-          <button type="button" class="auth-chip active" id="methodEmail" onclick="setAuthMethod('email')">Email</button>
-          <button type="button" class="auth-chip" id="methodPhone" onclick="setAuthMethod('phone')">Phone</button>
-          <button type="button" class="auth-chip" id="methodGoogle" onclick="setAuthMethod('google')">Google ID</button>
-        </div>
+    <!-- 1. Calculator Lock Screen -->
+    <div id="calcView" class="view active">
+      <div class="calc-screen" id="calcDisplay">0</div>
+      <div class="calc-grid">
+        <button onclick="calcClear()">C</button>
+        <button onclick="calcAppend('(')">(</button>
+        <button onclick="calcAppend(')')">)</button>
+        <button onclick="calcAppend('/')">/</button>
 
-        <label class="field-label" id="authContactLabel">Email Address</label>
-        <input id="authContactInput" class="input" placeholder="name@example.com" />
+        <button onclick="calcAppend('7')">7</button>
+        <button onclick="calcAppend('8')">8</button>
+        <button onclick="calcAppend('9')">9</button>
+        <button onclick="calcAppend('*')">*</button>
 
-        <label class="field-label">Display Name / Callsign</label>
-        <input id="accNameInput" class="input" placeholder="e.g. Kalah" maxlength="24" />
+        <button onclick="calcAppend('4')">4</button>
+        <button onclick="calcAppend('5')">5</button>
+        <button onclick="calcAppend('6')">6</button>
+        <button onclick="calcAppend('-')">-</button>
 
-        <label class="field-label">About / Bio (Shown in private chats)</label>
-        <input id="accBioInput" class="input" placeholder="Hey there! Using KALAH" maxlength="110" />
+        <button onclick="calcAppend('1')">1</button>
+        <button onclick="calcAppend('2')">2</button>
+        <button onclick="calcAppend('3')">3</button>
+        <button onclick="calcAppend('+')">+</button>
 
-        <label class="field-label">Custom Calculator Unlock Code (Default: 1.618)</label>
-        <input id="accUnlockCodeInput" class="input" placeholder="e.g. 1.618 or 2026" maxlength="20" />
-
-        <label class="field-label">Chat Vault Key</label>
-        <input id="accPassInput" class="input" type="password" placeholder="Secret key for chats..." />
-
-        <label class="field-label">Profile Photo (up to 10MB)</label>
-        <input id="accPhotoInput" class="input" type="file" accept="image/*" onclick="markFilePicking()" />
-
-        <button type="button" id="continueBtn" class="btn-primary" onclick="saveAccount()">Continue to KALAH</button>
+        <button onclick="calcAppend('0')">0</button>
+        <button onclick="calcAppend('.')">.</button>
+        <button onclick="calcBackspace()">⌫</button>
+        <button class="primary" onclick="calcEquals()">=</button>
       </div>
+      <p class="small" style="margin-top:10px; text-align:center;">
+        Enter <b>1.618=</b> to open vault
+      </p>
     </div>
 
-    <div id="mainArea" class="hidden">
-      <div class="tabs">
-        <button class="tab-btn active" id="tabChatsBtn" onclick="switchTab('chats')">CHATS</button>
-        <button class="tab-btn" id="tabStatusBtn" onclick="switchTab('status')">STATUS</button>
-        <button class="tab-btn" id="tabFriendsBtn" onclick="switchTab('friends')">FRIENDS</button>
-        <button class="tab-btn" id="tabGroupBtn" onclick="switchTab('group')">+ GROUP</button>
-        <button class="tab-btn" id="tabMeBtn" onclick="switchTab('me')">PROFILE</button>
+    <!-- 2. Main Vault Container -->
+    <div id="vaultView" class="view" style="padding:0;">
+      <div class="nav-tabs">
+        <div class="nav-tab active" id="tabChat" onclick="switchTab('chat')">Chat</div>
+        <div class="nav-tab" id="tabFriends" onclick="switchTab('friends')">Friends</div>
+        <div class="nav-tab" id="tabProfile" onclick="switchTab('profile')">Profile & Status</div>
       </div>
 
-      <div id="tabChats" class="tab-pane">
-        <div class="status-strip" id="chatStatusStrip"></div>
-        <div id="chatListContainer"></div>
-      </div>
-
-      <div id="tabStatus" class="tab-pane hidden">
-        <div class="card">
-          <div class="card-title">Post Status (Visible to Friends • 12h)</div>
-          <label class="field-label">Status Caption / Note</label>
-          <input id="statusCaptionInput" class="input" placeholder="What's on your mind? (links supported)" maxlength="140" />
-          <label class="field-label">Status Photo (up to 10MB, optional)</label>
-          <input id="statusPhotoInput" class="input" type="file" accept="image/*" onclick="markFilePicking()" />
-          <button type="button" id="postStatusBtn" class="btn-primary" onclick="publishStatusPost()">Post Status</button>
-        </div>
-        <div id="statusFeedContainer"></div>
-      </div>
-
-      <div id="tabFriends" class="tab-pane hidden">
-        <div class="card">
-          <div class="card-title">Add Friend (Email / Phone / ID)</div>
-          <input id="addFriendInput" class="input" placeholder="Enter friend's Email, Phone, or ID..." />
-          <button type="button" id="addFriendBtn" class="btn-primary" onclick="addFriendFromInput()">Find & Add Friend</button>
-        </div>
-        <div id="friendsListContainer"></div>
-      </div>
-
-      <div id="tabGroup" class="tab-pane hidden">
-        <div class="card">
-          <div class="card-title">Create Group Chat</div>
-          <label class="field-label">Group Name</label>
-          <input id="groupNameInput" class="input" placeholder="e.g. Squad Chat" maxlength="32" />
-
-          <label class="field-label">Group Vault Key (Same key for all members)</label>
-          <input id="groupSecretInput" class="input" type="password" placeholder="Shared group key..." />
-
-          <label class="field-label">Select Friends</label>
-          <div id="groupFriendChecks" style="margin-bottom: 12px;"></div>
-
-          <button class="btn-primary" onclick="createGroupChat()">Create Group</button>
-        </div>
-      </div>
-
-      <div id="tabMe" class="tab-pane hidden">
-        <div class="card">
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-            <div class="avatar" id="meAvatarBox">K</div>
-            <div class="item-meta">
-              <div class="item-name" id="meDisplayName">Kalah</div>
-              <div class="item-about" id="meDisplayBio">About</div>
-              <div class="item-sub" style="color:var(--accent-text);" id="meDisplayContact">Contact</div>
-              <div class="item-sub mono" id="meDisplayId">ID: ...</div>
-              <div class="item-sub mono" id="meUnlockCodeInfo">Unlock Code: 1.618=</div>
+      <!-- Tab A: Active Chat -->
+      <div id="panelChat" class="view active">
+        <div class="card" id="noChatCard">
+          <div class="between">
+            <div>
+              <strong id="chatHeaderTitle">No chat selected</strong>
+              <div class="small" id="friendStatusLine">Select a friend from Friends tab</div>
             </div>
+            <span class="small" id="queueCountText">Queue: 0</span>
+          </div>
+        </div>
+
+        <div class="card" id="activeChatCard" style="display:none;">
+          <div class="between" style="margin-bottom:8px;">
+            <div>
+              <strong id="activeChatName">Friend</strong>
+              <div class="small" id="activeFriendStatusText">Status: ...</div>
+            </div>
+            <button class="ghost" style="padding:6px 9px; font-size:11px;" onclick="refreshActiveFriendStatus()">
+              Check Status
+            </button>
           </div>
 
-          <div style="display:flex; gap:8px; margin-bottom:12px;">
-            <button class="btn-sm accent" style="flex:1; padding:9px;" onclick="copyMyId()">Copy My ID</button>
-            <button class="btn-sm" style="flex:1; padding:9px;" onclick="openEditProfile()">Edit Profile</button>
-          </div>
+          <div class="messages-box" id="messagesBox"></div>
 
-          <label class="field-label">Theme Accent</label>
-          <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-            <button class="btn-sm" onclick="setThemeAccent('crimson')">Crimson</button>
-            <button class="btn-sm" onclick="setThemeAccent('blue')">Neon Blue</button>
-            <button class="btn-sm" onclick="setThemeAccent('purple')">Neon Purple</button>
+          <div class="row">
+            <input id="msgInput" type="text" placeholder="Type message (low-data)..." style="margin-bottom:0;" onkeydown="if(event.key==='Enter') sendMessage()" />
+            <button class="primary" onclick="sendMessage()">Send</button>
           </div>
+        </div>
 
-          <label class="field-label">Chat Wallpaper</label>
-          <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-            <button class="btn-sm" onclick="setWallpaperStyle('obsidian')">Obsidian</button>
-            <button class="btn-sm" onclick="setWallpaperStyle('crimson-mist')">Crimson Mist</button>
-            <button class="btn-sm" onclick="setWallpaperStyle('aurora')">Aurora</button>
-            <button class="btn-sm" onclick="setWallpaperStyle('grid')">Tech Grid</button>
-          </div>
-
-          <label class="field-label">Alerts & Home Screen Notifications</label>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn-sm" id="soundToggleBtn" onclick="toggleSound()">Sound: ON</button>
-            <button class="btn-sm" id="notifPermBtn" onclick="requestSystemNotifications()">Enable System Notif</button>
-            <button class="btn-sm" onclick="testNotify()">Test Alert</button>
-          </div>
+        <div class="row">
+          <button onclick="syncQueue()" style="flex:1; font-size:12px;">Sync Queue</button>
+          <button class="ghost" onclick="showNotice('')" style="font-size:12px;">Clear Notice</button>
         </div>
       </div>
 
-      <div id="chatScreen" class="hidden">
-        <div class="chat-header">
-          <div class="chat-header-left">
-            <button class="btn-sm" onclick="closeChatRoom()">←</button>
-            <div class="avatar" id="chatAvatarBox" style="width:38px; height:38px; font-size:14px;">C</div>
-            <div class="item-meta">
-              <div class="item-name" id="chatTitle">Chat</div>
-              <div class="item-sub" id="chatSub">Last seen: ...</div>
-              <div class="item-about hidden" id="chatAboutLine"></div>
+      <!-- Tab B: Friends -->
+      <div id="panelFriends" class="view">
+        <div class="card">
+          <label class="small">Add Friend (ID / Email / Phone)</label>
+          <input id="friendInput" type="text" placeholder="e.g. U-4VXXG9" onkeydown="if(event.key==='Enter') addFriend()" />
+          <button class="primary" style="width:100%;" onclick="addFriend()">Find & Add Friend</button>
+        </div>
+
+        <div class="card">
+          <input id="friendSearch" type="text" placeholder="Search saved friends..." oninput="renderFriends()" />
+          <div id="friendsList"></div>
+        </div>
+      </div>
+
+      <!-- Tab C: Profile & Status -->
+      <div id="panelProfile" class="view">
+        <div class="card">
+          <div class="between" style="margin-bottom:8px;">
+            <div>
+              <div class="small">Your ID</div>
+              <strong id="myIdText">U-LOADING</strong>
             </div>
-          </div>
-          <div class="top-actions">
-            <button class="btn-sm" onclick="toggleChatSearch()">🔍</button>
-            <button class="btn-sm accent" id="callHeaderBtn" onclick="startVoiceCall()">📞 Call</button>
-            <button class="btn-sm danger" onclick="nukeCurrentChat()">NUKE</button>
-          </div>
-        </div>
-
-        <div id="chatSearchBar" class="chat-search-bar hidden">
-          <input id="chatSearchInput" class="msg-input" style="padding:6px 12px; font-size:13px;" placeholder="Search in chat..." oninput="applyChatSearch()" />
-          <button class="btn-sm" onclick="toggleChatSearch(false)">✕</button>
-        </div>
-
-        <div id="messagesBox" class="messages-box"></div>
-        <div id="typingBar" class="typing-bar"></div>
-
-        <div id="replyBar" class="reply-preview hidden">
-          <span id="replyText">Replying...</span>
-          <button class="btn-sm" onclick="cancelEditOrReply()">✕</button>
-        </div>
-
-        <div id="emojiDrawer" class="emoji-drawer hidden">
-          <span onclick="insertEmoji('🔥')">🔥</span>
-          <span onclick="insertEmoji('⚡')">⚡</span>
-          <span onclick="insertEmoji('💀')">💀</span>
-          <span onclick="insertEmoji('❤️')">❤️</span>
-          <span onclick="insertEmoji('😂')">😂</span>
-          <span onclick="insertEmoji('👀')">👀</span>
-          <span onclick="insertEmoji('🚀')">🚀</span>
-          <span onclick="insertEmoji('💯')">💯</span>
-          <span onclick="insertEmoji('🕶️')">🕶️</span>
-          <span onclick="insertEmoji('🤝')">🤝</span>
-        </div>
-
-        <div class="composer">
-          <div class="composer-tools">
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn-sm" onclick="toggleEmojiDrawer()">😊 Emoji</button>
-              <button class="btn-sm" onclick="markFilePicking(); document.getElementById('chatPhotoInput').click()">📷 Photo ≤10MB</button>
-              <button class="btn-sm" id="viewOnceToggleBtn" onclick="toggleViewOnce()">1x: OFF</button>
-              <button class="btn-sm" id="voiceBtn" onclick="toggleVoiceRecord()">🎙️ ≤15KB</button>
-            </div>
-            <span class="mono" style="font-size:11px; color:var(--text-muted);">12h TTL</span>
+            <span class="badge-status" id="myCurrentStatusBadge">Online</span>
           </div>
 
-          <input type="file" id="chatPhotoInput" accept="image/*" class="hidden" onchange="handleChatPhoto(event)" />
+          <label class="small">Display Name</label>
+          <input id="profileNameInput" type="text" placeholder="e.g. Kalah" />
 
-          <div class="composer-row">
-            <input id="msgInput" class="msg-input" placeholder="Type message or link..." oninput="onTypingInput()" onkeydown="if(event.key==='Enter') sendTextMessage()" />
-            <button class="send-btn" onclick="sendTextMessage()">➤</button>
+          <label class="small">Status Preset</label>
+          <select id="statusPresetSelect" onchange="applyPresetToInput()">
+            <option value="Online">Online</option>
+            <option value="Study Mode (A/L)">Study Mode (A/L)</option>
+            <option value="Coding / Building">Coding / Building</option>
+            <option value="Busy">Busy</option>
+            <option value="Offline / Rest">Offline / Rest</option>
+          </select>
+
+          <label class="small">Custom Status Text</label>
+          <input id="statusTextInput" type="text" placeholder="Short status..." />
+
+          <button class="primary" style="width:100%;" onclick="saveProfileAndStatus()">
+            Save & Publish Status (Low-Data)
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="small" style="margin-bottom:8px;">Storage & Cache</div>
+          <div class="row">
+            <button class="ghost" style="flex:1; font-size:12px;" onclick="clearMessageCache()">Clear Chat Cache</button>
+            <button class="ghost" style="flex:1; font-size:12px;" onclick="resetMyId()">New ID</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="statusModal" class="hidden">
-    <div style="font-size:16px; font-weight:800; color:var(--accent-text);" id="statusViewerAuthor">Status</div>
-    <div style="font-size:11px; color:var(--text-muted);" id="statusViewerTime"></div>
-    <div class="mono" style="font-size:11px; color:#86efac;" id="statusViewerViews"></div>
-    <img id="statusViewerImg" class="hidden" style="max-width:92vw; max-height:44vh; border-radius:16px; object-fit:contain;" />
-    <div id="statusViewerCaption" style="font-size:15px; line-height:1.55; max-width:90vw; word-break:break-word;"></div>
-    <div id="statusQuickReplyBox" style="display:flex; gap:8px; width:100%; max-width:340px;">
-      <input id="statusReplyInput" class="msg-input" style="padding:8px 12px; font-size:13px;" placeholder="Reply to status..." onkeydown="if(event.key==='Enter') sendStatusQuickReply()" />
-      <button class="btn-sm accent" onclick="sendStatusQuickReply()">Send</button>
-    </div>
-    <button class="btn-sm" style="padding:8px 18px; font-size:13px;" onclick="closeStatusModal()">Close</button>
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-  <div id="forwardModal" class="hidden">
-    <div class="card" style="width:100%; max-width:360px; max-height:75vh; overflow-y:auto; text-align:left;">
-      <div class="card-title">Forward Message To</div>
-      <div id="forwardTargetList"></div>
-      <button class="btn-sm" style="width:100%; padding:9px; margin-top:8px;" onclick="closeForwardModal()">Cancel</button>
-    </div>
-  </div>
-
-  <div id="callModal" class="hidden">
-    <div class="call-ring">📞</div>
-    <div style="font-size:18px; font-weight:800;" id="callPeerLabel">Voice Call</div>
-    <div style="font-size:13px; color:var(--text-muted);" id="callStatusText">Connecting...</div>
-    <div class="call-timer" id="callTimerText">00:00</div>
-    <audio id="remoteAudio" autoplay playsinline></audio>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px;">
-      <button class="btn-sm accent hidden" id="acceptCallBtn" style="padding:10px 18px; font-size:13px;" onclick="acceptIncomingCall()">Accept</button>
-      <button class="btn-sm" id="muteCallBtn" style="padding:10px 16px; font-size:13px;" onclick="toggleMuteCall()">🎙️ Mute: OFF</button>
-      <button class="btn-sm" id="speakerCallBtn" style="padding:10px 16px; font-size:13px;" onclick="toggleSpeakerCall()">🔊 Speaker: OFF</button>
-      <button class="btn-sm danger" style="padding:10px 18px; font-size:13px;" onclick="endVoiceCall(true, false)">End Call</button>
-    </div>
-  </div>
   <script>
-    const B64_CFG = {
-      databaseURL: "aHR0cHM6Ly9rYWxhaC1jaGF0LWFwcC1kZWZhdWx0LXJ0ZGIuYXNpYS1zb3V0aGVhc3QxLmZpcmViYXNlZGF0YWJhc2UuYXBw"
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCaxXFQEMKZ9oHknXWh32-gBgI_OI8iPII",
+      authDomain: "kalah-chat-app.firebaseapp.com",
+      databaseURL: "https://kalah-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "kalah-chat-app",
+      storageBucket: "kalah-chat-app.firebasestorage.app",
+      messagingSenderId: "723700154314",
+      appId: "1:723700154314:web:b3768c6231f6e310a41933",
+      measurementId: "G-L6FY0HFFLC"
     };
 
-    function dec64(str) {
-      if (!str) return "";
-      try { return atob(str); } catch { return ""; }
+    const KEYS = {
+      myId: "kalah_pro_my_id_v1",
+      profile: "kalah_pro_profile_v1",
+      friends: "kalah_pro_friends_v1",
+      queue: "kalah_pro_queue_v1",
+      msgPrefix: "kalah_pro_msgs_"
+    };
+
+    let db = null;
+    let activeFriend = null;
+    let activeMsgRef = null;
+    let calcExpr = "";
+
+    function showNotice(msg) {
+      const box = document.getElementById("noticeBox");
+      if (!msg) {
+        box.style.display = "none";
+        box.textContent = "";
+        return;
+      }
+      box.textContent = msg;
+      box.style.display = "block";
     }
 
-    const DB_ROOT = (dec64(B64_CFG.databaseURL) || "https://kalah-chat-app-default-rtdb.asia-southeast1.firebasedatabase.app").replace(/\/+$/, "");
-    const PREFIX = "kalah_v3";
-    const TTL_MS = 12 * 60 * 60 * 1000;
-    const MAX_VOICE_BYTES = 15 * 1024;
-    const MAX_PROFILE_PHOTO_BYTES = 10 * 1024 * 1024;
-    const MAX_CHAT_PHOTO_BYTES = 10 * 1024 * 1024;
+    function updateNetBadge() {
+      const badge = document.getElementById("netBadge");
+      badge.textContent = navigator.onLine ? "Online" : "Offline";
+    }
 
-    let calcExpr = "";
-    let calcJustEvaluated = false;
-
-    let authMethod = "email";
-    let me = loadLocal("kalah_me_v3", null);
-    let friends = loadLocal("kalah_friends_v3", {});
-    let chatsMeta = loadLocal("kalah_chats_v3", {});
-    let pinnedChats = loadLocal("kalah_pinned_v3", {});
-    let unreadCounts = loadLocal("kalah_unread_v3", {});
-    let soundEnabled = loadLocal("kalah_sound_v3", true);
-    let themeAccent = loadLocal("kalah_theme_v3", "crimson");
-    let wallpaperStyle = loadLocal("kalah_wallpaper_v3", "obsidian");
-    let statusesCache = {};
-
-    let activeTab = "chats";
-    let activeChat = null;
-    let replyToMsg = null;
-    let editingMsgId = null;
-    let forwardPayloadDraft = null;
-    let activeStatusPost = null;
-    let viewOncePhoto = false;
-    let seenMsgIds = new Set();
-    let renderedMsgSignatures = new Map();
-    let initialLoadDoneForChat = false;
-    let lastToastChatId = null;
-    let typingTimeout = null;
-    let isPickingFile = false;
-    let isSavingAccount = false;
-
-    let mediaRecorder = null;
-    let voiceChunks = [];
-    let isRecording = false;
-    let voiceTimerInterval = null;
-    let voiceSec = 0;
-
-    let pc = null;
-    let localStream = null;
-    let pendingOfferSignal = null;
-    let activeCallPeerId = null;
-    let activeCallPeerName = "";
-    let callConnected = false;
-    let isCallMuted = false;
-    let isSpeakerOn = false;
-    let callTimerInterval = null;
-    let callSeconds = 0;
-    let ringtoneTimer = null;
-
-    function loadLocal(key, fallback) {
+    function loadJson(key, fallback) {
       try {
         const raw = localStorage.getItem(key);
         return raw ? JSON.parse(raw) : fallback;
-      } catch { return fallback; }
+      } catch {
+        return fallback;
+      }
     }
 
-    function saveLocal(key, val) {
-      try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    function saveJson(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
     }
 
-    function applyThemeAccent(theme) {
-      themeAccent = theme || "crimson";
-      saveLocal("kalah_theme_v3", themeAccent);
-      if (themeAccent === "crimson") document.body.removeAttribute("data-theme");
-      else document.body.setAttribute("data-theme", themeAccent);
+    function getMyId(forceNew = false) {
+      let id = localStorage.getItem(KEYS.myId);
+      if (!id || forceNew) {
+        const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+        id = "U-" + rand;
+        localStorage.setItem(KEYS.myId, id);
+      }
+      return id;
     }
 
-    function setThemeAccent(theme) {
-      applyThemeAccent(theme);
-      showToast("Theme Updated", `Switched to ${theme.toUpperCase()} theme.`);
+    function getProfile() {
+      return loadJson(KEYS.profile, {
+        name: "Kalah",
+        status: "Online",
+        updatedAt: Date.now()
+      });
     }
 
-    function applyWallpaperStyle(wp) {
-      wallpaperStyle = wp || "obsidian";
-      saveLocal("kalah_wallpaper_v3", wallpaperStyle);
-      document.body.setAttribute("data-wallpaper", wallpaperStyle);
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
     }
 
-    function setWallpaperStyle(wp) {
-      applyWallpaperStyle(wp);
-      showToast("Wallpaper Updated", `Chat background set to ${wp}.`);
+    function safeKey(str) {
+      return encodeURIComponent(String(str).trim()).replaceAll(".", "%2E");
     }
 
-    applyThemeAccent(themeAccent);
-    applyWallpaperStyle(wallpaperStyle);
-
-    function markFilePicking() {
-      isPickingFile = true;
-      setTimeout(() => { isPickingFile = false; }, 45000);
+    function makeRoomId(a, b) {
+      return [safeKey(a), safeKey(b)].sort().join("__");
     }
 
-    window.addEventListener("focus", () => {
-      if (isPickingFile) setTimeout(() => { isPickingFile = false; }, 1500);
-    });
-
-    function getCustomUnlockCode() {
-      const raw = (me && me.unlockCode ? me.unlockCode : "1.618").replace(/\s+/g, "");
-      return raw || "1.618";
+    function formatTime(ts) {
+      if (!ts) return "";
+      const d = new Date(ts);
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
 
-    function updateCalcScreen(resText = null) {
-      document.getElementById("calcExpr").textContent = calcExpr;
-      document.getElementById("calcResult").textContent = resText !== null ? resText : (calcExpr || "0");
+    function updateQueueCounter() {
+      const q = loadJson(KEYS.queue, []);
+      document.getElementById("queueCountText").textContent = "Queue: " + q.length;
     }
 
-    function calcAppend(ch) {
-      if (calcJustEvaluated && /[0-9.]/.test(ch)) calcExpr = "";
-      calcJustEvaluated = false;
-      calcExpr += ch;
-      updateCalcScreen();
-    }
-
-    function calcClear() { calcExpr = ""; calcJustEvaluated = false; updateCalcScreen("0"); }
-    function calcBack() { calcExpr = calcExpr.slice(0, -1); updateCalcScreen(calcExpr || "0"); }
-
-    function calcSquare() {
-      if (!calcExpr) return;
+    function initFirebase() {
       try {
-        const val = Function(`"use strict"; return (${calcExpr})`)();
-        const sq = val * val;
-        calcExpr = String(sq);
-        calcJustEvaluated = true;
-        updateCalcScreen(String(sq));
-      } catch { updateCalcScreen("Error"); }
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        db = firebase.database();
+        showNotice("");
+      } catch (err) {
+        showNotice("Firebase Init (" + (err.code || "err") + "): " + err.message);
+      }
+    }
+
+    // Calculator Vault
+    function calcAppend(ch) {
+      if (calcExpr === "0" && ch !== ".") calcExpr = "";
+      calcExpr += ch;
+      document.getElementById("calcDisplay").textContent = calcExpr || "0";
+    }
+
+    function calcClear() {
+      calcExpr = "";
+      document.getElementById("calcDisplay").textContent = "0";
+    }
+
+    function calcBackspace() {
+      calcExpr = calcExpr.slice(0, -1);
+      document.getElementById("calcDisplay").textContent = calcExpr || "0";
     }
 
     function calcEquals() {
-      const normalized = calcExpr.replace(/\s+/g, "");
-      const targetCode = getCustomUnlockCode();
-      if (normalized === targetCode || normalized === "1.618") {
-        calcExpr = "";
-        updateCalcScreen("0");
-        unlockKalah();
+      if (calcExpr.trim() === "1.618") {
+        calcClear();
+        document.getElementById("calcView").classList.remove("active");
+        document.getElementById("vaultView").classList.add("active");
+        hydrateProfileUi();
+        renderFriends();
+        updateQueueCounter();
+        syncQueue();
         return;
       }
       try {
-        const safeExpr = normalized.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
-        const val = Function(`"use strict"; return (${safeExpr})`)();
-        calcJustEvaluated = true;
-        updateCalcScreen(Number.isFinite(val) ? String(val) : "Error");
-      } catch { updateCalcScreen("Error"); }
-    }
-
-    function unlockKalah() {
-      document.getElementById("calcView").classList.add("hidden");
-      document.getElementById("appView").classList.remove("hidden");
-      document.title = "KALAH";
-      if (!me || !me.id || !me.secret) showAuthForm();
-      else enterMainApp();
+        if (!/^[0-9+\-*/().\s]+$/.test(calcExpr)) return;
+        const result = Function('"use strict";return (' + calcExpr + ")")();
+        calcExpr = String(result);
+        document.getElementById("calcDisplay").textContent = calcExpr;
+      } catch {
+        document.getElementById("calcDisplay").textContent = "Error";
+        calcExpr = "";
+      }
     }
 
     function lockApp() {
-      endVoiceCall(false, false);
-      closeChatRoom();
-      document.getElementById("appView").classList.add("hidden");
-      document.getElementById("calcView").classList.remove("hidden");
-      document.title = "Calculator";
-    }
-
-    function panicExit() {
-      endVoiceCall(false, false);
-      window.location.replace("https://www.google.com");
-    }
-
-    document.addEventListener("visibilitychange", () => {
-      const appVisible = !document.getElementById("appView").classList.contains("hidden");
-      if (document.hidden && appVisible && !isPickingFile) {
-        document.getElementById("appView").classList.add("privacy-blur");
-        setTimeout(() => {
-          if (document.hidden && !isPickingFile) {
-            document.getElementById("appView").classList.remove("privacy-blur");
-            lockApp();
-          }
-        }, 2500);
-      } else {
-        document.getElementById("appView").classList.remove("privacy-blur");
+      if (activeMsgRef) {
+        activeMsgRef.off();
+        activeMsgRef = null;
       }
-    });
-
-    function playTonePattern(notes = [784, 1046]) {
-      if (!soundEnabled) return;
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        notes.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = "triangle";
-          const startAt = ctx.currentTime + idx * 0.14;
-          osc.frequency.setValueAtTime(freq, startAt);
-          gain.gain.setValueAtTime(0.09, startAt);
-          gain.gain.exponentialRampToValueAtTime(0.001, startAt + 0.13);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(startAt);
-          osc.stop(startAt + 0.14);
-        });
-      } catch {}
-      if (navigator.vibrate) {
-        try { navigator.vibrate([90, 45, 90]); } catch {}
-      }
-    }
-
-    function playAlertTone() { playTonePattern([760, 980]); }
-
-    function startRingtoneLoop() {
-      stopRingtoneLoop();
-      if (!soundEnabled) return;
-      playTonePattern([587.33, 880, 587.33]);
-      ringtoneTimer = setInterval(() => { playTonePattern([587.33, 880, 587.33]); }, 1700);
-    }
-
-    function stopRingtoneLoop() {
-      if (ringtoneTimer) { clearInterval(ringtoneTimer); ringtoneTimer = null; }
-    }
-
-    async function requestSystemNotifications() {
-      if (!("Notification" in window)) {
-        showToast("Not Supported", "Browser notifications not available here.");
-        return;
-      }
-      try {
-        const perm = await Notification.requestPermission();
-        updateNotifButtonLabel();
-        if (perm === "granted") showToast("Notifications Enabled", "Background alerts are now active.");
-        else showToast("Permission Denied", "Allow notifications in browser settings.");
-      } catch {
-        showToast("Alert Info", "Could not request notification permission.");
-      }
-    }
-
-    function updateNotifButtonLabel() {
-      const btn = document.getElementById("notifPermBtn");
-      if (!btn || !("Notification" in window)) return;
-      if (Notification.permission === "granted") btn.textContent = "System Notif: ON";
-      else if (Notification.permission === "denied") btn.textContent = "System Notif: BLOCKED";
-      else btn.textContent = "Enable System Notif";
-    }
-
-    function triggerSystemNotification(title, body, targetChat = null) {
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
-      if (!document.hidden && document.hasFocus()) return;
-      try {
-        const n = new Notification(title, { body, tag: targetChat || "kalah_alert", renotify: true });
-        n.onclick = () => {
-          window.focus();
-          if (targetChat && chatsMeta[targetChat]) {
-            unlockKalah();
-            openChatRoom(chatsMeta[targetChat]);
-          }
-          n.close();
-        };
-      } catch {}
-    }
-
-    function showToast(title, body, targetChat = null) {
-      lastToastChatId = targetChat;
-      document.getElementById("toastTitle").textContent = title;
-      document.getElementById("toastBody").textContent = body;
-      const banner = document.getElementById("toastBanner");
-      banner.classList.add("show");
-      playAlertTone();
-      triggerSystemNotification(title, body, targetChat);
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(hideToast, 4500);
-    }
-
-    function hideToast() { document.getElementById("toastBanner").classList.remove("show"); }
-
-    function handleToastClick() {
-      hideToast();
-      if (lastToastChatId && chatsMeta[lastToastChatId]) openChatRoom(chatsMeta[lastToastChatId]);
-    }
-
-    function toggleSound() {
-      soundEnabled = !soundEnabled;
-      saveLocal("kalah_sound_v3", soundEnabled);
-      document.getElementById("soundToggleBtn").textContent = `Sound: ${soundEnabled ? "ON" : "OFF"}`;
-    }
-
-    function testNotify() { showToast("KALAH Alert", "Ringtone, banner & notification ready!"); }
-
-    async function deriveAesKey(passphrase, saltStr) {
-      const enc = new TextEncoder();
-      const baseKey = await crypto.subtle.importKey("raw", enc.encode(passphrase), "PBKDF2", false, ["deriveKey"]);
-      return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode(saltStr), iterations: 100000, hash: "SHA-256" },
-        baseKey,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt", "decrypt"]
-      );
-    }
-
-    async function encryptPayload(obj, passphrase, saltStr) {
-      const key = await deriveAesKey(passphrase, saltStr);
-      const iv = crypto.getRandomValues(new Uint8Array(12));
-      const enc = new TextEncoder();
-      const cipherBuf = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify(obj)));
-      return { iv: bytesToB64(iv), ct: bytesToB64(new Uint8Array(cipherBuf)) };
-    }
-
-    async function decryptPayload(packet, passphrase, saltStr) {
-      if (!packet || !packet.iv || !packet.ct) return null;
-      try {
-        const key = await deriveAesKey(passphrase, saltStr);
-        const plainBuf = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(packet.iv) }, key, b64ToBytes(packet.ct));
-        return JSON.parse(new TextDecoder().decode(plainBuf));
-      } catch {
-        return { kind: "text", text: "[Encrypted message - Vault Key mismatch]", _mismatch: true };
-      }
-    }
-
-    function bytesToB64(bytes) {
-      let bin = "";
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      return btoa(bin);
-    }
-
-    function b64ToBytes(b64) {
-      const bin = atob(b64);
-      const arr = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      return arr;
-    }
-
-    function dbUrl(path) { return `${DB_ROOT}/${PREFIX}/${path}.json`; }
-
-    async function safeDbFetch(url, options = {}, retries = 2) {
-      for (let attempt = 0; attempt <= retries; attempt++) {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 8500);
-        try {
-          const res = await fetch(url, { ...options, cache: "no-store", signal: ctrl.signal });
-          clearTimeout(timer);
-          if (!res.ok) throw new Error(`Server HTTP ${res.status}`);
-          return res;
-        } catch (err) {
-          clearTimeout(timer);
-          if (attempt === retries) {
-            if (err.name === "AbortError") throw new Error("Connection timed out. Check mobile data/signal.");
-            throw new Error("Network blocked or offline. Check Private DNS / Data.");
-          }
-          await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
-        }
-      }
-    }
-
-    async function dbPut(path, data) {
-      const res = await safeDbFetch(dbUrl(path), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      return res.json();
-    }
-
-    async function dbPost(path, data) {
-      const res = await safeDbFetch(dbUrl(path), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      return res.json();
-    }
-
-    async function dbPatch(path, data) {
-      const res = await safeDbFetch(dbUrl(path), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-      return res.json();
-    }
-
-    async function dbGet(path) {
-      const res = await safeDbFetch(dbUrl(path), { method: "GET" });
-      return res.json();
-    }
-
-    async function dbDelete(path) {
-      await safeDbFetch(dbUrl(path), { method: "DELETE" });
-    }
-
-    function setAuthMethod(method) {
-      authMethod = method;
-      ["email", "phone", "google"].forEach(m => {
-        document.getElementById("method" + m.charAt(0).toUpperCase() + m.slice(1)).classList.toggle("active", m === method);
-      });
-      const lbl = document.getElementById("authContactLabel");
-      const inp = document.getElementById("authContactInput");
-      if (method === "email") { lbl.textContent = "Email Address"; inp.placeholder = "you@example.com"; }
-      else if (method === "phone") { lbl.textContent = "Phone Number"; inp.placeholder = "+94 7X XXX XXXX"; }
-      else { lbl.textContent = "Google Account Email"; inp.placeholder = "yourname@gmail.com"; }
-    }
-
-    function normalizeLookupKey(raw) {
-      return String(raw || "").trim().toLowerCase().replace(/[^a-z0-9@._+-]/g, "").replace(/\./g, "_");
-    }
-
-    function genUserId() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "U-";
-      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-      return code;
-    }
-
-    function showAuthForm() {
-      document.getElementById("mainArea").classList.add("hidden");
-      document.getElementById("authScreen").classList.remove("hidden");
-      if (me) {
-        setAuthMethod(me.authMethod || "email");
-        document.getElementById("authContactInput").value = me.contact || "";
-        document.getElementById("accNameInput").value = me.name || "";
-        document.getElementById("accBioInput").value = me.bio || "";
-        document.getElementById("accUnlockCodeInput").value = me.unlockCode || "1.618";
-        document.getElementById("accPassInput").value = me.secret || "";
-      } else {
-        document.getElementById("accUnlockCodeInput").value = "1.618";
-      }
-    }
-
-    function openEditProfile() { showAuthForm(); }
-
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("File read failed"));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function compressImageDataUrl(dataUrl, maxWidth = 820, quality = 0.6) {
-      return new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => {
-          const scale = img.width > maxWidth ? maxWidth / img.width : 1;
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.max(1, Math.round(img.width * scale));
-          canvas.height = Math.max(1, Math.round(img.height * scale));
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.onerror = () => resolve(dataUrl);
-        img.src = dataUrl;
-      });
-    }
-
-    async function saveAccount() {
-      if (isSavingAccount) return;
-      isSavingAccount = true;
-      const btn = document.getElementById("continueBtn");
-      const origText = btn ? btn.textContent : "Continue to KALAH";
-      if (btn) btn.textContent = "Saving...";
-
-      try {
-        const contact = document.getElementById("authContactInput").value.trim();
-        const name = document.getElementById("accNameInput").value.trim();
-        const bio = document.getElementById("accBioInput").value.trim() || "Available";
-        const unlockCode = (document.getElementById("accUnlockCodeInput").value.trim() || "1.618").replace(/\s+/g, "");
-        const secret = document.getElementById("accPassInput").value.trim();
-        const photoFile = document.getElementById("accPhotoInput").files[0];
-
-        if (!contact || !name || !secret) {
-          showToast("Missing Info", "Enter contact, name, and vault key.");
-          return;
-        }
-
-        let photo = me && me.photo ? me.photo : "";
-        if (photoFile) {
-          if (photoFile.size > MAX_PROFILE_PHOTO_BYTES) {
-            showToast("Photo > 10MB", `Selected ${(photoFile.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
-            return;
-          }
-          const rawUrl = await readFileAsDataUrl(photoFile);
-          photo = await compressImageDataUrl(rawUrl, 360, 0.72);
-        }
-
-        const lookupKey = normalizeLookupKey(contact);
-        let existingId = null;
-        try { existingId = lookupKey ? await dbGet(`directory/${lookupKey}`) : null; } catch {}
-
-        const id = existingId || (me && me.id) || genUserId();
-        me = { id, authMethod, contact, name, bio, unlockCode, secret, photo, updatedAt: Date.now() };
-        saveLocal("kalah_me_v3", me);
-
-        try {
-          if (lookupKey) await dbPut(`directory/${lookupKey}`, id);
-          await dbPut(`accounts/${id}`, { id, authMethod, contact, name, bio, photo, lastSeen: Date.now() });
-        } catch (err) {
-          showToast("Local Mode", err.message || "Firebase sync issue.");
-        }
-
-        await enterMainApp(false);
-      } catch (err) {
-        showToast("Error", err && err.message ? err.message : "Could not continue.");
-      } finally {
-        isSavingAccount = false;
-        if (btn) btn.textContent = origText;
-      }
-    }
-
-    function copyMyId() {
-      if (!me) return;
-      navigator.clipboard?.writeText(me.id).catch(() => {});
-      showToast("ID Copied", `Your ID: ${me.id}`);
-    }
-
-    async function enterMainApp(showWelcomeToast = false) {
-      document.getElementById("authScreen").classList.add("hidden");
-      document.getElementById("mainArea").classList.remove("hidden");
-      document.getElementById("soundToggleBtn").textContent = `Sound: ${soundEnabled ? "ON" : "OFF"}`;
-      updateNotifButtonLabel();
-
-      renderProfileTab();
-      renderFriendsList();
-      renderChatList();
-      await syncStatuses().catch(() => {});
-      renderStatusStrip();
-      renderStatusFeed();
-      startBackgroundListeners();
-
-      if (showWelcomeToast) showToast("Welcome to KALAH", `Signed in as ${me.name} (${me.id})`);
-
-      heartbeatPresence().catch(() => {});
-      syncIncomingFriends().then(() => {
-        renderFriendsList();
-        renderChatList();
-        renderStatusStrip();
-        renderStatusFeed();
-      }).catch(() => {});
-    }
-
-    function renderProfileTab() {
-      document.getElementById("meDisplayName").textContent = me.name;
-      document.getElementById("meDisplayBio").textContent = me.bio;
-      document.getElementById("meDisplayContact").textContent = `${(me.authMethod || "email").toUpperCase()}: ${me.contact}`;
-      document.getElementById("meDisplayId").textContent = `ID: ${me.id}`;
-      document.getElementById("meUnlockCodeInfo").textContent = `Unlock Code: ${getCustomUnlockCode()}=`;
-      setAvatarContent(document.getElementById("meAvatarBox"), me.name, me.photo);
-    }
-
-    function setAvatarContent(el, label, photo) {
-      if (photo) {
-        el.innerHTML = `<img src="${photo}" alt="av" />`;
-      } else {
-        const ch = (label || "K").replace(/^@/, "").charAt(0).toUpperCase() || "K";
-        el.textContent = ch;
-      }
-    }
-
-    async function heartbeatPresence() {
-      if (!me || !me.id) return;
-      await dbPatch(`accounts/${me.id}`, { lastSeen: Date.now(), bio: me.bio || "Available", name: me.name }).catch(() => {});
-    }
-    setInterval(heartbeatPresence, 20000);
-
-    function formatLastSeen(lastSeen) {
-      if (!lastSeen) return "Last seen recently";
-      const diffSec = Math.floor((Date.now() - lastSeen) / 1000);
-      if (diffSec < 45) return "Online now";
-      if (diffSec < 60) return `Last seen ${diffSec}s ago`;
-      const mins = Math.floor(diffSec / 60);
-      if (mins < 60) return `Last seen ${mins}m ago`;
-      const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return `Last seen ${hrs}h ago`;
-      return `Last seen ${new Date(lastSeen).toLocaleDateString()}`;
-    }
-
-    function makeDmChatId(a, b) { return "dm_" + [a, b].sort().join("__"); }
-    function makeDmSecret(a, b) { return `kalah_dm_room::${[a, b].sort().join("::")}`; }
-
-    function getAiChatId() { return me && me.id ? `ai_${me.id}` : "ai_room"; }
-
-    function openAiChat() {
-      if (!me || !me.id) { showAuthForm(); return; }
-      const aiId = getAiChatId();
-      const aiChatObj = {
-        id: aiId,
-        type: "ai",
-        title: "@kalah AI",
-        bio: "Text-only assistant • Ask anything in Sinhala or English",
-        secret: `kalah_ai_secret::${me.id}`
-      };
-      openChatRoom(aiChatObj);
-    }
-
-    function getEffectiveSecret(chatObj) {
-      if (!chatObj) return me ? me.secret : "";
-      if (chatObj.type === "ai") return `kalah_ai_secret::${me ? me.id : "guest"}`;
-      if (chatObj.type === "dm") {
-        if (chatObj.peerId && me && me.id) return makeDmSecret(me.id, chatObj.peerId);
-        const parts = String(chatObj.id || "").replace(/^dm_/, "").split("__").filter(Boolean);
-        if (parts.length === 2) return makeDmSecret(parts[0], parts[1]);
-      }
-      return chatObj.secret || (me ? me.secret : "");
-    }
-
-    async function addFriendFromInput() {
-      const raw = document.getElementById("addFriendInput").value.trim();
-      if (!raw) { showToast("Empty Input", "Enter Email, Phone, or ID."); return; }
-
-      const btn = document.getElementById("addFriendBtn");
-      const origTxt = btn ? btn.textContent : "Find & Add Friend";
-      if (btn) btn.textContent = "Searching...";
-
-      try {
-        let targetId = raw.toUpperCase();
-        let acc = null;
-        try { acc = await dbGet(`accounts/${targetId}`); } catch {}
-
-        if (!acc) {
-          const lKey = normalizeLookupKey(raw);
-          const mappedId = lKey ? await dbGet(`directory/${lKey}`) : null;
-          if (mappedId) { targetId = mappedId; acc = await dbGet(`accounts/${targetId}`); }
-        }
-
-        if (!acc || targetId === me.id) {
-          showToast("Not Found", "No matching account found.");
-          return;
-        }
-
-        document.getElementById("addFriendInput").value = "";
-        friends[targetId] = {
-          id: targetId,
-          name: acc.name || targetId,
-          bio: acc.bio || "",
-          contact: acc.contact || "",
-          photo: acc.photo || "",
-          lastSeen: acc.lastSeen || 0
-        };
-        saveLocal("kalah_friends_v3", friends);
-
-        await dbPut(`friendLinks/${targetId}/${me.id}`, {
-          fromId: me.id,
-          fromName: me.name,
-          fromBio: me.bio,
-          fromContact: me.contact,
-          fromPhoto: me.photo || "",
-          ts: Date.now()
-        }).catch(() => {});
-
-        const dmId = makeDmChatId(me.id, targetId);
-        chatsMeta[dmId] = {
-          id: dmId,
-          type: "dm",
-          peerId: targetId,
-          title: acc.name || targetId,
-          bio: acc.bio || "",
-          photo: acc.photo || "",
-          secret: makeDmSecret(me.id, targetId)
-        };
-        saveLocal("kalah_chats_v3", chatsMeta);
-
-        renderFriendsList();
-        renderChatList();
-        showToast("Friend Added", `${acc.name} is now in your list.`);
-      } catch (err) {
-        showToast("Add Friend Failed", err.message || "Check connection / Private DNS.");
-      } finally {
-        if (btn) btn.textContent = origTxt;
-      }
-    }
-
-    async function refreshFriendsPresence() {
-      for (const uid of Object.keys(friends)) {
-        try {
-          const acc = await dbGet(`accounts/${uid}`);
-          if (acc) {
-            friends[uid] = {
-              ...friends[uid],
-              name: acc.name || friends[uid].name,
-              bio: acc.bio !== undefined ? acc.bio : friends[uid].bio,
-              photo: acc.photo || friends[uid].photo,
-              lastSeen: acc.lastSeen || friends[uid].lastSeen || 0
-            };
-            const dmId = makeDmChatId(me.id, uid);
-            if (chatsMeta[dmId]) {
-              chatsMeta[dmId].title = friends[uid].name;
-              chatsMeta[dmId].bio = friends[uid].bio || "";
-              chatsMeta[dmId].photo = friends[uid].photo || "";
-            }
-          }
-        } catch {}
-      }
-      saveLocal("kalah_friends_v3", friends);
-      saveLocal("kalah_chats_v3", chatsMeta);
-    }
-
-    async function syncIncomingFriends() {
-      const links = await dbGet(`friendLinks/${me.id}`);
-      if (!links) return;
-      for (const [uid, info] of Object.entries(links)) {
-        if (uid && uid !== me.id && info) {
-          friends[uid] = {
-            id: uid,
-            name: info.fromName || uid,
-            bio: info.fromBio || "",
-            contact: info.fromContact || "",
-            photo: info.fromPhoto || "",
-            lastSeen: info.ts || Date.now()
-          };
-          const dmId = makeDmChatId(me.id, uid);
-          if (!chatsMeta[dmId]) {
-            chatsMeta[dmId] = {
-              id: dmId,
-              type: "dm",
-              peerId: uid,
-              title: info.fromName || uid,
-              bio: info.fromBio || "",
-              photo: info.fromPhoto || "",
-              secret: makeDmSecret(me.id, uid)
-            };
-          } else {
-            chatsMeta[dmId].secret = makeDmSecret(me.id, uid);
-          }
-        }
-      }
-      await refreshFriendsPresence().catch(() => {});
-      saveLocal("kalah_friends_v3", friends);
-      saveLocal("kalah_chats_v3", chatsMeta);
-    }
-
-    function isOnline(lastSeen) { return lastSeen && (Date.now() - lastSeen < 45000); }
-
-    function renderFriendsList() {
-      const box = document.getElementById("friendsListContainer");
-      const list = Object.values(friends);
-      if (!list.length) {
-        box.innerHTML = `<div class="card"><div class="item-sub">No friends yet. Add by Email, Phone, or ID.</div></div>`;
-        return;
-      }
-
-      box.innerHTML = "";
-      list.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-        const online = isOnline(f.lastSeen);
-        div.innerHTML = `
-          <div class="avatar">
-            ${f.photo ? `<img src="${f.photo}" />` : escapeHtml((f.name || "F").charAt(0).toUpperCase())}
-            <span class="status-dot ${online ? "online" : ""}"></span>
-          </div>
-          <div class="item-meta">
-            <div class="item-name">${escapeHtml(f.name)}</div>
-            <div class="item-sub">${escapeHtml(formatLastSeen(f.lastSeen))}</div>
-            ${f.bio ? `<div class="item-about">${escapeHtml(f.bio)}</div>` : ""}
-          </div>
-          <button class="btn-sm accent">Chat</button>
-        `;
-        div.onclick = () => {
-          const dmId = makeDmChatId(me.id, f.id);
-          const chatObj = {
-            id: dmId,
-            type: "dm",
-            peerId: f.id,
-            title: f.name,
-            bio: f.bio || "",
-            photo: f.photo || "",
-            secret: makeDmSecret(me.id, f.id)
-          };
-          chatsMeta[dmId] = chatObj;
-          saveLocal("kalah_chats_v3", chatsMeta);
-          openChatRoom(chatObj);
-        };
-        box.appendChild(div);
-      });
-    }
-    async function publishStatusPost() {
-      if (!me || !me.id) return;
-      const caption = document.getElementById("statusCaptionInput").value.trim();
-      const photoFile = document.getElementById("statusPhotoInput").files[0];
-
-      if (!caption && !photoFile) {
-        showToast("Empty Status", "Add text or a photo to post status.");
-        return;
-      }
-
-      const btn = document.getElementById("postStatusBtn");
-      const orig = btn.textContent;
-      btn.textContent = "Posting...";
-
-      try {
-        let photoUrl = "";
-        if (photoFile) {
-          if (photoFile.size > MAX_CHAT_PHOTO_BYTES) {
-            showToast("Photo > 10MB", `Selected ${(photoFile.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
-            return;
-          }
-          const raw = await readFileAsDataUrl(photoFile);
-          photoUrl = await compressImageDataUrl(raw, 760, 0.62);
-        }
-
-        const now = Date.now();
-        const sid = "st_" + now.toString(36) + "_" + Math.random().toString(36).slice(2, 6);
-        const post = {
-          id: sid,
-          authorId: me.id,
-          authorName: me.name,
-          authorPhoto: me.photo || "",
-          caption,
-          photoUrl,
-          viewedBy: {},
-          ts: now,
-          expiresAt: now + TTL_MS
-        };
-
-        await dbPut(`statuses/${me.id}/${sid}`, post);
-        document.getElementById("statusCaptionInput").value = "";
-        document.getElementById("statusPhotoInput").value = "";
-        isPickingFile = false;
-
-        if (!statusesCache[me.id]) statusesCache[me.id] = {};
-        statusesCache[me.id][sid] = post;
-        renderStatusStrip();
-        renderStatusFeed();
-        showToast("Status Posted", "Visible to your contacts for 12h.");
-      } catch (err) {
-        showToast("Status Failed", err.message || "Could not post status.");
-      } finally {
-        btn.textContent = orig;
-      }
-    }
-
-    async function syncStatuses() {
-      if (!me || !me.id) return;
-      const allowedIds = new Set([me.id, ...Object.keys(friends)]);
-      const now = Date.now();
-      const nextCache = {};
-
-      for (const uid of allowedIds) {
-        try {
-          const userPosts = await dbGet(`statuses/${uid}`);
-          if (!userPosts) continue;
-          const valid = {};
-          for (const [sid, item] of Object.entries(userPosts)) {
-            if (!item) continue;
-            if (item.expiresAt && now > item.expiresAt) {
-              dbDelete(`statuses/${uid}/${sid}`).catch(() => {});
-              continue;
-            }
-            valid[sid] = item;
-          }
-          if (Object.keys(valid).length) nextCache[uid] = valid;
-        } catch {}
-      }
-
-      statusesCache = nextCache;
-    }
-
-    function getVisibleStatusesList() {
-      const allowedIds = new Set([me ? me.id : "", ...Object.keys(friends)]);
-      const now = Date.now();
-      const list = [];
-      for (const [uid, posts] of Object.entries(statusesCache)) {
-        if (!allowedIds.has(uid) || !posts) continue;
-        for (const p of Object.values(posts)) {
-          if (p && (!p.expiresAt || now <= p.expiresAt)) list.push(p);
-        }
-      }
-      return list.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-    }
-
-    function openStatusModal(post) {
-      activeStatusPost = post;
-      document.getElementById("statusViewerAuthor").textContent = `${post.authorName} • ${post.authorId === me.id ? "My Status" : "Contact Status"}`;
-      document.getElementById("statusViewerTime").textContent = new Date(post.ts || Date.now()).toLocaleString();
-
-      const viewsMap = { ...(post.viewedBy || {}) };
-      if (post.authorId !== me.id && !viewsMap[me.id]) {
-        viewsMap[me.id] = me.name;
-        post.viewedBy = viewsMap;
-        dbPut(`statuses/${post.authorId}/${post.id}/viewedBy/${me.id}`, me.name).catch(() => {});
-      }
-      const viewers = Object.values(viewsMap);
-      const viewsEl = document.getElementById("statusViewerViews");
-      viewsEl.textContent = post.authorId === me.id
-        ? `Seen by ${viewers.length} (${viewers.join(", ") || "No views yet"})`
-        : `${viewers.length} contact views`;
-
-      const imgEl = document.getElementById("statusViewerImg");
-      if (post.photoUrl) {
-        imgEl.src = post.photoUrl;
-        imgEl.classList.remove("hidden");
-      } else {
-        imgEl.classList.add("hidden");
-      }
-
-      const capEl = document.getElementById("statusViewerCaption");
-      capEl.innerHTML = post.caption ? linkifyText(post.caption) : "";
-
-      const replyBox = document.getElementById("statusQuickReplyBox");
-      document.getElementById("statusReplyInput").value = "";
-      replyBox.classList.toggle("hidden", post.authorId === me.id);
-
-      document.getElementById("statusModal").classList.remove("hidden");
-    }
-
-    async function sendStatusQuickReply() {
-      if (!activeStatusPost || activeStatusPost.authorId === me.id) return;
-      const inp = document.getElementById("statusReplyInput");
-      const text = inp.value.trim();
-      if (!text) return;
-
-      const peerId = activeStatusPost.authorId;
-      const peerName = activeStatusPost.authorName || peerId;
-      const dmId = makeDmChatId(me.id, peerId);
-      const dmObj = chatsMeta[dmId] || {
-        id: dmId,
-        type: "dm",
-        peerId,
-        title: peerName,
-        secret: makeDmSecret(me.id, peerId)
-      };
-      chatsMeta[dmId] = dmObj;
-      saveLocal("kalah_chats_v3", chatsMeta);
-
-      const snippet = (activeStatusPost.caption || "Photo Status").slice(0, 40);
-      await sendEncryptedToChat(dmObj, {
-        kind: "text",
-        text: `Status Reply (${snippet}): ${text}`
-      });
-      inp.value = "";
-      closeStatusModal();
-      showToast("Reply Sent", `Sent to ${peerName}.`);
-    }
-
-    function closeStatusModal() {
-      activeStatusPost = null;
-      document.getElementById("statusModal").classList.add("hidden");
-    }
-
-    function renderStatusStrip() {
-      const strip = document.getElementById("chatStatusStrip");
-      if (!strip || !me) return;
-      const items = getVisibleStatusesList();
-      let html = `
-        <div class="status-bubble-item" onclick="switchTab('status')">
-          <div class="status-ring muted"><div class="status-inner">+</div></div>
-          <div class="status-label">My Status</div>
-        </div>
-      `;
-      items.slice(0, 12).forEach(st => {
-        const av = st.photoUrl || st.authorPhoto || "";
-        html += `
-          <div class="status-bubble-item" onclick='openStatusModal(${JSON.stringify(st).replace(/'/g, "&#39;")})'>
-            <div class="status-ring">
-              <div class="status-inner">${av ? `<img src="${av}" />` : escapeHtml((st.authorName || "S").charAt(0).toUpperCase())}</div>
-            </div>
-            <div class="status-label">${escapeHtml(st.authorName)}</div>
-          </div>
-        `;
-      });
-      strip.innerHTML = html;
-    }
-
-    function renderStatusFeed() {
-      const box = document.getElementById("statusFeedContainer");
-      if (!box) return;
-      const items = getVisibleStatusesList();
-      if (!items.length) {
-        box.innerHTML = `<div class="card"><div class="item-sub">No active status updates from you or your friends right now.</div></div>`;
-        return;
-      }
-      box.innerHTML = "";
-      items.forEach(st => {
-        const div = document.createElement("div");
-        div.className = "card";
-        const timeStr = new Date(st.ts || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const viewsCount = st.viewedBy ? Object.keys(st.viewedBy).length : 0;
-        div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <div style="font-weight:800; font-size:13px; color:var(--accent-text);">${escapeHtml(st.authorName)}</div>
-            <div class="mono" style="font-size:11px; color:var(--text-muted);">${timeStr} • 12h • ${viewsCount} views</div>
-          </div>
-          ${st.caption ? `<div style="font-size:14px; line-height:1.5; margin-bottom:8px; word-break:break-word;">${linkifyText(st.caption)}</div>` : ""}
-          ${st.photoUrl ? `<img src="${st.photoUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px; cursor:pointer;" onclick="openPhotoPreview('${st.photoUrl}')" />` : ""}
-        `;
-        box.appendChild(div);
-      });
-    }
-
-    function renderGroupFriendChecks() {
-      const box = document.getElementById("groupFriendChecks");
-      const list = Object.values(friends);
-      if (!list.length) { box.innerHTML = `<div class="item-sub">Add friends first to make a group.</div>`; return; }
-      box.innerHTML = list.map(f => `
-        <label style="display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:13px;">
-          <input type="checkbox" class="grp-chk" value="${f.id}" />
-          <span>${escapeHtml(f.name)}</span>
-        </label>
-      `).join("");
-    }
-
-    async function createGroupChat() {
-      const gName = document.getElementById("groupNameInput").value.trim();
-      const gSecret = document.getElementById("groupSecretInput").value.trim();
-      const selected = Array.from(document.querySelectorAll(".grp-chk:checked")).map(c => c.value);
-
-      if (!gName || !gSecret) { showToast("Missing Info", "Enter group name and group vault key."); return; }
-
-      const grpId = "grp_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 6);
-      const members = Array.from(new Set([me.id, ...selected]));
-
-      try {
-        await dbPut(`groups/${grpId}`, { id: grpId, type: "group", title: gName, members, createdBy: me.id });
-        for (const mId of members) {
-          await dbPut(`userChats/${mId}/${grpId}`, { id: grpId, type: "group", title: gName, members });
-        }
-      } catch (err) { showToast("Group Sync Issue", err.message || "Saved locally."); }
-
-      chatsMeta[grpId] = { id: grpId, type: "group", title: gName, secret: gSecret, members };
-      saveLocal("kalah_chats_v3", chatsMeta);
-
-      document.getElementById("groupNameInput").value = "";
-      document.getElementById("groupSecretInput").value = "";
-      renderChatList();
-      switchTab("chats");
-      openChatRoom(chatsMeta[grpId]);
+      activeFriend = null;
+      document.getElementById("activeChatCard").style.display = "none";
+      document.getElementById("noChatCard").style.display = "block";
+      document.getElementById("vaultView").classList.remove("active");
+      document.getElementById("calcView").classList.add("active");
     }
 
     function switchTab(tab) {
-      activeTab = tab;
-      document.getElementById("chatScreen").classList.add("hidden");
-      ["chats", "status", "friends", "group", "me"].forEach(t => {
-        document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle("hidden", t !== tab);
-        document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1) + "Btn").classList.toggle("active", t === tab);
+      ["chat", "friends", "profile"].forEach((t) => {
+        document.getElementById("tab" + t[0].toUpperCase() + t.slice(1)).classList.toggle("active", t === tab);
+        document.getElementById("panel" + t[0].toUpperCase() + t.slice(1)).classList.toggle("active", t === tab);
       });
-      if (tab === "group") renderGroupFriendChecks();
-      if (tab === "friends") renderFriendsList();
-      if (tab === "status") { renderStatusStrip(); renderStatusFeed(); }
-      if (tab === "chats") { renderStatusStrip(); renderChatList(); }
-      if (tab === "me") renderProfileTab();
     }
 
-    function togglePinChat(chatId, ev) {
-      if (ev) ev.stopPropagation();
-      if (pinnedChats[chatId]) delete pinnedChats[chatId];
-      else pinnedChats[chatId] = true;
-      saveLocal("kalah_pinned_v3", pinnedChats);
-      renderChatList();
+    // Profile & Status
+    function hydrateProfileUi() {
+      const p = getProfile();
+      document.getElementById("myIdText").textContent = getMyId();
+      document.getElementById("profileNameInput").value = p.name || "";
+      document.getElementById("statusTextInput").value = p.status || "Online";
+      document.getElementById("myCurrentStatusBadge").textContent = p.status || "Online";
     }
 
-    function clearUnreadForChat(chatId) {
-      if (!chatId || !unreadCounts[chatId]) return;
-      delete unreadCounts[chatId];
-      saveLocal("kalah_unread_v3", unreadCounts);
+    function applyPresetToInput() {
+      const val = document.getElementById("statusPresetSelect").value;
+      document.getElementById("statusTextInput").value = val;
     }
 
-    function renderChatList() {
-      const box = document.getElementById("chatListContainer");
-      box.innerHTML = "";
+    async function saveProfileAndStatus() {
+      const name = document.getElementById("profileNameInput").value.trim() || "Kalah";
+      const status = document.getElementById("statusTextInput").value.trim() || "Online";
+      const profileObj = { name, status, updatedAt: Date.now() };
 
-      const aiCard = document.createElement("div");
-      aiCard.className = "list-item ai-item";
-      aiCard.innerHTML = `
-        <div class="avatar" style="border-color:#38bdf8; color:#7dd3fc;">✦</div>
-        <div class="item-meta">
-          <div class="item-name">@kalah AI</div>
-          <div class="item-sub">Text Assistant • Sinhala & English • 12h TTL</div>
-        </div>
-        <button class="btn-sm ai-pill">Open AI</button>
-      `;
-      aiCard.onclick = () => openAiChat();
-      box.appendChild(aiCard);
+      saveJson(KEYS.profile, profileObj);
+      document.getElementById("myCurrentStatusBadge").textContent = status;
 
-      const list = Object.values(chatsMeta)
-        .filter(c => c.type !== "ai")
-        .sort((a, b) => (pinnedChats[b.id] ? 1 : 0) - (pinnedChats[a.id] ? 1 : 0));
-
-      if (!list.length) {
-        const empty = document.createElement("div");
-        empty.className = "card";
-        empty.innerHTML = `<div class="item-sub">No friend chats yet. Tap @kalah AI above or go to FRIENDS.</div>`;
-        box.appendChild(empty);
+      if (!db || !navigator.onLine) {
+        enqueueAction({ type: "setProfile", userId: getMyId(), profileObj });
+        showNotice("Offline: Status local එකේ save වුණා.");
         return;
       }
-
-      list.forEach(c => {
-        const isPinned = !!pinnedChats[c.id];
-        const uCount = unreadCounts[c.id] || 0;
-        const div = document.createElement("div");
-        div.className = `list-item ${isPinned ? "pinned" : ""}`;
-        const badge = c.type === "group" ? "GROUP" : "DIRECT";
-        const peer = c.type === "dm" && c.peerId ? friends[c.peerId] : null;
-        const subLine = c.type === "dm"
-          ? `${formatLastSeen(peer ? peer.lastSeen : 0)} • 12h TTL`
-          : `${badge} • 12h auto-delete`;
-
-        div.innerHTML = `
-          <div class="avatar">${c.photo ? `<img src="${c.photo}" />` : escapeHtml((c.title || "C").charAt(0).toUpperCase())}</div>
-          <div class="item-meta">
-            <div class="item-name">${isPinned ? "📌 " : ""}${escapeHtml(c.title)}</div>
-            <div class="item-sub">${escapeHtml(subLine)}</div>
-            ${c.type === "dm" && (c.bio || (peer && peer.bio)) ? `<div class="item-about">${escapeHtml(c.bio || peer.bio)}</div>` : ""}
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            ${uCount > 0 ? `<span class="brand-badge" style="background:var(--accent); color:#fff; border-color:var(--accent);">${uCount > 99 ? "99+" : uCount}</span>` : ""}
-            <button class="btn-sm ${isPinned ? "accent" : ""}" onclick="togglePinChat('${c.id}', event)">${isPinned ? "Pinned" : "Pin"}</button>
-          </div>
-        `;
-        div.onclick = () => openChatRoom(c);
-        box.appendChild(div);
-      });
-    }
-
-    function updateChatHeaderMeta() {
-      if (!activeChat) return;
-      const aboutEl = document.getElementById("chatAboutLine");
-      const subEl = document.getElementById("chatSub");
-      const callBtn = document.getElementById("callHeaderBtn");
-
-      if (activeChat.type === "ai") {
-        subEl.textContent = "Text-only AI • 12h auto-delete";
-        aboutEl.textContent = "Ask anything in Sinhala or English";
-        aboutEl.classList.remove("hidden");
-        if (callBtn) callBtn.classList.add("hidden");
-        return;
-      }
-
-      if (callBtn) callBtn.classList.remove("hidden");
-
-      if (activeChat.type === "dm") {
-        const peer = activeChat.peerId ? friends[activeChat.peerId] : null;
-        const bioText = activeChat.bio || (peer && peer.bio) || "";
-        subEl.textContent = `${formatLastSeen(peer ? peer.lastSeen : 0)} • 12h TTL`;
-        if (bioText) {
-          aboutEl.textContent = `About: ${bioText}`;
-          aboutEl.classList.remove("hidden");
-        } else {
-          aboutEl.classList.add("hidden");
-        }
-      } else {
-        subEl.textContent = "Group • 12h auto-delete";
-        aboutEl.classList.add("hidden");
-      }
-    }
-
-    function openChatRoom(chatObj) {
-      activeChat = { ...chatObj };
-      clearUnreadForChat(activeChat.id);
-      if (activeChat.type === "dm") {
-        activeChat.secret = getEffectiveSecret(activeChat);
-        chatsMeta[activeChat.id] = activeChat;
-        saveLocal("kalah_chats_v3", chatsMeta);
-      }
-      seenMsgIds.clear();
-      renderedMsgSignatures.clear();
-      initialLoadDoneForChat = false;
-      cancelEditOrReply();
-      toggleChatSearch(false);
-
-      ["chats", "status", "friends", "group", "me"].forEach(t => {
-        document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("hidden");
-      });
-      document.getElementById("chatScreen").classList.remove("hidden");
-
-      document.getElementById("chatTitle").textContent = activeChat.title || "Chat";
-      setAvatarContent(document.getElementById("chatAvatarBox"), activeChat.type === "ai" ? "✦" : activeChat.title, activeChat.photo || "");
-      updateChatHeaderMeta();
-
-      if (activeChat.type === "group" && !activeChat.secret) {
-        const entered = prompt("Enter Vault Key for this group:");
-        if (entered && entered.trim()) {
-          activeChat.secret = entered.trim();
-          chatsMeta[activeChat.id] = activeChat;
-          saveLocal("kalah_chats_v3", chatsMeta);
-        }
-      }
-
-      loadMessagesOnce();
-    }
-
-    function closeChatRoom() {
-      activeChat = null;
-      cancelEditOrReply();
-      toggleChatSearch(false);
-      document.getElementById("chatScreen").classList.add("hidden");
-      switchTab(activeTab || "chats");
-    }
-
-    function toggleChatSearch(forceState = null) {
-      const bar = document.getElementById("chatSearchBar");
-      const inp = document.getElementById("chatSearchInput");
-      const nextOpen = forceState !== null ? forceState : bar.classList.contains("hidden");
-      bar.classList.toggle("hidden", !nextOpen);
-      if (!nextOpen) {
-        inp.value = "";
-        applyChatSearch();
-      } else {
-        inp.focus();
-      }
-    }
-
-    function applyChatSearch() {
-      const q = (document.getElementById("chatSearchInput").value || "").trim().toLowerCase();
-      const rows = document.querySelectorAll("#messagesBox .msg-row");
-      rows.forEach(r => {
-        const txt = (r.textContent || "").toLowerCase();
-        r.classList.toggle("hidden", !!q && !txt.includes(q));
-      });
-    }
-
-    async function markMessagesSeen(chatId, entries) {
-      if (!me || !me.id) return;
-      for (const [msgId, pkt] of entries) {
-        if (pkt && pkt.senderId && pkt.senderId !== me.id) {
-          if (!pkt.seenBy || !pkt.seenBy[me.id]) {
-            dbPut(`messages/${chatId}/${msgId}/seenBy/${me.id}`, Date.now()).catch(() => {});
-          }
-        }
-      }
-    }
-
-    function isNearBottom(box) { return box.scrollHeight - box.scrollTop - box.clientHeight < 110; }
-
-    function linkifyText(rawText) {
-      const str = String(rawText || "");
-      const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
-      let lastIdx = 0;
-      let out = "";
-      let match;
-      while ((match = urlRegex.exec(str)) !== null) {
-        out += escapeHtml(str.slice(lastIdx, match.index));
-        const token = match[0];
-        const href = /^https?:\/\//i.test(token) ? token : `https://${token}`;
-        out += `<a class="msg-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(token)}</a>`;
-        lastIdx = match.index + token.length;
-      }
-      out += escapeHtml(str.slice(lastIdx));
-      return out;
-    }
-
-    async function loadMessagesOnce() {
-      if (!activeChat) return;
-      const box = document.getElementById("messagesBox");
-      box.innerHTML = "";
-      renderedMsgSignatures.clear();
 
       try {
-        const rawMsgs = await dbGet(`messages/${activeChat.id}`);
-        if (!rawMsgs) { initialLoadDoneForChat = true; return; }
-
-        const now = Date.now();
-        const entries = Object.entries(rawMsgs).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
-        const secret = getEffectiveSecret(activeChat);
-
-        for (const [msgId, pkt] of entries) {
-          if (pkt.expiresAt && now > pkt.expiresAt) {
-            dbDelete(`messages/${activeChat.id}/${msgId}`).catch(() => {});
-            continue;
-          }
-          seenMsgIds.add(msgId);
-          const dec = await decryptPayload(pkt, secret, activeChat.id);
-          if (dec) renderOrUpdateMessage(msgId, pkt, dec, true);
-        }
-
-        markMessagesSeen(activeChat.id, entries);
-        initialLoadDoneForChat = true;
-        box.scrollTop = box.scrollHeight;
+        await db.ref(`users/${safeKey(getMyId())}/profile`).set(profileObj);
+        showNotice("Profile & Status update වුණා.");
       } catch (err) {
-        initialLoadDoneForChat = true;
-        showToast("Load Failed", err.message || "Could not read messages.");
+        enqueueAction({ type: "setProfile", userId: getMyId(), profileObj });
+        showNotice("Status Save Error (" + (err.code || "err") + "): " + err.message);
       }
     }
 
-    function renderOrUpdateMessage(msgId, pkt, dec, forceScroll = false) {
-      const box = document.getElementById("messagesBox");
-      const shouldAutoScroll = forceScroll || isNearBottom(box);
+    // Friends
+    function renderFriends() {
+      const q = (document.getElementById("friendSearch").value || "").trim().toLowerCase();
+      const friends = loadJson(KEYS.friends, []).filter((f) => f.toLowerCase().includes(q));
+      const box = document.getElementById("friendsList");
 
-      const seenCount = pkt.seenBy ? Object.keys(pkt.seenBy).length : 0;
-      const reactKey = JSON.stringify(pkt.reactions || {});
-      const sig = `${dec.kind}|${dec.text || ""}|${dec.caption || ""}|${dec.edited ? 1 : 0}|${seenCount}|${reactKey}`;
-      if (renderedMsgSignatures.get(msgId) === sig && document.getElementById(`msg_${msgId}`)) return;
-      renderedMsgSignatures.set(msgId, sig);
-
-      const existing = document.getElementById(`msg_${msgId}`);
-      if (existing) existing.remove();
-
-      const isMine = pkt.senderId === me.id;
-      const row = document.createElement("div");
-      row.className = `msg-row ${isMine ? "mine" : "theirs"}`;
-      row.id = `msg_${msgId}`;
-
-      const timeStr = new Date(pkt.ts || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const editedTag = dec.edited ? `<span>edited</span>` : "";
-      const seenHtml = isMine && seenCount > 0 ? `<span class="seen-tag">Seen</span>` : "";
-      let bodyHtml = "";
-
-      if (dec.replyTo) {
-        bodyHtml += `<div class="msg-reply-quote">↩ ${escapeHtml(dec.replyTo.sender)}: ${escapeHtml(dec.replyTo.preview)}</div>`;
+      if (!friends.length) {
+        box.innerHTML = '<p class="small" style="margin-top:8px;">No matching friends.</p>';
+        return;
       }
 
-      if (dec.kind === "missed_call") {
-        bodyHtml += `<div class="missed-call-card">📞 ${escapeHtml(dec.text || "Missed Voice Call")}</div>`;
-      } else if (dec.kind === "call_log") {
-        bodyHtml += `<div class="call-log-card">📞 ${escapeHtml(dec.text || "Voice Call")}</div>`;
-      } else if (dec.kind === "text") {
-        bodyHtml += `<div>${linkifyText(dec.text)}</div>`;
-      } else if (dec.kind === "photo") {
-        if (dec.viewOnce && !isMine) {
-          bodyHtml += `<button class="btn-sm accent" onclick="openViewOncePhoto('${msgId}', this)">👁️ View Once Photo</button>`;
-        } else {
-          bodyHtml += `<img class="msg-photo" src="${dec.dataUrl}" onclick="openPhotoPreview('${dec.dataUrl}')" />`;
-          if (dec.viewOnce) bodyHtml += `<div style="font-size:10px; color:var(--accent-text); margin-top:3px;">1x View-Once</div>`;
-        }
-        if (dec.caption) {
-          bodyHtml += `<div class="msg-caption">${linkifyText(dec.caption)}</div>`;
-        }
-      } else if (dec.kind === "voice") {
-        bodyHtml += `<audio controls src="${dec.dataUrl}" style="max-width:210px; height:32px;"></audio>`;
-      }
-
-      const reacts = pkt.reactions || {};
-      const reactHtml = Object.entries(reacts)
-        .filter(([, count]) => count > 0)
-        .map(([em, count]) => `<span class="react-pill" onclick="toggleReaction('${msgId}', '${em}')">${em} ${count}</span>`)
+      box.innerHTML = friends
+        .map((f) => {
+          const sel = activeFriend === f ? "selected" : "";
+          return `<div class="friend-item ${sel}" onclick="selectFriendAndOpenChat('${encodeURIComponent(f)}')">
+            <div>
+              <strong>${escapeHtml(f)}</strong>
+              <div class="small">Tap to chat</div>
+            </div>
+            <span class="badge-status">Open</span>
+          </div>`;
+        })
         .join("");
-
-      row.innerHTML = `
-        <div class="msg-bubble">
-          ${!isMine ? `<div class="msg-sender">${escapeHtml(pkt.senderName || pkt.senderId)}</div>` : ""}
-          ${bodyHtml}
-          <div class="reactions-row" id="reacts_${msgId}">${reactHtml}</div>
-          <div class="quick-react-bar">
-            <span onclick="toggleReaction('${msgId}', '❤️')">❤️</span>
-            <span onclick="toggleReaction('${msgId}', '😂')">😂</span>
-            <span onclick="toggleReaction('${msgId}', '💀')">💀</span>
-            <span onclick="toggleReaction('${msgId}', '🔥')">🔥</span>
-          </div>
-          <div class="msg-footer">${editedTag}<span>${timeStr}</span>${seenHtml}</div>
-        </div>
-        <div class="msg-actions">
-          ${dec.kind === "text" ? `<span onclick="setReply('${escapeHtml(pkt.senderName || "User")}', '${escapeJs(dec.text)}')">Reply</span>` : ""}
-          ${dec.kind === "text" ? `<span onclick="openForwardModal('${escapeJs(dec.text)}')">Forward</span>` : ""}
-          ${dec.kind === "text" ? `<span onclick="copyText('${escapeJs(dec.text)}')">Copy</span>` : ""}
-          ${isMine && dec.kind === "text" ? `<span onclick="startEditMessage('${msgId}', '${escapeJs(dec.text)}')">Edit</span>` : ""}
-          ${isMine ? `<span onclick="deleteSingleMessage('${msgId}')">Delete</span>` : ""}
-        </div>
-      `;
-
-      if (dec.kind === "photo" && dec.viewOnce && !isMine) row.dataset.viewOnceData = dec.dataUrl;
-
-      box.appendChild(row);
-      if (shouldAutoScroll) box.scrollTop = box.scrollHeight;
     }
-    async function sendEncryptedToChat(chatObj, payloadObj) {
-      if (!me || !me.id || !chatObj || !chatObj.id) return;
-      const secret = getEffectiveSecret(chatObj);
-      const now = Date.now();
-      const pkt = {
-        senderId: me.id,
-        senderName: me.name,
-        ts: now,
-        expiresAt: now + TTL_MS,
-        seenBy: { [me.id]: now },
-        reactions: {},
-        ...(await encryptPayload(payloadObj, secret, chatObj.id))
-      };
 
-      const res = await dbPost(`messages/${chatObj.id}`, pkt);
-      const newId = res && res.name ? res.name : ("m_" + now.toString(36));
-      seenMsgIds.add(newId);
-
-      if (activeChat && activeChat.id === chatObj.id) {
-        renderOrUpdateMessage(newId, pkt, payloadObj, true);
+    async function addFriend() {
+      const input = document.getElementById("friendInput");
+      const target = input.value.trim();
+      if (!target) {
+        showNotice("Friend ID / Email / Phone එකක් දාන්න.");
+        return;
       }
-      return { id: newId, pkt };
-    }
 
-    async function generateAiTextReply(promptText) {
-      const clean = String(promptText || "").trim();
-      if (!clean) return "Ask me anything in Sinhala or English!";
-      const isSinhala = /[\u0D80-\u0DFF]/.test(clean);
-      const instruction = isSinhala
-        ? `Reply concisely and helpfully in Sinhala to: ${clean}`
-        : `Reply concisely and helpfully in English to: ${clean}`;
+      const friends = loadJson(KEYS.friends, []);
+      if (!friends.includes(target)) {
+        friends.push(target);
+        saveJson(KEYS.friends, friends);
+      }
+      input.value = "";
+      renderFriends();
 
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 7500);
+      if (!db || !navigator.onLine) {
+        enqueueAction({ type: "addFriend", from: getMyId(), target });
+        showNotice("Offline: Friend local list එකේ add වුණා.");
+        return;
+      }
+
       try {
-        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(instruction)}`, { signal: ctrl.signal });
-        clearTimeout(timer);
-        if (!res.ok) throw new Error("AI unavailable");
-        const txt = (await res.text() || "").trim();
-        if (!txt || txt.toLowerCase().includes("<!doctype html")) throw new Error("Empty AI reply");
-        return txt.slice(0, 1000);
-      } catch {
-        clearTimeout(timer);
-        if (isSinhala) {
-          return `මට "${clean.slice(0, 80)}" ගැන කෙටියෙන් කියන්න පුළුවන්: දැනට network/server එක ටිකක් slow නිසා විස්තරාත්මකව පස්සේ උත්සාහ කරන්න.`;
+        await db.ref(`users/${safeKey(getMyId())}/friends/${safeKey(target)}`).set(true);
+        showNotice("");
+        selectFriendAndOpenChat(encodeURIComponent(target));
+      } catch (err) {
+        enqueueAction({ type: "addFriend", from: getMyId(), target });
+        showNotice("Add Friend Error (" + (err.code || "err") + "): " + err.message);
+      }
+    }
+
+    function selectFriendAndOpenChat(encodedFriend) {
+      const friend = decodeURIComponent(encodedFriend);
+      activeFriend = friend;
+      switchTab("chat");
+      renderFriends();
+
+      document.getElementById("noChatCard").style.display = "none";
+      document.getElementById("activeChatCard").style.display = "block";
+      document.getElementById("activeChatName").textContent = friend;
+      document.getElementById("activeFriendStatusText").textContent = "Status: checking...";
+
+      const roomId = makeRoomId(getMyId(), friend);
+      const cacheKey = KEYS.msgPrefix + roomId;
+      renderMessages(loadJson(cacheKey, []));
+
+      if (activeMsgRef) {
+        activeMsgRef.off();
+      }
+
+      if (db && navigator.onLine) {
+        refreshActiveFriendStatus();
+        activeMsgRef = db.ref(`chats/${roomId}/messages`).limitToLast(25);
+        activeMsgRef.on(
+          "value",
+          (snap) => {
+            const arr = Object.values(snap.val() || {}).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+            saveJson(cacheKey, arr);
+            renderMessages(arr);
+          },
+          (err) => {
+            showNotice("Chat Read Error (" + (err.code || "err") + "): " + err.message);
+          }
+        );
+      } else {
+        document.getElementById("activeFriendStatusText").textContent = "Status: cached / offline";
+      }
+    }
+
+    // Low-data one-time status check for active friend only
+    async function refreshActiveFriendStatus() {
+      if (!activeFriend || !db) return;
+      try {
+        const snap = await db.ref(`users/${safeKey(activeFriend)}/profile`).once("value");
+        const prof = snap.val();
+        if (prof && prof.status) {
+          const t = prof.updatedAt ? ` · ${formatTime(prof.updatedAt)}` : "";
+          document.getElementById("activeFriendStatusText").textContent = `Status: ${prof.status}${t}`;
+        } else {
+          document.getElementById("activeFriendStatusText").textContent = "Status: No status set";
         }
-        return `Quick note on "${clean.slice(0, 80)}": AI endpoint was slow/offline, please try again in a moment.`;
+      } catch (err) {
+        document.getElementById("activeFriendStatusText").textContent = "Status: unavailable";
+        showNotice("Status Check Error (" + (err.code || "err") + "): " + err.message);
       }
     }
 
-    async function triggerAiReplyForPrompt(aiChatObj, promptText) {
-      const typingEl = document.getElementById("typingBar");
-      if (activeChat && activeChat.id === aiChatObj.id && typingEl) {
-        typingEl.textContent = "@kalah AI typing...";
+    function renderMessages(msgs) {
+      const box = document.getElementById("messagesBox");
+      const myId = getMyId();
+      if (!msgs.length) {
+        box.innerHTML = '<div class="small">No messages yet.</div>';
+        return;
       }
-      const replyStr = await generateAiTextReply(promptText);
-      if (typingEl && activeChat && activeChat.id === aiChatObj.id) {
-        typingEl.textContent = "";
-      }
-      await sendEncryptedToChat(aiChatObj, { kind: "text", text: replyStr });
+      box.innerHTML = msgs
+        .map((m) => {
+          const isMe = m.sender === myId;
+          return `<div class="msg ${isMe ? "me" : ""}">
+            <div>${escapeHtml(m.text)}</div>
+            <div class="msg-meta">${formatTime(m.ts)}</div>
+          </div>`;
+        })
+        .join("");
+      box.scrollTop = box.scrollHeight;
     }
 
-    async function sendTextMessage() {
-      if (!activeChat) return;
-      const inp = document.getElementById("msgInput");
-      const text = inp.value.trim();
+    function enqueueAction(item) {
+      const q = loadJson(KEYS.queue, []);
+      q.push(item);
+      saveJson(KEYS.queue, q);
+      updateQueueCounter();
+    }
+
+    async function sendMessage() {
+      if (!activeFriend) return;
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
       if (!text) return;
 
-      if (editingMsgId) {
-        await saveEditedMessage(editingMsgId, text);
-        inp.value = "";
+      const myId = getMyId();
+      const roomId = makeRoomId(myId, activeFriend);
+      const msgObj = { sender: myId, text, ts: Date.now() };
+
+      const cacheKey = KEYS.msgPrefix + roomId;
+      const cached = loadJson(cacheKey, []);
+      cached.push(msgObj);
+      saveJson(cacheKey, cached.slice(-40));
+      renderMessages(cached);
+      input.value = "";
+
+      if (!db || !navigator.onLine) {
+        enqueueAction({ type: "sendMsg", roomId, msgObj });
+        showNotice("Offline: Message queue එකේ save වුණා.");
         return;
       }
 
-      const payload = { kind: "text", text };
-      if (replyToMsg) {
-        payload.replyTo = replyToMsg;
-        cancelEditOrReply();
-      }
-
-      inp.value = "";
-      clearTypingFlag().catch(() => {});
-
       try {
-        const targetChat = { ...activeChat };
-        await sendEncryptedToChat(targetChat, payload);
-        if (targetChat.type === "ai") {
-          triggerAiReplyForPrompt(targetChat, text).catch(() => {});
-        }
+        await db.ref(`chats/${roomId}/messages`).push(msgObj);
+        showNotice("");
       } catch (err) {
-        showToast("Send Failed", err.message || "Could not send message.");
+        enqueueAction({ type: "sendMsg", roomId, msgObj });
+        showNotice("Send Error (" + (err.code || "err") + "): " + err.message);
       }
     }
 
-    function openForwardModal(textToForward) {
-      forwardPayloadDraft = { kind: "text", text: textToForward };
-      const box = document.getElementById("forwardTargetList");
-      const targets = Object.values(chatsMeta).filter(c => c.type !== "ai" && (!activeChat || c.id !== activeChat.id));
-      if (!targets.length) {
-        box.innerHTML = `<div class="item-sub">No other chats available to forward to.</div>`;
-      } else {
-        box.innerHTML = targets.map(t => `
-          <div class="list-item" style="margin-bottom:6px;" onclick='forwardToTarget(${JSON.stringify(t).replace(/'/g, "&#39;")})'>
-            <div class="item-meta">
-              <div class="item-name">${escapeHtml(t.title)}</div>
-              <div class="item-sub">${t.type === "group" ? "Group Chat" : "Direct Chat"}</div>
-            </div>
-            <span class="btn-sm accent">Send</span>
-          </div>
-        `).join("");
-      }
-      document.getElementById("forwardModal").classList.remove("hidden");
-    }
+    async function syncQueue() {
+      updateQueueCounter();
+      if (!db || !navigator.onLine) return;
 
-    function closeForwardModal() {
-      forwardPayloadDraft = null;
-      document.getElementById("forwardModal").classList.add("hidden");
-    }
+      const q = loadJson(KEYS.queue, []);
+      if (!q.length) return;
 
-    async function forwardToTarget(targetChat) {
-      if (!forwardPayloadDraft || !targetChat) return;
-      const draft = { ...forwardPayloadDraft };
-      closeForwardModal();
-      try {
-        await sendEncryptedToChat(targetChat, draft);
-        showToast("Forwarded", `Sent to ${targetChat.title}.`);
-      } catch (err) {
-        showToast("Forward Failed", err.message || "Could not forward.");
-      }
-    }
-
-    function setReply(sender, preview) {
-      editingMsgId = null;
-      replyToMsg = { sender, preview: String(preview || "").slice(0, 70) };
-      document.getElementById("replyText").textContent = `Replying to ${sender}: ${replyToMsg.preview}`;
-      document.getElementById("replyBar").classList.remove("hidden");
-      document.getElementById("msgInput").focus();
-    }
-
-    function startEditMessage(msgId, currentText) {
-      replyToMsg = null;
-      editingMsgId = msgId;
-      document.getElementById("replyText").textContent = "Editing your message...";
-      document.getElementById("replyBar").classList.remove("hidden");
-      const inp = document.getElementById("msgInput");
-      inp.value = currentText;
-      inp.focus();
-    }
-
-    function cancelEditOrReply() {
-      replyToMsg = null;
-      editingMsgId = null;
-      document.getElementById("replyBar").classList.add("hidden");
-    }
-
-    async function saveEditedMessage(msgId, newText) {
-      if (!activeChat) return;
-      const secret = getEffectiveSecret(activeChat);
-      const updated = { kind: "text", text: newText, edited: true };
-      const enc = await encryptPayload(updated, secret, activeChat.id);
-      await dbPatch(`messages/${activeChat.id}/${msgId}`, enc);
-      cancelEditOrReply();
-      loadMessagesOnce();
-    }
-
-    async function deleteSingleMessage(msgId) {
-      if (!activeChat) return;
-      await dbDelete(`messages/${activeChat.id}/${msgId}`).catch(() => {});
-      renderedMsgSignatures.delete(msgId);
-      const el = document.getElementById(`msg_${msgId}`);
-      if (el) el.remove();
-    }
-
-    async function toggleReaction(msgId, emoji) {
-      if (!activeChat) return;
-      const pill = document.querySelector(`#reacts_${msgId} .react-pill`);
-      let nextCount = 1;
-      if (pill) {
-        const match = (pill.textContent || "").trim().match(new RegExp(`^${emoji}\\s+(\\d+)$`));
-        if (match) nextCount = parseInt(match[1], 10) + 1;
-      }
-      await dbPut(`messages/${activeChat.id}/${msgId}/reactions/${encodeURIComponent(emoji)}`, nextCount).catch(() => {});
-      loadMessagesOnce();
-    }
-
-    function toggleViewOnce() {
-      viewOncePhoto = !viewOncePhoto;
-      const btn = document.getElementById("viewOnceToggleBtn");
-      btn.textContent = `1x: ${viewOncePhoto ? "ON" : "OFF"}`;
-      btn.classList.toggle("accent", viewOncePhoto);
-    }
-
-    async function handleChatPhoto(ev) {
-      isPickingFile = false;
-      const file = ev.target.files[0];
-      ev.target.value = "";
-      if (!file || !activeChat) return;
-
-      if (file.size > MAX_CHAT_PHOTO_BYTES) {
-        showToast("Photo > 10MB", `Selected ${(file.size / (1024 * 1024)).toFixed(1)}MB. Max is 10MB.`);
-        return;
-      }
-
-      const caption = document.getElementById("msgInput").value.trim();
-      const raw = await readFileAsDataUrl(file);
-      const compressed = await compressImageDataUrl(raw, 760, 0.58);
-      if (caption) document.getElementById("msgInput").value = "";
-
-      const isOnce = viewOncePhoto;
-      if (viewOncePhoto) toggleViewOnce();
-
-      try {
-        await sendEncryptedToChat(activeChat, { kind: "photo", dataUrl: compressed, caption, viewOnce: isOnce });
-      } catch (err) {
-        showToast("Photo Failed", err.message || "Could not send photo.");
-      }
-    }
-
-    function openViewOncePhoto(msgId, btnEl) {
-      const row = document.getElementById(`msg_${msgId}`);
-      const dataUrl = row ? row.dataset.viewOnceData : "";
-      if (!dataUrl) return;
-      openPhotoPreview(dataUrl);
-      if (btnEl) {
-        btnEl.textContent = "Opened (1x)";
-        btnEl.disabled = true;
-      }
-      deleteSingleMessage(msgId);
-    }
-
-    function openPhotoPreview(dataUrl) {
-      document.getElementById("statusViewerAuthor").textContent = "Photo Preview";
-      document.getElementById("statusViewerTime").textContent = "";
-      document.getElementById("statusViewerViews").textContent = "";
-      const img = document.getElementById("statusViewerImg");
-      img.src = dataUrl;
-      img.classList.remove("hidden");
-      document.getElementById("statusViewerCaption").textContent = "";
-      document.getElementById("statusQuickReplyBox").classList.add("hidden");
-      document.getElementById("statusModal").classList.remove("hidden");
-    }
-
-    function formatVoiceTimer(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${m}:${String(s).padStart(2, "0")}`;
-    }
-
-    function startVoiceTimer() {
-      stopVoiceTimer();
-      voiceSec = 0;
-      const btn = document.getElementById("voiceBtn");
-      if (btn) btn.textContent = `⏹ ${formatVoiceTimer(voiceSec)}`;
-      voiceTimerInterval = setInterval(() => {
-        voiceSec += 1;
-        if (btn && isRecording) btn.textContent = `⏹ ${formatVoiceTimer(voiceSec)}`;
-      }, 1000);
-    }
-
-    function stopVoiceTimer() {
-      if (voiceTimerInterval) {
-        clearInterval(voiceTimerInterval);
-        voiceTimerInterval = null;
-      }
-    }
-
-    async function toggleVoiceRecord() {
-      if (!activeChat) return;
-      const btn = document.getElementById("voiceBtn");
-
-      if (!isRecording) {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          showToast("Mic Unsupported", "Voice recording is not supported here.");
-          return;
-        }
+      const remaining = [];
+      for (const item of q) {
         try {
-          markFilePicking();
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          voiceChunks = [];
-          mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-          mediaRecorder.ondataavailable = e => {
-            if (e.data && e.data.size > 0) voiceChunks.push(e.data);
-          };
-          mediaRecorder.onstop = async () => {
-            stopVoiceTimer();
-            isPickingFile = false;
-            stream.getTracks().forEach(t => t.stop());
-            const blob = new Blob(voiceChunks, { type: "audio/webm" });
-            if (blob.size > MAX_VOICE_BYTES) {
-              showToast("Voice > 1MB", `Clip is ${(blob.size / (1024 * 1024)).toFixed(2)}MB. Max allowed is 1MB.`);
-              return;
-            }
-            const dataUrl = await readFileAsDataUrl(blob);
-            try {
-              await sendEncryptedToChat(activeChat, { kind: "voice", dataUrl });
-            } catch (err) {
-              showToast("Voice Failed", err.message || "Could not send voice note.");
-            }
-          };
-          mediaRecorder.start();
-          isRecording = true;
-          btn.classList.add("accent");
-          startVoiceTimer();
+          if (item.type === "sendMsg") {
+            await db.ref(`chats/${item.roomId}/messages`).push(item.msgObj);
+          } else if (item.type === "addFriend") {
+            await db.ref(`users/${safeKey(item.from)}/friends/${safeKey(item.target)}`).set(true);
+          } else if (item.type === "setProfile") {
+            await db.ref(`users/${safeKey(item.userId)}/profile`).set(item.profileObj);
+          }
         } catch {
-          stopVoiceTimer();
-          isPickingFile = false;
-          showToast("Mic Permission", "Allow microphone permission to record.");
-        }
-      } else {
-        isRecording = false;
-        stopVoiceTimer();
-        btn.classList.remove("accent");
-        btn.textContent = "🎙️ ≤1MB";
-        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-      }
-    }
-
-    function toggleEmojiDrawer() { document.getElementById("emojiDrawer").classList.toggle("hidden"); }
-
-    function insertEmoji(em) {
-      const inp = document.getElementById("msgInput");
-      inp.value += em;
-      inp.focus();
-      onTypingInput();
-    }
-
-    function onTypingInput() {
-      if (!activeChat || !me) return;
-      dbPut(`typing/${activeChat.id}/${me.id}`, Date.now()).catch(() => {});
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => { clearTypingFlag().catch(() => {}); }, 2500);
-    }
-
-    async function clearTypingFlag() {
-      if (!activeChat || !me) return;
-      await dbDelete(`typing/${activeChat.id}/${me.id}`);
-    }
-
-    async function nukeCurrentChat() {
-      if (!activeChat) return;
-      await dbDelete(`messages/${activeChat.id}`).catch(() => {});
-      document.getElementById("messagesBox").innerHTML = "";
-      renderedMsgSignatures.clear();
-      showToast("Chat Nuked", "Messages cleared for this room.");
-    }
-
-    function startBackgroundListeners() {
-      clearInterval(window._kalahPollTimer);
-      pollAll();
-      window._kalahPollTimer = setInterval(pollAll, 2400);
-    }
-
-    async function pollAll() {
-      if (!me || !me.id) return;
-      try {
-        const userChats = await dbGet(`userChats/${me.id}`);
-        if (userChats) {
-          for (const [cid, meta] of Object.entries(userChats)) {
-            if (!chatsMeta[cid]) {
-              chatsMeta[cid] = { ...meta, secret: meta.secret || me.secret };
-              saveLocal("kalah_chats_v3", chatsMeta);
-            }
-          }
-        }
-      } catch {}
-
-      await refreshFriendsPresence().catch(() => {});
-      await syncStatuses().catch(() => {});
-      renderStatusStrip();
-      if (activeTab === "status") renderStatusFeed();
-      if (activeTab === "friends") renderFriendsList();
-      if (activeTab === "chats" && !activeChat) renderChatList();
-
-      if (activeChat) {
-        updateChatHeaderMeta();
-        await pollSingleChat(activeChat.id, true);
-      }
-
-      for (const chatObj of Object.values(chatsMeta)) {
-        if (chatObj.type === "ai") continue;
-        if (!activeChat || activeChat.id !== chatObj.id) {
-          await pollSingleChat(chatObj.id, false);
+          remaining.push(item);
         }
       }
-
-      await pollIncomingCalls().catch(() => {});
+      saveJson(KEYS.queue, remaining);
+      updateQueueCounter();
     }
 
-    async function pollSingleChat(chatId, isCurrentRoom) {
-      const chatObj = chatsMeta[chatId] || (isCurrentRoom ? activeChat : null);
-      if (!chatObj) return;
-      const secret = getEffectiveSecret(chatObj);
-
-      try {
-        const rawMsgs = await dbGet(`messages/${chatId}`);
-        if (!rawMsgs) return;
-
-        const now = Date.now();
-        const entries = Object.entries(rawMsgs).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
-        let addedUnreadCount = 0;
-
-        for (const [msgId, pkt] of entries) {
-          if (pkt.expiresAt && now > pkt.expiresAt) {
-            dbDelete(`messages/${chatId}/${msgId}`).catch(() => {});
-            continue;
-          }
-
-          const isNew = !seenMsgIds.has(msgId);
-          seenMsgIds.add(msgId);
-          const dec = await decryptPayload(pkt, secret, chatId);
-          if (!dec) continue;
-
-          if (isCurrentRoom) {
-            renderOrUpdateMessage(msgId, pkt, dec, false);
-            if (isNew && initialLoadDoneForChat && pkt.senderId !== me.id) playAlertTone();
-          } else if (isNew && pkt.senderId && pkt.senderId !== me.id) {
-            addedUnreadCount += 1;
-            const preview = dec.kind === "text"
-              ? dec.text
-              : dec.kind === "photo"
-                ? (dec.caption ? `📷 ${dec.caption}` : "📷 Photo")
-                : dec.kind === "voice"
-                  ? "🎙️ Voice message"
-                  : dec.kind === "missed_call"
-                    ? "📞 Missed Voice Call"
-                    : dec.kind === "call_log"
-                      ? `📞 ${dec.text || "Voice Call"}`
-                      : "New message";
-            showToast(`${pkt.senderName || chatObj.title} (${chatObj.title})`, preview, chatId);
-          }
-        }
-
-        if (addedUnreadCount > 0 && !isCurrentRoom) {
-          unreadCounts[chatId] = (unreadCounts[chatId] || 0) + addedUnreadCount;
-          saveLocal("kalah_unread_v3", unreadCounts);
-          if (activeTab === "chats" && !activeChat) renderChatList();
-        }
-
-        if (isCurrentRoom) {
-          markMessagesSeen(chatId, entries);
-          const typ = await dbGet(`typing/${chatId}`);
-          const typingBar = document.getElementById("typingBar");
-          if (typ && typingBar) {
-            const activeTypers = Object.entries(typ)
-              .filter(([uid, ts]) => uid !== me.id && (now - ts < 3500))
-              .map(([uid]) => friends[uid]?.name || uid);
-            typingBar.textContent = activeTypers.length ? `${activeTypers.join(", ")} typing...` : "";
-          }
-        }
-      } catch {}
-    }
-    function getPeerIdForCurrentChat() {
-      if (!activeChat || activeChat.type !== "dm") return null;
-      if (activeChat.peerId) return activeChat.peerId;
-      const parts = String(activeChat.id || "").replace(/^dm_/, "").split("__").filter(Boolean);
-      if (parts.length === 2) return parts[0] === me.id ? parts[1] : parts[0];
-      return null;
-    }
-
-    function formatCallDuration(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    }
-
-    function startCallTimer() {
-      stopCallTimer();
-      callSeconds = 0;
-      document.getElementById("callTimerText").textContent = "00:00";
-      callTimerInterval = setInterval(() => {
-        callSeconds += 1;
-        document.getElementById("callTimerText").textContent = formatCallDuration(callSeconds);
-      }, 1000);
-    }
-
-    function stopCallTimer() {
-      if (callTimerInterval) {
-        clearInterval(callTimerInterval);
-        callTimerInterval = null;
+    function clearMessageCache() {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith(KEYS.msgPrefix))
+        .forEach((k) => localStorage.removeItem(k));
+      if (activeFriend) {
+        renderMessages([]);
       }
+      showNotice("Chat cache clear කළා.");
     }
 
-    function createPeerConnection(peerId) {
-      const conn = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-      if (localStream) localStream.getTracks().forEach(track => conn.addTrack(track, localStream));
-      conn.ontrack = event => {
-        const audioEl = document.getElementById("remoteAudio");
-        if (audioEl && event.streams && event.streams[0]) {
-          audioEl.srcObject = event.streams[0];
-          audioEl.play().catch(() => {});
-        }
-      };
-      conn.onicecandidate = event => {
-        if (event.candidate) {
-          dbPost(`calls/${peerId}/candidates`, {
-            fromId: me.id,
-            candidate: event.candidate.toJSON(),
-            ts: Date.now()
-          }).catch(() => {});
-        }
-      };
-      conn.onconnectionstatechange = () => {
-        if (conn.connectionState === "connected") {
-          callConnected = true;
-          stopRingtoneLoop();
-          startCallTimer();
-          document.getElementById("callStatusText").textContent = "Connected (Voice)";
-        } else if (conn.connectionState === "disconnected" || conn.connectionState === "failed") {
-          endVoiceCall(false, false);
-        }
-      };
-      return conn;
+    function resetMyId() {
+      getMyId(true);
+      hydrateProfileUi();
+      showNotice("අලුත් ID එකක් හැදුණා: " + getMyId());
     }
 
-    async function startVoiceCall() {
-      if (!activeChat || activeChat.type !== "dm") {
-        showToast("Direct Chat Only", "Open a direct friend chat to call.");
-        return;
-      }
-      const peerId = getPeerIdForCurrentChat();
-      if (!peerId) {
-        showToast("Call Error", "Friend ID missing for this chat.");
-        return;
-      }
+    window.addEventListener("online", () => {
+      updateNetBadge();
+      syncQueue();
+    });
+    window.addEventListener("offline", updateNetBadge);
 
-      try {
-        markFilePicking();
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        isPickingFile = false;
-      } catch {
-        isPickingFile = false;
-        showToast("Mic Blocked", "Microphone access needed for voice call.");
-        return;
-      }
-
-      activeCallPeerId = peerId;
-      activeCallPeerName = activeChat.title || friends[peerId]?.name || peerId;
-      callConnected = false;
-      isCallMuted = false;
-      isSpeakerOn = false;
-      document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
-      document.getElementById("speakerCallBtn").textContent = "🔊 Speaker: OFF";
-      document.getElementById("callTimerText").textContent = "00:00";
-
-      document.getElementById("callModal").classList.remove("hidden");
-      document.getElementById("acceptCallBtn").classList.add("hidden");
-      document.getElementById("callPeerLabel").textContent = `Calling ${activeCallPeerName}...`;
-      document.getElementById("callStatusText").textContent = "Ringing...";
-      startRingtoneLoop();
-
-      pc = createPeerConnection(peerId);
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      await dbPut(`calls/${peerId}/offer`, {
-        fromId: me.id,
-        fromName: me.name,
-        sdp: offer.sdp,
-        ts: Date.now()
-      });
-
-      clearInterval(window._callOutTimer);
-      window._callOutTimer = setInterval(async () => {
-        if (!activeCallPeerId || !pc) return;
-        try {
-          const ans = await dbGet(`calls/${me.id}/answer`);
-          if (ans && ans.sdp && !pc.currentRemoteDescription) {
-            await pc.setRemoteDescription(new RTCSessionDescription({ type: "answer", sdp: ans.sdp }));
-            callConnected = true;
-            stopRingtoneLoop();
-            startCallTimer();
-            document.getElementById("callStatusText").textContent = "Connected (Voice)";
-            dbDelete(`calls/${me.id}/answer`).catch(() => {});
-          }
-          const cands = await dbGet(`calls/${me.id}/candidates`);
-          if (cands) {
-            for (const [cid, item] of Object.entries(cands)) {
-              if (item && item.candidate) {
-                await pc.addIceCandidate(new RTCIceCandidate(item.candidate)).catch(() => {});
-                dbDelete(`calls/${me.id}/candidates/${cid}`).catch(() => {});
-              }
-            }
-          }
-          const hangup = await dbGet(`calls/${me.id}/hangup`);
-          if (hangup) {
-            dbDelete(`calls/${me.id}/hangup`).catch(() => {});
-            endVoiceCall(false, false);
-          }
-        } catch {}
-      }, 1500);
-    }
-
-    async function pollIncomingCalls() {
-      if (!me || !me.id || activeCallPeerId) return;
-      const offer = await dbGet(`calls/${me.id}/offer`);
-      if (!offer || !offer.sdp || !offer.fromId) return;
-      if (offer.ts && Date.now() - offer.ts > 45000) {
-        dbDelete(`calls/${me.id}/offer`).catch(() => {});
-        return;
-      }
-
-      pendingOfferSignal = offer;
-      activeCallPeerId = offer.fromId;
-      activeCallPeerName = offer.fromName || offer.fromId;
-      callConnected = false;
-      isCallMuted = false;
-      isSpeakerOn = false;
-      document.getElementById("muteCallBtn").textContent = "🎙️ Mute: OFF";
-      document.getElementById("speakerCallBtn").textContent = "🔊 Speaker: OFF";
-      document.getElementById("callTimerText").textContent = "00:00";
-
-      document.getElementById("callModal").classList.remove("hidden");
-      document.getElementById("callPeerLabel").textContent = `${activeCallPeerName} is calling...`;
-      document.getElementById("callStatusText").textContent = "Incoming Voice Call";
-      document.getElementById("acceptCallBtn").classList.remove("hidden");
-      showToast("Incoming Voice Call", `${activeCallPeerName} is calling you.`);
-      startRingtoneLoop();
-    }
-
-    async function acceptIncomingCall() {
-      if (!pendingOfferSignal || !activeCallPeerId) return;
-      stopRingtoneLoop();
-      document.getElementById("acceptCallBtn").classList.add("hidden");
-      document.getElementById("callStatusText").textContent = "Connecting audio...";
-
-      try {
-        markFilePicking();
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        isPickingFile = false;
-      } catch {
-        isPickingFile = false;
-        showToast("Mic Blocked", "Allow mic to answer call.");
-        endVoiceCall(true, false);
-        return;
-      }
-
-      pc = createPeerConnection(activeCallPeerId);
-      await pc.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: pendingOfferSignal.sdp }));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-
-      await dbPut(`calls/${activeCallPeerId}/answer`, {
-        fromId: me.id,
-        sdp: answer.sdp,
-        ts: Date.now()
-      });
-      await dbDelete(`calls/${me.id}/offer`).catch(() => {});
-      pendingOfferSignal = null;
-
-      clearInterval(window._callOutTimer);
-      window._callOutTimer = setInterval(async () => {
-        if (!activeCallPeerId || !pc) return;
-        try {
-          const cands = await dbGet(`calls/${me.id}/candidates`);
-          if (cands) {
-            for (const [cid, item] of Object.entries(cands)) {
-              if (item && item.candidate) {
-                await pc.addIceCandidate(new RTCIceCandidate(item.candidate)).catch(() => {});
-                dbDelete(`calls/${me.id}/candidates/${cid}`).catch(() => {});
-              }
-            }
-          }
-          const hangup = await dbGet(`calls/${me.id}/hangup`);
-          if (hangup) {
-            dbDelete(`calls/${me.id}/hangup`).catch(() => {});
-            endVoiceCall(false, false);
-          }
-        } catch {}
-      }, 1500);
-    }
-
-    function toggleMuteCall() {
-      isCallMuted = !isCallMuted;
-      if (localStream) localStream.getAudioTracks().forEach(t => { t.enabled = !isCallMuted; });
-      document.getElementById("muteCallBtn").textContent = `🎙️ Mute: ${isCallMuted ? "ON" : "OFF"}`;
-    }
-
-    function toggleSpeakerCall() {
-      isSpeakerOn = !isSpeakerOn;
-      const audioEl = document.getElementById("remoteAudio");
-      if (audioEl && typeof audioEl.setSinkId === "function") audioEl.setSinkId("").catch(() => {});
-      document.getElementById("speakerCallBtn").textContent = `🔊 Speaker: ${isSpeakerOn ? "ON" : "OFF"}`;
-      showToast("Audio Output", isSpeakerOn ? "Speaker mode selected." : "Earpiece / default output selected.");
-    }
-
-    function endVoiceCall(notifyPeer = true, markMissed = false) {
-      stopRingtoneLoop();
-      stopCallTimer();
-      clearInterval(window._callOutTimer);
-
-      const targetPeer = activeCallPeerId;
-      const wasConnected = callConnected;
-      const finalSec = callSeconds;
-
-      if (notifyPeer && targetPeer) {
-        dbPut(`calls/${targetPeer}/hangup`, { fromId: me ? me.id : "", ts: Date.now() }).catch(() => {});
-        dbDelete(`calls/${targetPeer}/offer`).catch(() => {});
-      }
-      if (me && me.id) {
-        dbDelete(`calls/${me.id}/offer`).catch(() => {});
-        dbDelete(`calls/${me.id}/answer`).catch(() => {});
-        dbDelete(`calls/${me.id}/candidates`).catch(() => {});
-      }
-
-      if (pc) { try { pc.close(); } catch {} pc = null; }
-      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-
-      pendingOfferSignal = null;
-      activeCallPeerId = null;
-      activeCallPeerName = "";
-      callConnected = false;
-      callSeconds = 0;
-      document.getElementById("callTimerText").textContent = "00:00";
-      document.getElementById("callModal").classList.add("hidden");
-
-      if (targetPeer && me && me.id) {
-        const dmId = makeDmChatId(me.id, targetPeer);
-        const dmObj = chatsMeta[dmId] || { id: dmId, type: "dm", peerId: targetPeer, title: targetPeer, secret: makeDmSecret(me.id, targetPeer) };
-        if (markMissed && !wasConnected) {
-          sendEncryptedToChat(dmObj, { kind: "missed_call", text: "Missed Voice Call" }).catch(() => {});
-        } else if (wasConnected && finalSec > 0) {
-          sendEncryptedToChat(dmObj, { kind: "call_log", text: `Voice Call • ${formatCallDuration(finalSec)}` }).catch(() => {});
-        }
-      }
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function escapeAttr(str) { return escapeHtml(str).replace(/'/g, "&#39;"); }
-
-    function escapeJs(str) {
-      return String(str || "")
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/\n/g, "\\n")
-        .replace(/\r/g, "");
-    }
-
-    function copyText(txt) {
-      navigator.clipboard?.writeText(txt).catch(() => {});
-      showToast("Copied", "Text copied.");
-    }
-
-    (function boot() {
-      updateCalcScreen("0");
-      setAuthMethod("email");
-      document.getElementById("calcView").classList.remove("hidden");
-      document.getElementById("appView").classList.add("hidden");
-    })();
+    updateNetBadge();
+    initFirebase();
   </script>
 </body>
 </html>
